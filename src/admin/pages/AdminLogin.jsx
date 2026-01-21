@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Lock, Mail, Shield } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
 
 const AdminLogin = () => {
   const [email, setEmail] = useState("");
@@ -9,20 +10,25 @@ const AdminLogin = () => {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
     setLoading(true);
 
-    // Simulate API call
-    setTimeout(() => {
-      if (email === "admin@example.com" && password === "admin123") {
-        navigate("/admin/events"); // Redirect to admin panel
-      } else {
-        setError("Invalid credentials. Please try again.");
+    try {
+      const res = await axios.post("http://localhost:5000/api/admin/login", { email, password });
+      console.log(res, "res");
+      
+      if (res.data.token) {
+        localStorage.setItem("adminToken", res.data.token);
+        navigate("/admin/dashboard");
       }
+    } catch (err) {
+      console.error(err);
+      setError(err.response?.data?.message || "Login failed. Please try again.");
+    } finally {
       setLoading(false);
-    }, 1000);
+    }
   };
 
   return (

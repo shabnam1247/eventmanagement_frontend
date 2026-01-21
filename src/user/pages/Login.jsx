@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
 import { User, Lock, Calendar, Eye, EyeOff } from 'lucide-react';
 import Header from '../components/Header';
+import { useNavigate } from 'react-router-dom';
 
 const Login = () => {
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     registerNumber: '',
     password: ''
@@ -192,7 +194,7 @@ const Login = () => {
                   Don't have an account?{' '}
                   <button
                     type="button"
-                    onClick={() => alert('Redirect to registration')}
+                    onClick={() => navigate('/userregister')}
                     className="text-blue-600 font-medium hover:text-blue-800"
                   >
                     Sign up here

@@ -43,10 +43,10 @@ function App() {
       <Routes>
         <Route path="/" element={<Home />}></Route>
         <Route path="/login" element={<Login />}></Route>
-        <Route path="/event" element={<EventPage />}></Route>
-        <Route path="/register" element={<EventRegistration />}></Route>
-        <Route path="/eventdetails" element={<EventDetails />}></Route>
+        <Route path="/otp" element={<OTPVerification />}></Route>
         <Route path="/userregister" element={<RegisterPage />}></Route>
+        <Route path="/event" element={<EventPage />}></Route>
+        <Route path="/eventdetails" element={<EventDetails />}></Route>
         <Route path="/contact" element={<ContactPage />}></Route>
         <Route path="/chatroom" element={<ChatroomApp />}></Route>
         <Route path="/studentcalendar" element={<StudentCalendar />}></Route>
@@ -54,8 +54,8 @@ function App() {
         <Route path="/feedback" element={<FeedbackForm />}></Route>
         <Route path="/about" element={<AboutPage />}></Route>
         <Route path="/profile" element={<StudentProfilePage />}></Route>
-        <Route path="/otp" element={<OTPVerification />}></Route>
 
+        <Route path="/eventregister" element={<EventRegistration />}></Route>
         <Route path="/admin/events" element={<AdminEventPanel />}></Route>
         <Route path="/admin/students" element={<AdminStudentPanel />} />
         <Route path="/admin/faculty" element={<FacultyPanel />} />
@@ -65,7 +65,7 @@ function App() {
         <Route path="/admin/registrationlist" element={<RegistrationList />} />
         <Route path="/admin/login" element={<AdminLogin />} />
         <Route path="/admin/chatroom" element={<AdminChatroomApp />} />
-        <Route path="/admin/analytics" element={<EventDashboard />} />
+        <Route path="/admin/dashboard" element={<EventDashboard />} />
 
         <Route path="/faculty/events" element={<FacultyEventPanel />} />
         <Route path="/faculty/login" element={<FacultyLogin />} />

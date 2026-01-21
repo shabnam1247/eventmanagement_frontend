@@ -109,6 +109,19 @@ const FacultyLogin = () => {
             </button>
           </form>
 
+            <div className="mt-6 text-center">
+                <p className="text-sm text-gray-600">
+                  Don't have an account?{' '}
+                  <button
+                    type="button"
+                    onClick={() => navigate('/faculty/register')}
+                    className="text-blue-600 font-medium hover:text-green-800"
+                  >
+                    Sign up here
+                  </button>
+                </p>
+              </div>
+
           {/* Notice */}
           <div className="mt-6 pt-6 border-t border-gray-100">
             <div className="flex items-center gap-2 text-sm text-gray-600">

@@ -1,14 +1,15 @@
 import React from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Calendar, Users, UserCheck, GraduationCap, LogOut } from 'lucide-react';
 import { GrAnalytics } from 'react-icons/gr';
 
 function AdminHeader() {
   const location = useLocation();
+  const navigate = useNavigate();
   
   const navItems = [
      {
-      path: '/admin/analytics',
+      path: '/admin/dashboard',
       label: 'Overview',
       icon: <GrAnalytics className="w-4 h-4" />
     },
@@ -35,6 +36,11 @@ function AdminHeader() {
   ];
 
   const isActive = (path) => location.pathname === path;
+
+  const handleLogout = () => {
+    localStorage.removeItem("adminToken");
+    navigate("/admin/login");
+  };
 
   return (
     <header className="bg-white border-b border-gray-200 sticky top-0 z-50">
@@ -67,14 +73,23 @@ function AdminHeader() {
                 {item.label}
               </Link>
             ))}
+            
+            {/* Logout Button */}
+            <button
+              onClick={handleLogout}
+              className="flex items-center gap-2 px-4 py-2 rounded-lg font-medium text-red-600 hover:bg-red-50 transition-colors ml-2"
+            >
+              <LogOut className="w-4 h-4" />
+              Logout
+            </button>
           </nav>
 
-          {/* Mobile Menu Button */}
-          <div className="md:hidden">
+          {/* Mobile Menu */}
+          <div className="md:hidden flex items-center gap-2">
             <select
               value={location.pathname}
               onChange={(e) => window.location.href = e.target.value}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
               {navItems.map((item) => (
                 <option key={item.path} value={item.path}>
@@ -82,6 +97,13 @@ function AdminHeader() {
                 </option>
               ))}
             </select>
+            <button
+              onClick={handleLogout}
+              className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+              title="Logout"
+            >
+              <LogOut className="w-5 h-5" />
+            </button>
           </div>
         </div>
       </div>
