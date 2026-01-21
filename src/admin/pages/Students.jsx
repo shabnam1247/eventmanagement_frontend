@@ -1,208 +1,226 @@
-import React, { useState } from "react";
-import { Search, Plus, User, GraduationCap, BookOpen, Eye, Edit, Trash2 } from "lucide-react";
+import React, { useState, useEffect } from "react";
+import { Search, User, GraduationCap, BookOpen, CheckCircle, XCircle, Loader2 } from "lucide-react";
 import AdminHeader from "../components/AdminHeader";
-import { useNavigate } from "react-router-dom";
+import axios from "axios";
+import toast, { Toaster } from "react-hot-toast";
 
 const AdminStudentPanel = () => {
   const [searchTerm, setSearchTerm] = useState("");
-  const [departmentFilter, setDepartmentFilter] = useState("all");
-  const navigate = useNavigate();
+  const [statusFilter, setStatusFilter] = useState("all");
+  const [students, setStudents] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [approvingId, setApprovingId] = useState(null);
 
-  const handleAddClick = () => {
-    navigate("/admin/addstudent");
+  const fetchStudents = async () => {
+    try {
+      setLoading(true);
+      const res = await axios.get("http://localhost:5000/api/admin/allstudents");
+      if (res.data.success) {
+        setStudents(res.data.students);
+      }
+    } catch (error) {
+      console.error("Error fetching students:", error);
+      toast.error(error.response?.data?.message || "Failed to fetch student list");
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const students = [
-    {
-      id: 1,
-      name: "Safna K",
-      regno: "CS2025001",
-      department: "Computer Science",
-      year: "3rd Year",
-      email: "safna@gmail.com",
-      status: "Active",
-    },
-    {
-      id: 2,
-      name: "Rahul R",
-      regno: "EC2025012",
-      department: "Electronics",
-      year: "2nd Year",
-      email: "rahulr@gmail.com",
-      status: "Active",
-    },
-    {
-      id: 3,
-      name: "Anjali M",
-      regno: "ME2025023",
-      department: "Mechanical",
-      year: "4th Year",
-      email: "anjalim@gmail.com",
-      status: "Inactive",
-    },
-    {
-      id: 4,
-      name: "Vijay K",
-      regno: "CS2025040",
-      department: "Computer Science",
-      year: "1st Year",
-      email: "vijayk@gmail.com",
-      status: "Active",
-    },
-  ];
+  useEffect(() => {
+    fetchStudents();
+  }, []);
+
+  const handleApprove = async (id) => {
+    try {
+      setApprovingId(id);
+      const res = await axios.put(`http://localhost:5000/api/admin/approveuser/${id}`);
+      if (res.data.succes) {
+        toast.success("Student approved successfully");
+        setStudents(prev => 
+          prev.map(s => s._id === id ? { ...s, isapproved: true } : s)
+        );
+      }
+    } catch (error) {
+      console.error("Error approving student:", error);
+      toast.error(error.response?.data?.message || "Failed to approve student");
+    } finally {
+      setApprovingId(null);
+    }
+  };
 
   const filteredStudents = students.filter((student) => {
     const matchesSearch =
-      student.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      student.regno.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesDept =
-      departmentFilter === "all" || student.department === departmentFilter;
-    return matchesSearch && matchesDept;
+      (student.name || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (student.email || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (student.regno || "").toLowerCase().includes(searchTerm.toLowerCase());
+    
+    const status = student.isapproved ? "approved" : "pending";
+    const matchesStatus = statusFilter === "all" || status === statusFilter;
+    
+    return matchesSearch && matchesStatus;
   });
+
+  const stats = {
+    total: students.length,
+    approved: students.filter(s => s.isapproved).length,
+    pending: students.filter(s => !s.isapproved).length
+  };
 
   return (
     <div className="min-h-screen bg-gray-50">
+      <Toaster position="top-right" />
       <AdminHeader />
       
       <div className="max-w-7xl mx-auto px-4 py-8">
         {/* Header */}
         <div className="mb-8">
           <h1 className="text-2xl font-bold text-gray-900 mb-2">Student Management</h1>
-          <p className="text-gray-600">Manage and monitor student information</p>
+          <p className="text-gray-600">Review and manage student registrations</p>
         </div>
 
         {/* Stats Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
-          <div className="bg-white rounded-xl border border-gray-200 p-4">
+          <div className="bg-white rounded-xl border border-gray-200 p-4 shadow-sm">
             <div className="flex justify-between items-center mb-2">
-              <h3 className="text-sm font-medium text-gray-600">Total Students</h3>
+              <h3 className="text-sm font-medium text-gray-600">Total Registered</h3>
               <User className="w-5 h-5 text-blue-600" />
             </div>
-            <p className="text-2xl font-bold text-gray-900">{students.length}</p>
+            <p className="text-2xl font-bold text-gray-900">{stats.total}</p>
           </div>
           
-          <div className="bg-white rounded-xl border border-gray-200 p-4">
+          <div className="bg-white rounded-xl border border-gray-200 p-4 shadow-sm">
             <div className="flex justify-between items-center mb-2">
-              <h3 className="text-sm font-medium text-gray-600">Active</h3>
+              <h3 className="text-sm font-medium text-gray-600">Approved</h3>
               <GraduationCap className="w-5 h-5 text-green-600" />
             </div>
-            <p className="text-2xl font-bold text-gray-900">
-              {students.filter(s => s.status === "Active").length}
-            </p>
+            <p className="text-2xl font-bold text-gray-900">{stats.approved}</p>
           </div>
           
-          <div className="bg-white rounded-xl border border-gray-200 p-4">
+          <div className="bg-white rounded-xl border border-gray-200 p-4 shadow-sm">
             <div className="flex justify-between items-center mb-2">
-              <h3 className="text-sm font-medium text-gray-600">Inactive</h3>
-              <BookOpen className="w-5 h-5 text-gray-600" />
+              <h3 className="text-sm font-medium text-gray-600">Pending Approval</h3>
+              <BookOpen className="w-5 h-5 text-amber-600" />
             </div>
-            <p className="text-2xl font-bold text-gray-900">
-              {students.filter(s => s.status === "Inactive").length}
-            </p>
+            <p className="text-2xl font-bold text-gray-900">{stats.pending}</p>
           </div>
         </div>
 
         {/* Main Card */}
-        <div className="bg-white rounded-xl border border-gray-200">
+        <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
           {/* Toolbar */}
-          <div className="p-4 border-b border-gray-200">
+          <div className="p-4 border-b border-gray-200 bg-gray-50/50">
             <div className="flex flex-col md:flex-row gap-4 justify-between">
-              <div className="flex flex-col sm:flex-row gap-4">
+              <div className="flex flex-col sm:flex-row gap-3">
                 <div className="relative">
                   <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
                   <input
                     type="text"
-                    placeholder="Search students..."
+                    placeholder="Search name, email, or regno..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
-                    className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg w-full sm:w-64"
+                    className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg w-full sm:w-64 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                   />
                 </div>
                 <select
-                  value={departmentFilter}
-                  onChange={(e) => setDepartmentFilter(e.target.value)}
-                  className="px-4 py-2 border border-gray-300 rounded-lg"
+                  value={statusFilter}
+                  onChange={(e) => setStatusFilter(e.target.value)}
+                  className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 >
-                  <option value="all">All Departments</option>
-                  <option value="Computer Science">Computer Science</option>
-                  <option value="Electronics">Electronics</option>
-                  <option value="Mechanical">Mechanical</option>
+                  <option value="all">All Status</option>
+                  <option value="pending">Pending</option>
+                  <option value="approved">Approved</option>
                 </select>
               </div>
-              
-              <button
-                onClick={handleAddClick}
-                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center gap-2"
-              >
-                <Plus className="w-4 h-4" />
-                Add Student
-              </button>
             </div>
           </div>
 
           {/* Table */}
           <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead className="bg-gray-50">
-                <tr>
-                  <th className="py-3 px-4 text-left text-sm font-medium text-gray-600">Reg. No</th>
-                  <th className="py-3 px-4 text-left text-sm font-medium text-gray-600">Name</th>
-                  <th className="py-3 px-4 text-left text-sm font-medium text-gray-600">Department</th>
-                  <th className="py-3 px-4 text-left text-sm font-medium text-gray-600">Year</th>
-                  <th className="py-3 px-4 text-left text-sm font-medium text-gray-600">Email</th>
-                  <th className="py-3 px-4 text-left text-sm font-medium text-gray-600">Status</th>
-                  <th className="py-3 px-4 text-left text-sm font-medium text-gray-600">Actions</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-200">
-                {filteredStudents.map((student) => (
-                  <tr key={student.id} className="hover:bg-gray-50">
-                    <td className="py-3 px-4 font-medium text-gray-900">{student.regno}</td>
-                    <td className="py-3 px-4 text-gray-900">{student.name}</td>
-                    <td className="py-3 px-4 text-gray-600">{student.department}</td>
-                    <td className="py-3 px-4 text-gray-600">{student.year}</td>
-                    <td className="py-3 px-4 text-gray-600">{student.email}</td>
-                    <td className="py-3 px-4">
-                      <span className={`px-3 py-1 rounded-full text-xs font-medium ${
-                        student.status === "Active" 
-                          ? "bg-green-100 text-green-800" 
-                          : "bg-red-100 text-red-800"
-                      }`}>
-                        {student.status}
-                      </span>
-                    </td>
-                    <td className="py-3 px-4">
-                      <div className="flex gap-2">
-                        <button className="p-1 text-gray-400 hover:text-blue-600">
-                          <Eye className="w-4 h-4" />
-                        </button>
-                        <button className="p-1 text-gray-400 hover:text-green-600">
-                          <Edit className="w-4 h-4" />
-                        </button>
-                        <button className="p-1 text-gray-400 hover:text-red-600">
-                          <Trash2 className="w-4 h-4" />
-                        </button>
-                      </div>
-                    </td>
+            {loading ? (
+              <div className="p-12 text-center text-gray-500">
+                <Loader2 className="w-8 h-8 animate-spin text-blue-600 mx-auto mb-4" />
+                <p>Fetching student data...</p>
+              </div>
+            ) : (
+              <table className="w-full">
+                <thead className="bg-gray-50">
+                  <tr>
+                    <th className="py-3 px-6 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Student Info</th>
+                    <th className="py-3 px-6 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Reg. No</th>
+                    <th className="py-3 px-6 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Department</th>
+                    <th className="py-3 px-6 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Status</th>
+                    <th className="py-3 px-6 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider">Actions</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody className="divide-y divide-gray-200">
+                  {filteredStudents.length === 0 ? (
+                    <tr>
+                      <td colSpan="5" className="py-12 text-center text-gray-500">
+                        No students found matching your criteria.
+                      </td>
+                    </tr>
+                  ) : (
+                    filteredStudents.map((student) => (
+                      <tr key={student._id} className="hover:bg-gray-50/80 transition-colors">
+                        <td className="py-4 px-6">
+                          <div className="flex items-center">
+                            <div className="h-9 w-9 rounded-full bg-blue-100 flex items-center justify-center text-blue-700 font-bold text-sm">
+                              {student.name.charAt(0)}
+                            </div>
+                            <div className="ml-3">
+                              <div className="text-sm font-medium text-gray-900">{student.name}</div>
+                              <div className="text-xs text-gray-500">{student.email}</div>
+                            </div>
+                          </div>
+                        </td>
+                        <td className="py-4 px-6 text-sm text-gray-600">
+                          {student.regno || "N/A"}
+                        </td>
+                        <td className="py-4 px-6 text-sm text-gray-600">
+                          {student.department || "N/A"}
+                        </td>
+                        <td className="py-4 px-6">
+                          <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                            student.isapproved 
+                              ? "bg-green-100 text-green-800 border border-green-200" 
+                              : "bg-amber-100 text-amber-800 border border-amber-200"
+                          }`}>
+                            {student.isapproved ? "Approved" : "Pending"}
+                          </span>
+                        </td>
+                        <td className="py-4 px-6 text-right">
+                          {!student.isapproved && (
+                            <button 
+                              onClick={() => handleApprove(student._id)}
+                              disabled={approvingId === student._id}
+                              className="px-4 py-1.5 bg-blue-600 text-white text-xs font-medium rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 flex items-center gap-1.5 ml-auto"
+                            >
+                              {approvingId === student._id ? (
+                                <Loader2 className="w-3 h-3 animate-spin" />
+                              ) : (
+                                <CheckCircle className="w-3 h-3" />
+                              )}
+                              Approve
+                            </button>
+                          )}
+                          {student.isapproved && (
+                            <span className="text-green-600 text-xs font-medium inline-flex items-center">
+                               <CheckCircle className="w-3 h-3 mr-1" /> Approved
+                            </span>
+                          )}
+                        </td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
+            )}
           </div>
 
-          {/* Footer */}
-          <div className="p-4 border-t border-gray-200 flex justify-between items-center">
-            <p className="text-sm text-gray-600">
-              Showing {filteredStudents.length} of {students.length} students
+          <div className="p-4 bg-gray-50 border-t border-gray-200">
+            <p className="text-sm text-gray-500">
+              Showing {filteredStudents.length} registered students
             </p>
-            <div className="flex gap-2">
-              <button className="px-3 py-1 border border-gray-300 rounded text-sm hover:bg-gray-50">
-                Previous
-              </button>
-              <button className="px-3 py-1 bg-blue-600 text-white rounded text-sm hover:bg-blue-700">
-                Next
-              </button>
-            </div>
           </div>
         </div>
       </div>

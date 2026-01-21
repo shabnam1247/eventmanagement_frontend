@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Calendar, Users, UserCheck, GraduationCap } from 'lucide-react';
+import { Calendar, Users, UserCheck, GraduationCap, LogOut } from 'lucide-react';
 import { GrAnalytics } from 'react-icons/gr';
 
 function FacultyHeader() {
@@ -64,12 +64,41 @@ function FacultyHeader() {
             ))}
           </nav>
 
+          {/* Faculty Profile & Logout */}
+          <div className="hidden md:flex items-center gap-4">
+            {localStorage.getItem("facultyData") && (
+              <div className="flex items-center gap-3">
+                <Link
+                  to="/faculty/events"
+                  className="flex items-center gap-2 px-3 py-1.5 rounded-lg hover:bg-gray-50 transition-colors"
+                  title="userprofile"
+                >
+                  <div className="w-8 h-8 bg-green-100 text-green-600 rounded-full flex items-center justify-center font-bold border border-green-200">
+                    {JSON.parse(localStorage.getItem("facultyData")).name.charAt(0).toUpperCase()}
+                  </div>
+                  <span className="text-sm font-medium text-gray-700">
+                    {JSON.parse(localStorage.getItem("facultyData")).name}
+                  </span>
+                </Link>
+                <button
+                  onClick={() => {
+                    localStorage.removeItem("facultyData");
+                    window.location.href = "/faculty/login";
+                  }}
+                  className="text-sm font-medium text-red-600 hover:text-red-700 px-3 py-1.5 rounded-lg hover:bg-red-50 transition-colors"
+                >
+                  Logout
+                </button>
+              </div>
+            )}
+          </div>
+
           {/* Mobile Dropdown */}
-          <div className="md:hidden">
+          <div className="md:hidden flex items-center gap-2">
             <select
               value={location.pathname}
               onChange={(e) => window.location.href = e.target.value}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+              className="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 text-sm"
             >
               {navItems.map((item) => (
                 <option key={item.path} value={item.path}>
@@ -77,6 +106,18 @@ function FacultyHeader() {
                 </option>
               ))}
             </select>
+            {localStorage.getItem("facultyData") && (
+               <button
+               onClick={() => {
+                 localStorage.removeItem("facultyData");
+                 window.location.href = "/faculty/login";
+               }}
+               className="p-2 text-red-600 hover:bg-red-50 rounded-lg"
+               title="Logout"
+             >
+               <LogOut className="w-5 h-5" />
+             </button>
+            )}
           </div>
         </div>
       </div>

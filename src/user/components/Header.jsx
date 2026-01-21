@@ -71,18 +71,45 @@ export default function Header() {
 
           {/* Auth Buttons - Desktop */}
           <div className="hidden md:flex items-center space-x-4">
-            <Link
-              to="/profile"
-              className="px-5 py-2.5 text-gray-700 hover:text-indigo-600 font-medium transition-colors"
-            >
-              Profile
-            </Link>
-            <Link
-              to="/login"
-              className="px-6 py-2.5 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-full font-medium hover:shadow-lg hover:shadow-indigo-200 transform hover:-translate-y-0.5 transition-all duration-200"
-            >
-              Login
-            </Link>
+            {localStorage.getItem("userData") ? (
+              <>
+                <Link
+                  to="/profile"
+                  className="px-5 py-2.5 text-gray-700 hover:text-indigo-600 font-medium transition-colors flex items-center gap-2"
+                  title="userprofile"
+                >
+                  <div className="w-8 h-8 bg-indigo-100 text-indigo-600 rounded-full flex items-center justify-center font-bold">
+                    {JSON.parse(localStorage.getItem("userData")).name.charAt(0).toUpperCase()}
+                  </div>
+                  <span>{JSON.parse(localStorage.getItem("userData")).name}</span>
+                </Link>
+                <button
+                  onClick={() => {
+                    localStorage.removeItem("userData");
+                    navigate("/login");
+                  }}
+                  className="px-6 py-2.5 border border-red-200 text-red-600 rounded-full font-medium hover:bg-red-50 transition-all duration-200"
+                >
+                  Logout
+                </button>
+              </>
+            ) : (
+              <>
+                <Link
+                  to="/profile"
+                  className="px-5 py-2.5 text-gray-700 hover:text-indigo-600 font-medium transition-colors"
+                  title="userprofile"
+                >
+                  Profile
+                </Link>
+                <Link
+                  to="/login"
+                  className="px-6 py-2.5 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-full font-medium hover:shadow-lg hover:shadow-indigo-200 transform hover:-translate-y-0.5 transition-all duration-200"
+                >
+                  Login
+                </Link>
+              </>
+            )}
           </div>
 
           {/* Mobile Menu Button */}

@@ -1,15 +1,16 @@
 import React, { useState, useEffect } from "react";
-import { Calendar, MapPin, Image, ArrowLeft, User, Loader2 } from "lucide-react";
+import { Calendar, MapPin, Image, ArrowLeft, User, Loader2, Info } from "lucide-react";
 import AdminHeader from "../components/AdminHeader";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
 import toast, { Toaster } from "react-hot-toast";
 
-function AddEventPage() {
+function EditEventPage() {
+  const { id } = useParams();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
+  const [fetching, setFetching] = useState(true);
   const [faculties, setFaculties] = useState([]);
-  const [categories, setCategories] = useState([]);
   const [eventData, setEventData] = useState({
     title: "",
     date: "",
@@ -21,35 +22,63 @@ function AddEventPage() {
     timing: "",
     venue: "",
     organizer: "",
-    speakers: ""
+    speakers: "",
+    status: "upcoming"
   });
+  
+  const [existingImage, setExistingImage] = useState("");
+  const [categories, setCategories] = useState([]);
 
   useEffect(() => {
-    fetchFaculties();
-    fetchCategories();
-  }, []);
+    const fetchData = async () => {
+      setFetching(true);
+      try {
+        // Fetch faculties for the dropdown
+        const facRes = await axios.get("http://localhost:5000/api/admin/faculties");
+        if (facRes.data.success) {
+          setFaculties(facRes.data.faculties);
+        }
 
-  const fetchFaculties = async () => {
-    try {
-      const res = await axios.get("http://localhost:5000/api/admin/faculties");
-      if (res.data.success) {
-        setFaculties(res.data.faculties);
-      }
-    } catch (err) {
-      console.error("Failed to fetch faculties:", err);
-    }
-  };
+        // Fetch categories for the dropdown
+        const catRes = await axios.get("http://localhost:5000/api/admin/categories");
+        if (catRes.data.success) {
+          setCategories(catRes.data.categories);
+        }
 
-  const fetchCategories = async () => {
-    try {
-      const res = await axios.get("http://localhost:5000/api/admin/categories");
-      if (res.data.success) {
-        setCategories(res.data.categories);
+        // Fetch the event details
+        const eventRes = await axios.get(`http://localhost:5000/api/admin/event/${id}`);
+        if (eventRes.data.success) {
+          const event = eventRes.data.event;
+          // Format date for input field (YYYY-MM-DD)
+          const formattedDate = event.date ? new Date(event.date).toISOString().split('T')[0] : "";
+          
+          setEventData({
+            title: event.title || "",
+            date: formattedDate,
+            location: event.location || "",
+            description: event.description || "",
+            image: null,
+            category: event.category?._id || event.category || "",
+            maxParticipants: event.maxParticipants || "",
+            timing: event.timing || "",
+            venue: event.venue || "",
+            organizer: event.organizer?._id || event.organizer || "",
+            speakers: event.speakers ? (Array.isArray(event.speakers) ? event.speakers.join(', ') : event.speakers) : "",
+            status: event.status || "upcoming"
+          });
+          setExistingImage(event.image || "");
+        }
+      } catch (err) {
+        console.error("Failed to fetch data:", err);
+        toast.error("Failed to load event details");
+        navigate("/admin/events");
+      } finally {
+        setFetching(false);
       }
-    } catch (err) {
-      console.error("Failed to fetch categories:", err);
-    }
-  };
+    };
+
+    fetchData();
+  }, [id, navigate]);
 
   const handleChange = (e) => {
     const { name, value, files } = e.target;
@@ -74,6 +103,8 @@ function AddEventPage() {
       formData.append("maxParticipants", eventData.maxParticipants);
       formData.append("timing", eventData.timing);
       formData.append("venue", eventData.venue);
+      formData.append("status", eventData.status);
+      
       if (eventData.organizer) {
         formData.append("organizer", eventData.organizer);
       }
@@ -84,21 +115,29 @@ function AddEventPage() {
         formData.append("image", eventData.image);
       }
 
-      const res = await axios.post("http://localhost:5000/api/admin/eventcreate", formData, {
+      const res = await axios.put(`http://localhost:5000/api/admin/eventedit/${id}`, formData, {
         headers: { "Content-Type": "multipart/form-data" }
       });
 
       if (res.data.success) {
-        toast.success("Event created successfully!");
+        toast.success("Event updated successfully!");
         navigate("/admin/events");
       }
     } catch (err) {
       console.error(err);
-      toast.error(err.response?.data?.message || "Failed to create event");
+      toast.error(err.response?.data?.message || "Failed to update event");
     } finally {
       setLoading(false);
     }
   };
+
+  if (fetching) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -117,8 +156,8 @@ function AddEventPage() {
 
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-2xl font-bold text-gray-900 mb-2">Add New Event</h1>
-          <p className="text-gray-600">Create a new event for students and faculty</p>
+          <h1 className="text-2xl font-bold text-gray-900 mb-2">Edit Event</h1>
+          <p className="text-gray-600">Update the details for "{eventData.title}"</p>
         </div>
 
         {/* Form */}
@@ -245,11 +284,28 @@ function AddEventPage() {
               </div>
             </div>
 
-            {/* Organizer and Speakers */}
+            {/* Status and Organizer */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Event Organizer (Faculty)
+                  Status *
+                </label>
+                <select
+                  name="status"
+                  value={eventData.status}
+                  onChange={handleChange}
+                  required
+                  className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                  <option value="upcoming">Upcoming</option>
+                  <option value="ongoing">Ongoing</option>
+                  <option value="completed">Completed</option>
+                  <option value="cancelled">Cancelled</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Event Organizer
                 </label>
                 <div className="relative">
                   <User className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
@@ -268,19 +324,21 @@ function AddEventPage() {
                   </select>
                 </div>
               </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Speakers (Comma separated)
-                </label>
-                <input
-                  type="text"
-                  name="speakers"
-                  value={eventData.speakers}
-                  onChange={handleChange}
-                  className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  placeholder="e.g., John Doe, Jane Smith"
-                />
-              </div>
+            </div>
+
+            {/* Speakers */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Speakers (Comma separated)
+              </label>
+              <input
+                type="text"
+                name="speakers"
+                value={eventData.speakers}
+                onChange={handleChange}
+                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder="e.g., John Doe, Jane Smith"
+              />
             </div>
 
             {/* Image Upload */}
@@ -288,6 +346,18 @@ function AddEventPage() {
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 Event Image
               </label>
+              {existingImage && !eventData.image && (
+                <div className="mb-2 relative w-32 h-20 group">
+                  <img 
+                    src={existingImage} 
+                    alt="Current event" 
+                    className="w-full h-full object-cover rounded-lg border border-gray-200"
+                  />
+                  <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center rounded-lg">
+                    <p className="text-[10px] text-white font-medium">Keep Current</p>
+                  </div>
+                </div>
+              )}
               <div className="relative">
                 <Image className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
                 <input
@@ -298,6 +368,9 @@ function AddEventPage() {
                   className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
+              <p className="mt-1 text-xs text-gray-500 flex items-center gap-1">
+                <Info className="w-3 h-3" /> Leave empty to keep the current image
+              </p>
             </div>
 
             {/* Description */}
@@ -325,10 +398,10 @@ function AddEventPage() {
               {loading ? (
                 <>
                   <Loader2 className="w-5 h-5 animate-spin" />
-                  Creating Event...
+                  Updating Event...
                 </>
               ) : (
-                "Add Event"
+                "Update Event"
               )}
             </button>
           </form>
@@ -338,4 +411,4 @@ function AddEventPage() {
   );
 }
 
-export default AddEventPage;
+export default EditEventPage;

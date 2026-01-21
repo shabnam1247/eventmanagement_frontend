@@ -15,6 +15,7 @@ import FeedbackForm from "./user/pages/Feedback";
 import AboutPage from "./user/pages/Aboutus";
 import StudentProfilePage from "./user/pages/Profile";
 import OTPVerification from "./user/pages/OTPPage";
+import ViewEventPage from "./admin/pages/ViewEvent";
 import AdminEventPanel from "./admin/pages/Events";
 import AdminStudentPanel from "./admin/pages/Students";
 import FacultyPanel from "./admin/pages/Faculty";
@@ -25,6 +26,7 @@ import RegistrationList from "./admin/pages/RegistrationList";
 import AdminLogin from "./admin/pages/AdminLogin";
 import AdminChatroomApp from "./admin/pages/Chatroom";
 import EventDashboard from "./admin/pages/Analytics";
+import EditEventPage from "./admin/pages/EditEvent";
 import FacultyEventPanel from "./faculty/pages/Events";
 import FacultyStudentPanel from "./faculty/pages/Students";
 import FacultyAddStudentPage from "./faculty/pages/AddStudent";
@@ -56,6 +58,7 @@ function App() {
         <Route path="/profile" element={<StudentProfilePage />}></Route>
 
         <Route path="/eventregister" element={<EventRegistration />}></Route>
+        <Route path="/admin/event/:id" element={<ViewEventPage />} />
         <Route path="/admin/events" element={<AdminEventPanel />}></Route>
         <Route path="/admin/students" element={<AdminStudentPanel />} />
         <Route path="/admin/faculty" element={<FacultyPanel />} />
@@ -66,6 +69,7 @@ function App() {
         <Route path="/admin/login" element={<AdminLogin />} />
         <Route path="/admin/chatroom" element={<AdminChatroomApp />} />
         <Route path="/admin/dashboard" element={<EventDashboard />} />
+        <Route path="/admin/editevent/:id" element={<EditEventPage />} />
 
         <Route path="/faculty/events" element={<FacultyEventPanel />} />
         <Route path="/faculty/login" element={<FacultyLogin />} />
@@ -77,7 +81,7 @@ function App() {
         <Route path="/faculty/calendar" element={<FacultyCalendar />} />
         <Route path='/faculty/register' element={<FacultyRegisterPage/>} />
          <Route path='/faculty/otp' element={<FacultyOTPVerification/>} />
-         <Route path='/faculty/analytics' element={<FacultyEventDashboard/>} />
+         <Route path='/faculty/dashboard' element={<FacultyEventDashboard/>} />
       </Routes>
     </>
   );

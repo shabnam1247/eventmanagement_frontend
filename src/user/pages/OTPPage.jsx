@@ -1,13 +1,20 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Check, X, RefreshCw } from 'lucide-react';
+import { Check, X, RefreshCw, Calendar, Loader2 } from 'lucide-react';
+import { useLocation, useNavigate } from 'react-router-dom';
+import axios from 'axios';
+import toast, { Toaster } from 'react-hot-toast';
 
 export default function OTPVerification() {
   const [otp, setOtp] = useState(['', '', '', '', '', '']);
   const [status, setStatus] = useState('idle');
   const [timer, setTimer] = useState(30);
   const [canResend, setCanResend] = useState(false);
+  const [loading, setLoading] = useState(false);
   const inputRefs = useRef([]);
-  const correctOtp = "123456";
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  const email = location.state?.email || "";
 
   useEffect(() => {
     if (timer > 0) {
@@ -38,33 +45,52 @@ export default function OTPVerification() {
     }
   };
 
-  const verifyOtp = () => {
+  const verifyOtp = async () => {
     const entered = otp.join("");
     if (entered.length !== 6) {
       setStatus("error");
       return;
     }
-    if (entered === correctOtp) {
-      setStatus("success");
-    } else {
+
+    setLoading(true);
+    try {
+      const response = await axios.post("http://localhost:5000/api/users/otpverify", {
+        otp: entered
+      });
+
+      if (response.data.success) {
+        setStatus("success");
+        toast.success("Account verified successfully!");
+        setTimeout(() => {
+          navigate('/login');
+        }, 2000);
+      }
+    } catch (error) {
+      console.error("OTP Verification error:", error);
       setStatus("error");
+      toast.error(error.response?.data?.message || "Invalid OTP. Please try again.");
       setTimeout(() => {
         setOtp(["", "", "", "", "", ""]);
         inputRefs.current[0]?.focus();
       }, 1000);
+    } finally {
+      setLoading(false);
     }
   };
 
   const resendOtp = () => {
+    // Backend resend logic placeholder
     setOtp(["", "", "", "", "", ""]);
     setStatus("idle");
     setTimer(30);
     setCanResend(false);
     inputRefs.current[0]?.focus();
+    toast.success("New OTP requested. Please check your email.");
   };
 
   return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4 py-8">
+      <Toaster position="top-right" />
       <div className="w-full max-w-md">
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 md:p-8">
           {/* Header */}
@@ -80,21 +106,15 @@ export default function OTPVerification() {
             </div>
             
             <h1 className="text-2xl font-bold text-gray-900 mb-2">
-              {status === "success" ? "Verified!" : "OTP Verification"}
+              {status === "success" ? "Verified!" : "Student OTP Verification"}
             </h1>
             
             <p className="text-gray-600">
               {status === "success" 
                 ? "Your account has been verified successfully"
-                : "Enter the 6-digit code sent to your phone"
+                : `Enter the 6-digit code sent to ${email || 'your email'}`
               }
             </p>
-            
-            {status === "idle" && (
-              <p className="text-sm text-gray-500 mt-2">
-                Demo code: <span className="font-medium text-blue-600">123456</span>
-              </p>
-            )}
           </div>
 
           {/* OTP Input Section */}
@@ -132,10 +152,11 @@ export default function OTPVerification() {
               {/* Verify Button */}
               <button
                 onClick={verifyOtp}
-                disabled={otp.join("").length !== 6}
-                className="w-full py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed mb-6"
+                disabled={otp.join("").length !== 6 || loading}
+                className="w-full py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed mb-6 flex items-center justify-center gap-2"
               >
-                Verify OTP
+                {loading && <Loader2 className="w-4 h-4 animate-spin" />}
+                {loading ? "Verifying..." : "Verify OTP"}
               </button>
 
               {/* Resend Section */}
@@ -164,11 +185,12 @@ export default function OTPVerification() {
           {/* Success State */}
           {status === "success" && (
             <div className="text-center">
+              <p className="text-green-600 font-medium mb-4">Redirecting to login...</p>
               <button
-                onClick={() => window.location.reload()}
-                className="px-6 py-2 text-blue-600 font-medium hover:text-blue-800"
+                onClick={() => navigate('/login')}
+                className="px-6 py-2 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 font-bold"
               >
-                Try Again
+                Go to Login
               </button>
             </div>
           )}

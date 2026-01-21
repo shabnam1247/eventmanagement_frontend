@@ -1,59 +1,63 @@
-import React, { useState } from "react";
-import { Search, Eye, Trash2, Download, Filter, ArrowLeft } from "lucide-react";
+import React, { useState, useEffect } from "react";
+import { Search, Eye, Trash2, Download, Filter, Loader2 } from "lucide-react";
 import AdminHeader from "../components/AdminHeader";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
 
 const RegistrationList = () => {
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
+  const [registrations, setRegistrations] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
-  const registrations = [
-    {
-      id: 1,
-      name: "John Doe",
-      email: "john@gmail.com",
-      event: "Tech Innovators Summit",
-      date: "2025-11-10",
-      status: "confirmed",
-      regNo: "CS2025001"
-    },
-    {
-      id: 2,
-      name: "Aisha Khan",
-      email: "aisha@gmail.com",
-      event: "AI Workshop",
-      date: "2025-11-12",
-      status: "pending",
-      regNo: "EC2025012"
-    },
-    {
-      id: 3,
-      name: "Rahul Mehta",
-      email: "rahul@gmail.com",
-      event: "Hackathon 2025",
-      date: "2025-11-08",
-      status: "cancelled",
-      regNo: "ME2025023"
-    },
-  ];
+  useEffect(() => {
+    fetchRegistrations();
+  }, []);
+
+  const fetchRegistrations = async () => {
+    try {
+      setLoading(true);
+      const res = await axios.get("http://localhost:5000/api/admin/registrations");
+      if (res.data.success) {
+        setRegistrations(res.data.registrations);
+      }
+    } catch (err) {
+      console.error(err);
+      setError("Failed to fetch registrations");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const filteredRegistrations = registrations.filter((reg) => {
     const matchesSearch = 
-      reg.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      reg.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      reg.event.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesStatus = statusFilter === "all" || reg.status === statusFilter;
+      reg.firstName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      reg.lastName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      reg.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      reg.eventid?.title?.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesStatus = statusFilter === "all" || reg.eventid?.status === statusFilter;
     return matchesSearch && matchesStatus;
   });
 
   const getStatusColor = (status) => {
     switch (status) {
-      case "confirmed": return "bg-green-100 text-green-800";
-      case "pending": return "bg-yellow-100 text-yellow-800";
+      case "upcoming": return "bg-green-100 text-green-800";
+      case "ongoing": return "bg-blue-100 text-blue-800";
+      case "pastevents": return "bg-gray-100 text-gray-800";
       case "cancelled": return "bg-red-100 text-red-800";
       default: return "bg-gray-100 text-gray-800";
     }
+  };
+
+  const formatDate = (dateString) => {
+    if (!dateString) return "-";
+    return new Date(dateString).toLocaleDateString('en-IN', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric'
+    });
   };
 
   return (
@@ -89,8 +93,9 @@ const RegistrationList = () => {
                   className="px-4 py-2 border border-gray-300 rounded-lg"
                 >
                   <option value="all">All Status</option>
-                  <option value="confirmed">Confirmed</option>
-                  <option value="pending">Pending</option>
+                  <option value="upcoming">Upcoming</option>
+                  <option value="ongoing">Ongoing</option>
+                  <option value="pastevents">Past Events</option>
                   <option value="cancelled">Cancelled</option>
                 </select>
               </div>
@@ -103,67 +108,92 @@ const RegistrationList = () => {
           </div>
         </div>
 
-        {/* Table */}
-        <div className="bg-white rounded-xl border border-gray-200">
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead className="bg-gray-50">
-                <tr>
-                  <th className="py-3 px-4 text-left text-sm font-medium text-gray-600">#</th>
-                  <th className="py-3 px-4 text-left text-sm font-medium text-gray-600">Name</th>
-                  <th className="py-3 px-4 text-left text-sm font-medium text-gray-600">Reg. No</th>
-                  <th className="py-3 px-4 text-left text-sm font-medium text-gray-600">Email</th>
-                  <th className="py-3 px-4 text-left text-sm font-medium text-gray-600">Event</th>
-                  <th className="py-3 px-4 text-left text-sm font-medium text-gray-600">Date</th>
-                  <th className="py-3 px-4 text-left text-sm font-medium text-gray-600">Status</th>
-                  <th className="py-3 px-4 text-left text-sm font-medium text-gray-600">Actions</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-200">
-                {filteredRegistrations.map((reg, index) => (
-                  <tr key={reg.id} className="hover:bg-gray-50">
-                    <td className="py-3 px-4 text-gray-600">{index + 1}</td>
-                    <td className="py-3 px-4 font-medium text-gray-900">{reg.name}</td>
-                    <td className="py-3 px-4 text-gray-600">{reg.regNo}</td>
-                    <td className="py-3 px-4 text-gray-600">{reg.email}</td>
-                    <td className="py-3 px-4 text-gray-900">{reg.event}</td>
-                    <td className="py-3 px-4 text-gray-600">{reg.date}</td>
-                    <td className="py-3 px-4">
-                      <span className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(reg.status)}`}>
-                        {reg.status.charAt(0).toUpperCase() + reg.status.slice(1)}
-                      </span>
-                    </td>
-                    <td className="py-3 px-4">
-                      <div className="flex gap-2">
-                        <button className="p-1 text-gray-400 hover:text-blue-600">
-                          <Eye className="w-4 h-4" />
-                        </button>
-                        <button className="p-1 text-gray-400 hover:text-red-600">
-                          <Trash2 className="w-4 h-4" />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+        {/* Loading State */}
+        {loading && (
+          <div className="bg-white rounded-xl border border-gray-200 p-12 flex items-center justify-center">
+            <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
+            <span className="ml-3 text-gray-600">Loading registrations...</span>
           </div>
+        )}
 
-          {/* Footer */}
-          <div className="p-4 border-t border-gray-200 flex justify-between items-center">
-            <p className="text-sm text-gray-600">
-              Showing {filteredRegistrations.length} of {registrations.length} registrations
-            </p>
-            <div className="flex gap-2">
-              <button className="px-3 py-1 border border-gray-300 rounded text-sm hover:bg-gray-50">
-                Previous
-              </button>
-              <button className="px-3 py-1 bg-blue-600 text-white rounded text-sm hover:bg-blue-700">
-                Next
-              </button>
+        {/* Error State */}
+        {error && !loading && (
+          <div className="bg-red-50 border border-red-200 rounded-xl p-6 text-center">
+            <p className="text-red-600">{error}</p>
+            <button 
+              onClick={fetchRegistrations}
+              className="mt-4 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
+            >
+              Retry
+            </button>
+          </div>
+        )}
+
+        {/* Table */}
+        {!loading && !error && (
+          <div className="bg-white rounded-xl border border-gray-200">
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead className="bg-gray-50">
+                  <tr>
+                    <th className="py-3 px-4 text-left text-sm font-medium text-gray-600">#</th>
+                    <th className="py-3 px-4 text-left text-sm font-medium text-gray-600">Name</th>
+                    <th className="py-3 px-4 text-left text-sm font-medium text-gray-600">Department</th>
+                    <th className="py-3 px-4 text-left text-sm font-medium text-gray-600">Email</th>
+                    <th className="py-3 px-4 text-left text-sm font-medium text-gray-600">Event</th>
+                    <th className="py-3 px-4 text-left text-sm font-medium text-gray-600">Event Date</th>
+                    <th className="py-3 px-4 text-left text-sm font-medium text-gray-600">Status</th>
+                    <th className="py-3 px-4 text-left text-sm font-medium text-gray-600">Actions</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-200">
+                  {filteredRegistrations.length === 0 ? (
+                    <tr>
+                      <td colSpan="8" className="py-8 text-center text-gray-500">
+                        No registrations found
+                      </td>
+                    </tr>
+                  ) : (
+                    filteredRegistrations.map((reg, index) => (
+                      <tr key={reg._id} className="hover:bg-gray-50">
+                        <td className="py-3 px-4 text-gray-600">{index + 1}</td>
+                        <td className="py-3 px-4 font-medium text-gray-900">
+                          {reg.firstName} {reg.lastName}
+                        </td>
+                        <td className="py-3 px-4 text-gray-600">{reg.department}</td>
+                        <td className="py-3 px-4 text-gray-600">{reg.email}</td>
+                        <td className="py-3 px-4 text-gray-900">{reg.eventid?.title || "-"}</td>
+                        <td className="py-3 px-4 text-gray-600">{formatDate(reg.eventid?.date)}</td>
+                        <td className="py-3 px-4">
+                          <span className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(reg.eventid?.status)}`}>
+                            {reg.eventid?.status || "N/A"}
+                          </span>
+                        </td>
+                        <td className="py-3 px-4">
+                          <div className="flex gap-2">
+                            <button className="p-1 text-gray-400 hover:text-blue-600">
+                              <Eye className="w-4 h-4" />
+                            </button>
+                            <button className="p-1 text-gray-400 hover:text-red-600">
+                              <Trash2 className="w-4 h-4" />
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
+            </div>
+
+            {/* Footer */}
+            <div className="p-4 border-t border-gray-200 flex justify-between items-center">
+              <p className="text-sm text-gray-600">
+                Showing {filteredRegistrations.length} of {registrations.length} registrations
+              </p>
             </div>
           </div>
-        </div>
+        )}
       </div>
     </div>
   );

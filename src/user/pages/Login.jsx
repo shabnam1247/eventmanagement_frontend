@@ -1,15 +1,17 @@
 import React, { useState } from 'react';
-import { User, Lock, Calendar, Eye, EyeOff } from 'lucide-react';
+import { User, Lock, Calendar, Eye, EyeOff, Loader2 } from 'lucide-react';
 import Header from '../components/Header';
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
+import toast, { Toaster } from 'react-hot-toast';
 
 const Login = () => {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
-    registerNumber: '',
+    identifier: '', // Email or Register Number
     password: ''
   });
-  const [isLoading, setIsLoading] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState({});
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
@@ -31,36 +33,57 @@ const Login = () => {
 
   const validateForm = () => {
     const newErrors = {};
-    if (!formData.registerNumber) {
-      newErrors.registerNumber = 'Register number is required';
-    } else if (!/^[A-Z0-9]{6,12}$/i.test(formData.registerNumber)) {
-      newErrors.registerNumber = 'Invalid register number format';
+    if (!formData.identifier) {
+      newErrors.identifier = 'Email or Register number is required';
     }
 
     if (!formData.password) {
       newErrors.password = 'Password is required';
-    } else if (formData.password.length < 6) {
-      newErrors.password = 'Password must be at least 6 characters';
     }
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (!validateForm()) return;
 
-    setIsLoading(true);
+    setLoading(true);
+    try {
+      const response = await axios.post("http://localhost:5000/api/users/login", formData);
+      
+      if (response.status === 200) {
+        toast.success("Login successful!");
+        
+        // Store user data
+        localStorage.setItem("userData", JSON.stringify(response.data.user));
+        // localStorage.setItem("userToken", response.data.token); // Add if token exists
+        
+        setTimeout(() => {
+          navigate('/'); // Redirect to student dashboard/home
+        }, 1500);
+      }
+    } catch (error) {
+      console.error("Login error:", error);
+      const message = error.response?.data?.message || "Login failed";
+      toast.error(message);
 
-    setTimeout(() => {
-      setIsLoading(false);
-      alert(`Welcome ${formData.registerNumber}! Login successful.`);
-    }, 2000);
+      // Handle unverified redirection
+      if (message.includes("Email not verified")) {
+        const email = error.response?.data?.email;
+        setTimeout(() => {
+          navigate("/otp", { state: { email } });
+        }, 2000);
+      }
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
     <div className="min-h-screen bg-gray-50">
+      <Toaster position="top-right" />
       <Header />
       
       <div className="flex items-center justify-center min-h-[calc(100vh-5rem)] px-4 py-8">
@@ -80,17 +103,17 @@ const Login = () => {
               </div>
               
               <div className="text-center">
-                <h2 className="text-xl font-semibold text-gray-800">Welcome Back</h2>
-                <p className="text-gray-600 mt-1">Sign in to your account</p>
+                <h2 className="text-xl font-semibold text-gray-800">Student Login</h2>
+                <p className="text-gray-600 mt-1">Sign in using Email or Register Number</p>
               </div>
             </div>
 
             {/* Form */}
             <form onSubmit={handleSubmit} className="px-8 pb-8">
-              {/* Register Number */}
+              {/* Identifier (Email/Reg No) */}
               <div className="mb-5">
                 <label className="block text-gray-700 text-sm font-medium mb-2">
-                  Register Number
+                  Email or Register Number
                 </label>
                 <div className="relative">
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -98,18 +121,18 @@ const Login = () => {
                   </div>
                   <input
                     type="text"
-                    name="registerNumber"
-                    value={formData.registerNumber}
+                    name="identifier"
+                    value={formData.identifier}
                     onChange={handleInputChange}
                     className={`w-full pl-10 pr-4 py-3 bg-white border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
-                      errors.registerNumber ? 'border-red-500' : 'border-gray-300'
+                      errors.identifier ? 'border-red-500' : 'border-gray-300'
                     }`}
-                    placeholder="Enter register number"
+                    placeholder="john@college.edu or REG123"
                   />
                 </div>
-                {errors.registerNumber && (
+                {errors.identifier && (
                   <p className="mt-1 text-sm text-red-600">
-                    {errors.registerNumber}
+                    {errors.identifier}
                   </p>
                 )}
               </div>
@@ -165,7 +188,6 @@ const Login = () => {
                 </label>
                 <button
                   type="button"
-                  onClick={() => alert('Password reset link would be sent')}
                   className="text-sm text-blue-600 hover:text-blue-800"
                 >
                   Forgot password?
@@ -175,17 +197,11 @@ const Login = () => {
               {/* Submit Button */}
               <button
                 type="submit"
-                disabled={isLoading}
-                className="w-full py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                disabled={loading}
+                className="w-full py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
               >
-                {isLoading ? (
-                  <div className="flex items-center justify-center">
-                    <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
-                    Signing in...
-                  </div>
-                ) : (
-                  'Sign In'
-                )}
+                {loading && <Loader2 className="w-5 h-5 animate-spin" />}
+                {loading ? "Signing in..." : "Sign In"}
               </button>
 
               {/* Register Link */}
@@ -207,7 +223,7 @@ const Login = () => {
           {/* Footer */}
           <div className="mt-6 text-center">
             <p className="text-sm text-gray-500">
-              © 2025 EventHub. All rights reserved.
+              © 2025 EventHub College Portal
             </p>
           </div>
         </div>

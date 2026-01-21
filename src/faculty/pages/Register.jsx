@@ -1,6 +1,8 @@
 import React, { useState } from "react";
-import { User, Mail, Phone, Lock, ArrowLeft, GraduationCap } from "lucide-react";
+import { User, Mail, Phone, Lock, ArrowLeft, GraduationCap, Loader2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
+import toast, { Toaster } from "react-hot-toast";
 
 export default function FacultyRegisterPage() {
   const navigate = useNavigate();
@@ -13,7 +15,7 @@ export default function FacultyRegisterPage() {
     password: ""
   });
   const [errors, setErrors] = useState({});
-  const [success, setSuccess] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -61,18 +63,31 @@ export default function FacultyRegisterPage() {
     return newErrors;
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     const validationErrors = validate();
     setErrors(validationErrors);
 
     if (Object.keys(validationErrors).length === 0) {
-      console.log("Registration Data:", formData);
-      setSuccess(true);
-      setTimeout(() => {
-        setSuccess(false);
-        navigate('/faculty/login');
-      }, 2000);
+      setLoading(true);
+      try {
+        const response = await axios.post("http://localhost:5000/api/faculty/register", {
+          ...formData,
+          phonenumber: formData.phone // Map to backend field name
+        });
+        
+        if (response.status === 201) {
+          toast.success("OTP sent to your email!");
+          setTimeout(() => {
+            navigate('/faculty/otp', { state: { email: formData.email } });
+          }, 1500);
+        }
+      } catch (error) {
+        console.error("Registration error:", error);
+        toast.error(error.response?.data?.message || "Registration failed. Try again.");
+      } finally {
+        setLoading(false);
+      }
     }
   };
 
@@ -91,6 +106,7 @@ export default function FacultyRegisterPage() {
 
   return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4 py-8">
+      <Toaster position="top-right" />
       <div className="w-full max-w-md">
         {/* Back Button */}
         <button
@@ -116,13 +132,6 @@ export default function FacultyRegisterPage() {
             </div>
             <p className="text-gray-600 text-sm">Register to access the faculty portal</p>
           </div>
-
-          {/* Success Message */}
-          {success && (
-            <div className="mb-6 p-4 bg-green-100 border border-green-400 text-green-700 rounded-lg text-center">
-              ✓ Registration successful! Redirecting to login...
-            </div>
-          )}
 
           {/* Form */}
           <form onSubmit={handleSubmit} className="space-y-5">
@@ -265,9 +274,11 @@ export default function FacultyRegisterPage() {
             {/* Submit Button */}
             <button
               type="submit"
-              className="w-full py-3 bg-green-600 text-white font-medium rounded-lg hover:bg-green-700 transition-colors focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
+              disabled={loading}
+              className="w-full py-3 bg-green-600 text-white font-medium rounded-lg hover:bg-green-700 transition-colors focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 flex items-center justify-center gap-2"
             >
-              Register as Faculty
+              {loading && <Loader2 className="w-4 h-4 animate-spin" />}
+              {loading ? "Registering..." : "Register as Faculty"}
             </button>
           </form>
 
@@ -276,6 +287,7 @@ export default function FacultyRegisterPage() {
             <p className="text-sm text-gray-600">
               Already have an account?{' '}
               <button
+                type="button"
                 onClick={() => navigate('/faculty/login')}
                 className="text-green-600 font-medium hover:text-green-800"
               >

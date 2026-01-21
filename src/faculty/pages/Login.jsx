@@ -1,32 +1,56 @@
 import React, { useState } from "react";
-import { Lock, Mail, GraduationCap } from "lucide-react";
+import { Lock, Mail, GraduationCap, Loader2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
+import toast, { Toaster } from "react-hot-toast";
 
 const FacultyLogin = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    setError("");
     setLoading(true);
 
-    // Simulate API call
-    setTimeout(() => {
-      if (email === "faculty@example.com" && password === "faculty123") {
-        navigate("/faculty/events"); // Redirect to faculty panel
-      } else {
-        setError("Invalid credentials. Please try again.");
+    try {
+      const response = await axios.post("http://localhost:5000/api/faculty/login", {
+        email,
+        password
+      });
+
+      if (response.status === 200) {
+        toast.success("Login successful!");
+        
+        // Store faculty data
+        localStorage.setItem("facultyData", JSON.stringify(response.data.faculty));
+        // Note: Set facultytoken if backend provides it in the future
+        
+        setTimeout(() => {
+          navigate("/faculty/dashboard");
+        }, 1500);
       }
+    } catch (error) {
+      console.error("Login error:", error);
+      const message = error.response?.data?.message || "Login failed";
+      
+      toast.error(message);
+
+      // Handle specific redirection logic
+      if (message.includes("Email not verified")) {
+        setTimeout(() => {
+          navigate("/faculty/otp", { state: { email } });
+        }, 2000);
+      }
+    } finally {
       setLoading(false);
-    }, 1000);
+    }
   };
 
   return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
+      <Toaster position="top-right" />
       <div className="w-full max-w-md">
         {/* Logo/Header */}
         <div className="text-center mb-8">
@@ -46,12 +70,6 @@ const FacultyLogin = () => {
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 md:p-8">
           <h2 className="text-xl font-bold text-gray-900 mb-6 text-center">Faculty Login</h2>
 
-          {error && (
-            <div className="mb-4 p-3 bg-red-50 border border-red-200 text-red-700 rounded-lg text-sm">
-              {error}
-            </div>
-          )}
-
           <form onSubmit={handleSubmit} className="space-y-5">
             {/* Email */}
             <div>
@@ -66,7 +84,7 @@ const FacultyLogin = () => {
                   onChange={(e) => setEmail(e.target.value)}
                   required
                   className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
-                  placeholder="faculty@example.com"
+                  placeholder="faculty@college.edu"
                 />
               </div>
             </div>
@@ -87,9 +105,6 @@ const FacultyLogin = () => {
                   placeholder="Enter your password"
                 />
               </div>
-              <div className="text-xs text-gray-500 mt-2">
-                Demo: faculty@example.com / faculty123
-              </div>
             </div>
 
             {/* Login Button */}
@@ -98,14 +113,8 @@ const FacultyLogin = () => {
               disabled={loading}
               className="w-full py-3 bg-green-600 text-white font-medium rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
             >
-              {loading ? (
-                <>
-                  <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                  Signing in...
-                </>
-              ) : (
-                "Sign In"
-              )}
+              {loading && <Loader2 className="w-5 h-5 animate-spin" />}
+              {loading ? "Signing in..." : "Sign In"}
             </button>
           </form>
 
@@ -133,7 +142,7 @@ const FacultyLogin = () => {
 
         {/* Footer */}
         <div className="mt-6 text-center text-sm text-gray-500">
-          <p>© 2025 EventHub Faculty Portal • v2.0</p>
+          <p>© 2025 EventHub Faculty Portal</p>
           <p className="mt-1 text-xs">Authorized faculty access only</p>
         </div>
       </div>
