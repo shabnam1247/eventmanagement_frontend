@@ -26,6 +26,9 @@ const AdminStudentPanel = () => {
     }
   };
 
+  console.log("students");
+  
+
   useEffect(() => {
     fetchStudents();
   }, []);
