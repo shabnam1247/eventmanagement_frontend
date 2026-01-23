@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
-import { Search, User, Briefcase, BookOpen, CheckCircle, XCircle, Loader2 } from "lucide-react";
-import AdminHeader from "../components/AdminHeader";
+import { Search, User, Briefcase, BookOpen, CheckCircle, XCircle, Loader2, GraduationCap } from "lucide-react";
+import AdminLayout from "../components/AdminLayout";
 import axios from "axios";
 import toast, { Toaster } from "react-hot-toast";
 
@@ -34,9 +34,8 @@ const FacultyPanel = () => {
     try {
       setApprovingId(id);
       const res = await axios.put(`http://localhost:5000/api/admin/approvefaculty/${id}`);
-      if (res.data.succes) {
+      if (res.data.success) {
         toast.success("Faculty approved successfully");
-        // Update local state instead of refetching
         setFacultyMembers(prev => 
           prev.map(f => f._id === id ? { ...f, isapproved: true } : f)
         );
@@ -67,126 +66,135 @@ const FacultyPanel = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <AdminLayout>
       <Toaster position="top-right" />
-      <AdminHeader />
       
-      <div className="max-w-7xl mx-auto px-4 py-8">
+      <div className="py-2">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-2xl font-bold text-gray-900 mb-2">Faculty Management</h1>
-          <p className="text-gray-600">Review and approve faculty registrations</p>
+          <h1 className="text-3xl font-bold text-gray-900 mb-2 font-sans tracking-tight">Faculty Management</h1>
+          <p className="text-gray-500 font-medium tracking-tight">Approve and verify faculty members to manage events</p>
         </div>
 
         {/* Stats Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
-          <div className="bg-white rounded-xl border border-gray-200 p-4 shadow-sm">
-            <div className="flex justify-between items-center mb-2">
-              <h3 className="text-sm font-medium text-gray-600">Total Registered</h3>
-              <User className="w-5 h-5 text-blue-600" />
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-8">
+          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 hover:shadow-md transition-shadow">
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-sm font-bold text-gray-400 uppercase tracking-widest">Total Registered</h3>
+              <div className="w-10 h-10 bg-blue-50 rounded-xl flex items-center justify-center">
+                 <User className="w-5 h-5 text-blue-600" />
+              </div>
             </div>
-            <p className="text-2xl font-bold text-gray-900">{stats.total}</p>
+            <p className="text-3xl font-bold text-gray-900">{stats.total}</p>
           </div>
           
-          <div className="bg-white rounded-xl border border-gray-200 p-4 shadow-sm">
-            <div className="flex justify-between items-center mb-2">
-              <h3 className="text-sm font-medium text-gray-600">Approved</h3>
-              <Briefcase className="w-5 h-5 text-green-600" />
+          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 hover:shadow-md transition-shadow">
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-sm font-bold text-gray-400 uppercase tracking-widest">Active Members</h3>
+              <div className="w-10 h-10 bg-green-50 rounded-xl flex items-center justify-center">
+                 <Briefcase className="w-5 h-5 text-green-600" />
+              </div>
             </div>
-            <p className="text-2xl font-bold text-gray-900">{stats.approved}</p>
+            <p className="text-3xl font-bold text-gray-900">{stats.approved}</p>
           </div>
           
-          <div className="bg-white rounded-xl border border-gray-200 p-4 shadow-sm">
-            <div className="flex justify-between items-center mb-2">
-              <h3 className="text-sm font-medium text-gray-600">Pending Approval</h3>
-              <BookOpen className="w-5 h-5 text-amber-600" />
+          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 hover:shadow-md transition-shadow">
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-sm font-bold text-gray-400 uppercase tracking-widest">Pending Access</h3>
+              <div className="w-10 h-10 bg-amber-50 rounded-xl flex items-center justify-center">
+                 <BookOpen className="w-5 h-5 text-amber-600" />
+              </div>
             </div>
-            <p className="text-2xl font-bold text-gray-900">{stats.pending}</p>
+            <p className="text-3xl font-bold text-gray-900">{stats.pending}</p>
           </div>
         </div>
 
         {/* Main Card */}
-        <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
           {/* Toolbar */}
-          <div className="p-4 border-b border-gray-200 bg-gray-50/50">
+          <div className="p-6 border-b border-gray-50 bg-gray-50/30">
             <div className="flex flex-col md:flex-row gap-4 justify-between">
-              <div className="flex flex-col sm:flex-row gap-3">
-                <div className="relative">
+              <div className="flex items-center gap-4 flex-1">
+                <div className="relative flex-1 max-w-md">
                   <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
                   <input
                     type="text"
-                    placeholder="Search name or email..."
+                    placeholder="Search by faculty name or email..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
-                    className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg w-full sm:w-64 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    className="pl-10 pr-4 py-2.5 border border-gray-200 rounded-xl w-full focus:ring-2 focus:ring-blue-500 outline-none transition-all font-medium"
                   />
                 </div>
                 <select
                   value={statusFilter}
                   onChange={(e) => setStatusFilter(e.target.value)}
-                  className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="px-4 py-2.5 border border-gray-200 bg-white rounded-xl text-gray-600 font-bold outline-none shadow-sm"
                 >
-                  <option value="all">All Status</option>
-                  <option value="pending">Pending</option>
-                  <option value="approved">Approved</option>
+                  <option value="all">All Access levels</option>
+                  <option value="pending">Waiting Approval</option>
+                  <option value="approved">Granted Access</option>
                 </select>
               </div>
             </div>
           </div>
 
-          {/* Table */}
           <div className="overflow-x-auto">
             {loading ? (
-              <div className="p-12 text-center text-gray-500">
-                <Loader2 className="w-8 h-8 animate-spin text-blue-600 mx-auto mb-4" />
-                <p>Fetching faculty members...</p>
+              <div className="p-20 text-center">
+                <Loader2 className="w-10 h-10 animate-spin text-blue-600 mx-auto mb-4" />
+                <p className="text-gray-400 font-medium tracking-tight">Refreshing faculty records...</p>
               </div>
             ) : (
               <table className="w-full">
-                <thead className="bg-gray-50">
+                <thead className="bg-gray-50/50">
                   <tr>
-                    <th className="py-3 px-6 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Faculty Details</th>
-                    <th className="py-3 px-6 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Status</th>
-                    <th className="py-3 px-6 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Verification</th>
-                    <th className="py-3 px-6 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider">Actions</th>
+                    <th className="py-4 px-6 text-left text-xs font-bold text-gray-400 uppercase tracking-widest">Faculty Details</th>
+                    <th className="py-4 px-6 text-left text-xs font-bold text-gray-400 uppercase tracking-widest">Status</th>
+                    <th className="py-4 px-6 text-left text-xs font-bold text-gray-400 uppercase tracking-widest">Verification</th>
+                    <th className="py-4 px-6 text-right text-xs font-bold text-gray-400 uppercase tracking-widest">Actions</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-gray-200">
+                <tbody className="divide-y divide-gray-50">
                   {filteredFaculty.length === 0 ? (
                     <tr>
-                      <td colSpan="4" className="py-12 text-center text-gray-500">
-                        No faculty members found matching your criteria.
+                      <td colSpan="4" className="py-20 text-center">
+                        <div className="flex flex-col items-center gap-2">
+                           <div className="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center mb-2">
+                             <GraduationCap className="w-8 h-8 text-gray-200" />
+                           </div>
+                           <p className="text-gray-400 font-medium italic">No faculty members found matching your search.</p>
+                        </div>
                       </td>
                     </tr>
                   ) : (
                     filteredFaculty.map((faculty) => (
-                      <tr key={faculty._id} className="hover:bg-gray-50/80 transition-colors">
-                        <td className="py-4 px-6 text-gray-900">
+                      <tr key={faculty._id} className="hover:bg-blue-50/20 transition-colors group">
+                        <td className="py-4 px-6 text-gray-900 border-none">
                           <div className="flex items-center">
-                            <div className="h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-700 font-bold">
+                            <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center text-white font-bold shadow-sm">
                               {faculty.name.charAt(0)}
                             </div>
                             <div className="ml-4">
-                              <div className="text-sm font-medium text-gray-900">{faculty.name}</div>
-                              <div className="text-sm text-gray-500">{faculty.email}</div>
+                              <div className="text-sm font-bold text-gray-900 group-hover:text-blue-600 transition-colors leading-tight">{faculty.name}</div>
+                              <div className="text-xs text-gray-400 font-medium italic">{faculty.email}</div>
                             </div>
                           </div>
                         </td>
                         <td className="py-4 px-6">
-                          <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                          <span className={`inline-flex items-center px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest ${
                             faculty.isapproved 
-                              ? "bg-green-100 text-green-800 border border-green-200" 
-                              : "bg-amber-100 text-amber-800 border border-amber-200"
+                              ? "bg-green-50 text-green-600 border border-green-100 shadow-sm shadow-green-50" 
+                              : "bg-amber-50 text-amber-600 border border-amber-100 shadow-sm shadow-amber-50"
                           }`}>
                             {faculty.isapproved ? "Approved" : "Pending"}
                           </span>
                         </td>
                         <td className="py-4 px-6">
-                           <span className={`inline-flex items-center text-xs ${faculty.isVerified ? "text-green-600" : "text-gray-400"}`}>
+                           <span className={`inline-flex items-center text-[11px] font-bold uppercase tracking-tighter ${faculty.isVerified ? "text-green-500" : "text-gray-400"}`}>
                              {faculty.isVerified ? (
-                               <><CheckCircle className="w-3 h-3 mr-1" /> Email Verified</>
+                               <><CheckCircle className="w-3.5 h-3.5 mr-1" /> Verified</>
                              ) : (
-                               <><XCircle className="w-3 h-3 mr-1" /> Email Unverified</>
+                               <><XCircle className="w-3.5 h-3.5 mr-1" /> Unverified</>
                              )}
                            </span>
                         </td>
@@ -195,20 +203,20 @@ const FacultyPanel = () => {
                             <button 
                               onClick={() => handleApprove(faculty._id)}
                               disabled={approvingId === faculty._id}
-                              className="px-4 py-1.5 bg-blue-600 text-white text-xs font-medium rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 flex items-center gap-1.5 ml-auto"
+                              className="px-5 py-2 bg-blue-600 text-white text-xs font-bold rounded-xl hover:bg-blue-700 transition-all hover:scale-105 active:scale-95 disabled:opacity-50 flex items-center gap-1.5 ml-auto shadow-md shadow-blue-100"
                             >
                               {approvingId === faculty._id ? (
                                 <Loader2 className="w-3 h-3 animate-spin" />
                               ) : (
-                                <CheckCircle className="w-3 h-3" />
+                                <CheckCircle className="w-4 h-4" />
                               )}
-                              Approve
+                              GRANT ACCESS
                             </button>
                           )}
                           {faculty.isapproved && (
-                            <span className="text-green-600 text-xs font-medium inline-flex items-center">
-                               <CheckCircle className="w-3 h-3 mr-1" /> Ready
-                            </span>
+                            <div className="flex justify-end pr-2">
+                               <CheckCircle className="w-5 h-5 text-green-500" />
+                            </div>
                           )}
                         </td>
                       </tr>
@@ -219,15 +227,14 @@ const FacultyPanel = () => {
             )}
           </div>
 
-          {/* Footer */}
-          <div className="p-4 bg-gray-50 border-t border-gray-200">
-            <p className="text-sm text-gray-500">
-              Showing {filteredFaculty.length} registered faculty members
+          <div className="p-6 bg-gray-50/30 border-t border-gray-50 italic">
+            <p className="text-sm text-gray-500 font-medium">
+              A total of <span className="text-blue-600 font-bold">{facultyMembers.length}</span> faculty members registered in the platform.
             </p>
           </div>
         </div>
       </div>
-    </div>
+    </AdminLayout>
   );
 };
 

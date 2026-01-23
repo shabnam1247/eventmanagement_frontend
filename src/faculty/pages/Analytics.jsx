@@ -13,6 +13,8 @@ import {
   Tooltip,
   Legend,
   ResponsiveContainer,
+  AreaChart,
+  Area
 } from "recharts";
 import {
   Calendar,
@@ -21,8 +23,13 @@ import {
   MessageSquare,
   Download,
   Filter,
+  Sparkles,
+  ArrowUpRight,
+  Target,
+  Medal,
+  Activity
 } from "lucide-react";
-import FacultyHeader from "../components/FacultyHeader";
+import FacultyLayout from "../components/FacultyLayout";
 
 const FacultyEventDashboard = () => {
   const [selectedEvent, setSelectedEvent] = useState("all");
@@ -42,8 +49,8 @@ const FacultyEventDashboard = () => {
   ];
 
   const eventCategories = [
-    { name: "Technical", value: 35, color: "#3b82f6" },
-    { name: "Cultural", value: 30, color: "#8b5cf6" },
+    { name: "Technical", value: 35, color: "#2563eb" },
+    { name: "Cultural", value: 30, color: "#3b82f6" },
     { name: "Sports", value: 20, color: "#10b981" },
     { name: "Workshops", value: 15, color: "#f59e0b" },
   ];
@@ -53,194 +60,214 @@ const FacultyEventDashboard = () => {
   const avgAttendanceRate = ((totalAttendance / totalRegistrations) * 100).toFixed(1);
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <FacultyHeader />
-      
-      <div className="max-w-7xl mx-auto px-4 py-8">
-        {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-2xl font-bold text-gray-900 mb-2">Analytics Dashboard</h1>
-          <p className="text-gray-600">Event performance and insights</p>
+    <FacultyLayout>
+      <div className="space-y-10">
+        {/* Header Section */}
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 pb-6 border-b border-gray-100">
+          <div className="space-y-1">
+             <div className="flex items-center gap-2 text-blue-600 font-black text-xs uppercase tracking-[0.3em] mb-2">
+                <Sparkles className="w-3 h-3" /> Dashboard Analytics
+             </div>
+             <h1 className="text-4xl font-black text-gray-900 tracking-tight">Event <span className="text-blue-600">Performance</span></h1>
+             <p className="text-gray-500 font-medium tracking-tight">Monitoring event metrics and engagement stats</p>
+          </div>
+
+          <div className="flex flex-wrap items-center gap-3">
+             <div className="bg-white p-1 rounded-2xl shadow-sm border border-gray-100 flex gap-1">
+                {['D', 'W', 'M', 'Y'].map((range) => (
+                  <button 
+                    key={range}
+                    className={`px-4 py-2 rounded-xl text-xs font-black transition-all ${range === 'M' ? 'bg-blue-600 text-white shadow-lg' : 'text-gray-400 hover:text-gray-900'}`}
+                  >
+                    {range}
+                  </button>
+                ))}
+             </div>
+             <button className="flex items-center gap-2 px-6 py-3 bg-gray-900 text-white rounded-2xl font-bold text-sm hover:bg-black transition-all shadow-xl shadow-gray-200 active:scale-95">
+                <Download className="w-4 h-4" />
+                EXPORT DATA
+             </button>
+          </div>
         </div>
 
-        {/* Filters */}
-        <div className="bg-white rounded-xl border border-gray-200 p-4 mb-6">
-          <div className="flex flex-col md:flex-row gap-4 justify-between">
-            <div className="flex flex-col sm:flex-row gap-4">
-              <div className="flex items-center gap-2">
-                <Filter className="w-4 h-4 text-gray-500" />
-                <select
-                  value={selectedEvent}
-                  onChange={(e) => setSelectedEvent(e.target.value)}
-                  className="px-4 py-2 border border-gray-300 rounded-lg"
-                >
-                  <option value="all">All Events</option>
-                  {events.map((e) => (
-                    <option key={e.id} value={e.id}>{e.name}</option>
-                  ))}
-                </select>
-              </div>
-              <select
-                value={dateRange}
-                onChange={(e) => setDateRange(e.target.value)}
-                className="px-4 py-2 border border-gray-300 rounded-lg"
-              >
-                <option value="week">Last Week</option>
-                <option value="month">Last Month</option>
-                <option value="quarter">Last Quarter</option>
-                <option value="year">Last Year</option>
-              </select>
+        {/* Dynamic Stats Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <StatCard 
+            label="Total Events" 
+            value={events.length} 
+            icon={<Calendar className="w-6 h-6" />}
+            trend="+12%"
+            color="blue"
+          />
+          <StatCard 
+            label="Total Registrations" 
+            value={totalRegistrations} 
+            icon={<Users className="w-6 h-6" />}
+            trend="+24%"
+            color="blue"
+          />
+          <StatCard 
+            label="Attendance Rate" 
+            value={`${avgAttendanceRate}%`} 
+            icon={<Activity className="w-6 h-6" />}
+            trend="+5.4%"
+            color="emerald"
+          />
+          <StatCard 
+            label="Student Satisfaction" 
+            value="4.8/5" 
+            icon={<Medal className="w-6 h-6" />}
+            trend="Peak"
+            color="amber"
+          />
+        </div>
+
+        {/* Charts Section */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+          {/* Main Chart */}
+          <div className="lg:col-span-8 bg-white rounded-[2.5rem] border border-gray-100 shadow-xl shadow-gray-50 p-8">
+             <div className="flex items-center justify-between mb-10">
+                <div>
+                   <h3 className="text-lg font-black text-gray-900 uppercase tracking-tight">Registration Trends</h3>
+                   <p className="text-xs text-gray-400 font-bold uppercase tracking-widest mt-1">Registrations vs Actual Attendance</p>
+                </div>
+                <div className="flex items-center gap-4">
+                   <div className="flex items-center gap-2">
+                      <div className="w-3 h-3 rounded-full bg-blue-600"></div>
+                      <span className="text-xs font-black text-gray-400 uppercase tracking-widest">Target</span>
+                   </div>
+                   <div className="flex items-center gap-2">
+                      <div className="w-3 h-3 rounded-full bg-emerald-500"></div>
+                      <span className="text-xs font-black text-gray-400 uppercase tracking-widest">Actual</span>
+                   </div>
+                </div>
+             </div>
+
+             <div className="h-[350px] w-full">
+                <ResponsiveContainer width="100%" height="100%">
+                   <AreaChart data={registrationTrend} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                      <defs>
+                         <linearGradient id="colorReg" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="5%" stopColor="#2563eb" stopOpacity={0.3}/>
+                            <stop offset="95%" stopColor="#2563eb" stopOpacity={0}/>
+                         </linearGradient>
+                         <linearGradient id="colorAtt" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="5%" stopColor="#10b981" stopOpacity={0.3}/>
+                            <stop offset="95%" stopColor="#10b981" stopOpacity={0}/>
+                         </linearGradient>
+                      </defs>
+                      <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+                      <XAxis 
+                        dataKey="date" 
+                        axisLine={false} 
+                        tickLine={false} 
+                        tick={{ fill: '#94a3b8', fontSize: 10, fontWeight: 800 }} 
+                        dy={10}
+                      />
+                      <YAxis 
+                        axisLine={false} 
+                        tickLine={false} 
+                        tick={{ fill: '#94a3b8', fontSize: 10, fontWeight: 800 }} 
+                      />
+                      <Tooltip 
+                        contentStyle={{ borderRadius: '20px', border: 'none', boxShadow: '0 20px 25px -5px rgb(0 0 0 / 0.1)', fontWeight: 800 }}
+                      />
+                      <Area type="monotone" dataKey="registrations" stroke="#2563eb" strokeWidth={4} fillOpacity={1} fill="url(#colorReg)" />
+                      <Area type="monotone" dataKey="attendance" stroke="#10b981" strokeWidth={4} fillOpacity={1} fill="url(#colorAtt)" />
+                   </AreaChart>
+                </ResponsiveContainer>
+             </div>
+          </div>
+
+          {/* Pie Chart Section */}
+          <div className="lg:col-span-4 bg-white rounded-[2.5rem] border border-gray-100 shadow-xl shadow-gray-50 p-8">
+             <h3 className="text-lg font-black text-gray-900 uppercase tracking-tight mb-2">Category Split</h3>
+             <p className="text-xs text-gray-400 font-bold uppercase tracking-widest mb-10">Event type distribution</p>
+
+             <div className="h-[300px] w-full relative">
+                <ResponsiveContainer width="100%" height="100%">
+                   <PieChart>
+                      <Pie
+                        data={eventCategories}
+                        cx="50%"
+                        cy="50%"
+                        innerRadius={70}
+                        outerRadius={100}
+                        paddingAngle={8}
+                        dataKey="value"
+                      >
+                        {eventCategories.map((entry, index) => (
+                          <Cell key={`cell-${index}`} fill={entry.color} stroke="none" />
+                        ))}
+                      </Pie>
+                      <Tooltip />
+                   </PieChart>
+                </ResponsiveContainer>
+                <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+                   <Target className="w-8 h-8 text-gray-200 mb-1" />
+                   <span className="text-2xl font-black text-gray-900">100%</span>
+                   <span className="text-xs font-black text-gray-400 uppercase tracking-widest">Global Scan</span>
+                </div>
+             </div>
+
+             <div className="space-y-3 mt-6">
+                {eventCategories.map((cat) => (
+                  <div key={cat.name} className="flex items-center justify-between p-3 rounded-2xl bg-gray-50 hover:bg-white border border-transparent hover:border-gray-100 transition-all">
+                     <div className="flex items-center gap-3">
+                        <div className="w-2 h-2 rounded-full" style={{ backgroundColor: cat.color }}></div>
+                        <span className="text-xs font-black text-gray-600 uppercase tracking-tight">{cat.name}</span>
+                     </div>
+                     <span className="text-xs font-black text-gray-900">{cat.value}%</span>
+                  </div>
+                ))}
+             </div>
+          </div>
+        </div>
+
+        {/* Events Data Table */}
+        <div className="bg-white rounded-[2.5rem] border border-gray-100 shadow-2xl shadow-gray-50 overflow-hidden">
+          <div className="p-8 border-b border-gray-50 flex items-center justify-between">
+            <div>
+               <h3 className="text-xl font-black text-gray-900 tracking-tight">Event List</h3>
+               <p className="text-gray-400 text-xs font-bold uppercase tracking-widest mt-1">Detailed performance metrics per event</p>
             </div>
-            <button className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 flex items-center gap-2">
-              <Download className="w-4 h-4" />
-              Export Report
+            <button className="p-3 bg-blue-50 text-blue-600 rounded-xl hover:bg-blue-600 hover:text-white transition-all">
+               <Filter className="w-5 h-5" />
             </button>
           </div>
-        </div>
-
-        {/* Stats Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-          <div className="bg-white rounded-xl border border-gray-200 p-4">
-            <div className="flex items-center gap-3 mb-2">
-              <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
-                <Calendar className="w-5 h-5 text-blue-600" />
-              </div>
-              <div>
-                <p className="text-sm text-gray-600">Total Events</p>
-                <p className="text-2xl font-bold text-gray-900">{events.length}</p>
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-white rounded-xl border border-gray-200 p-4">
-            <div className="flex items-center gap-3 mb-2">
-              <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
-                <Users className="w-5 h-5 text-purple-600" />
-              </div>
-              <div>
-                <p className="text-sm text-gray-600">Registrations</p>
-                <p className="text-2xl font-bold text-gray-900">{totalRegistrations}</p>
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-white rounded-xl border border-gray-200 p-4">
-            <div className="flex items-center gap-3 mb-2">
-              <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
-                <TrendingUp className="w-5 h-5 text-green-600" />
-              </div>
-              <div>
-                <p className="text-sm text-gray-600">Attendance Rate</p>
-                <p className="text-2xl font-bold text-gray-900">{avgAttendanceRate}%</p>
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-white rounded-xl border border-gray-200 p-4">
-            <div className="flex items-center gap-3 mb-2">
-              <div className="w-10 h-10 bg-orange-100 rounded-lg flex items-center justify-center">
-                <MessageSquare className="w-5 h-5 text-orange-600" />
-              </div>
-              <div>
-                <p className="text-sm text-gray-600">Avg Rating</p>
-                <p className="text-2xl font-bold text-gray-900">4.2/5</p>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Charts Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-          {/* Registration Trend */}
-          <div className="bg-white rounded-xl border border-gray-200 p-4">
-            <h3 className="font-semibold text-gray-900 mb-4">Registration Trend</h3>
-            <div className="h-64">
-              <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={registrationTrend}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-                  <XAxis dataKey="date" stroke="#6b7280" fontSize={12} />
-                  <YAxis stroke="#6b7280" fontSize={12} />
-                  <Tooltip />
-                  <Line 
-                    type="monotone" 
-                    dataKey="registrations" 
-                    stroke="#3b82f6" 
-                    strokeWidth={2}
-                    name="Registrations"
-                  />
-                  <Line 
-                    type="monotone" 
-                    dataKey="attendance" 
-                    stroke="#10b981" 
-                    strokeWidth={2}
-                    name="Attendance"
-                  />
-                </LineChart>
-              </ResponsiveContainer>
-            </div>
-          </div>
-
-          {/* Event Categories */}
-          <div className="bg-white rounded-xl border border-gray-200 p-4">
-            <h3 className="font-semibold text-gray-900 mb-4">Event Categories</h3>
-            <div className="h-64">
-              <ResponsiveContainer width="100%" height="100%">
-                <PieChart>
-                  <Pie
-                    data={eventCategories}
-                    cx="50%"
-                    cy="50%"
-                    innerRadius={60}
-                    outerRadius={80}
-                    paddingAngle={5}
-                    dataKey="value"
-                    label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
-                  >
-                    {eventCategories.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={entry.color} />
-                    ))}
-                  </Pie>
-                  <Tooltip />
-                  <Legend />
-                </PieChart>
-              </ResponsiveContainer>
-            </div>
-          </div>
-        </div>
-
-        {/* Events Table */}
-        <div className="bg-white rounded-xl border border-gray-200">
-          <div className="p-4 border-b border-gray-200">
-            <h3 className="font-semibold text-gray-900">Recent Events Performance</h3>
-          </div>
+          
           <div className="overflow-x-auto">
             <table className="w-full">
-              <thead className="bg-gray-50">
-                <tr>
-                  <th className="py-3 px-4 text-left text-sm font-medium text-gray-600">Event Name</th>
-                  <th className="py-3 px-4 text-left text-sm font-medium text-gray-600">Date</th>
-                  <th className="py-3 px-4 text-left text-sm font-medium text-gray-600">Registrations</th>
-                  <th className="py-3 px-4 text-left text-sm font-medium text-gray-600">Attended</th>
-                  <th className="py-3 px-4 text-left text-sm font-medium text-gray-600">Rate</th>
+              <thead>
+                <tr className="bg-gray-50/50">
+                  <th className="py-5 px-8 text-left text-xs font-black text-gray-400 uppercase tracking-widest">Event Name</th>
+                  <th className="py-5 px-8 text-left text-xs font-black text-gray-400 uppercase tracking-widest">Date</th>
+                  <th className="py-5 px-8 text-left text-xs font-black text-gray-400 uppercase tracking-widest">Registrations</th>
+                  <th className="py-5 px-8 text-left text-xs font-black text-gray-400 uppercase tracking-widest">Attendance</th>
+                  <th className="py-5 px-8 text-right text-xs font-black text-gray-400 uppercase tracking-widest">Success Rate</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-200">
+              <tbody className="divide-y divide-gray-50">
                 {events.map((event) => {
                   const rate = ((event.attended / event.registrations) * 100).toFixed(1);
                   return (
-                    <tr key={event.id} className="hover:bg-gray-50">
-                      <td className="py-3 px-4 text-gray-900">{event.name}</td>
-                      <td className="py-3 px-4 text-gray-600">{event.date}</td>
-                      <td className="py-3 px-4 text-gray-600">{event.registrations}</td>
-                      <td className="py-3 px-4 text-gray-600">{event.attended}</td>
-                      <td className="py-3 px-4">
-                        <span className={`px-3 py-1 rounded-full text-xs font-medium ${
-                          rate >= 90 ? "bg-green-100 text-green-800" :
-                          rate >= 80 ? "bg-blue-100 text-blue-800" :
-                          "bg-yellow-100 text-yellow-800"
-                        }`}>
-                          {rate}%
-                        </span>
+                    <tr key={event.id} className="hover:bg-blue-50/20 transition-colors group">
+                      <td className="py-6 px-8">
+                         <div className="flex items-center gap-4">
+                            <div className="w-10 h-10 bg-gray-100 rounded-xl flex items-center justify-center font-black text-gray-400 group-hover:bg-blue-600 group-hover:text-white transition-all">
+                               {event.name.charAt(0)}
+                            </div>
+                            <span className="font-black text-gray-900 uppercase tracking-tight">{event.name}</span>
+                         </div>
+                      </td>
+                      <td className="py-6 px-8 text-sm font-bold text-gray-500 uppercase">{event.date}</td>
+                      <td className="py-6 px-8 text-sm font-black text-blue-600">{event.registrations}</td>
+                      <td className="py-6 px-8 text-sm font-black text-emerald-600">{event.attended}</td>
+                      <td className="py-6 px-8 text-right">
+                        <div className="inline-flex items-center gap-2 px-4 py-2 bg-gray-50 rounded-xl group-hover:bg-white transition-colors">
+                           <div className={`w-1.5 h-1.5 rounded-full ${rate >= 90 ? 'bg-emerald-500' : 'bg-amber-500'}`}></div>
+                           <span className="text-xs font-black text-gray-700">{rate}%</span>
+                        </div>
                       </td>
                     </tr>
                   );
@@ -250,8 +277,41 @@ const FacultyEventDashboard = () => {
           </div>
         </div>
       </div>
+    </FacultyLayout>
+  );
+};
+
+const StatCard = ({ label, value, icon, trend, color }) => {
+  const colors = {
+    blue: "bg-blue-600 text-blue-600 shadow-blue-100",
+    emerald: "bg-emerald-600 text-emerald-600 shadow-emerald-100",
+    amber: "bg-amber-600 text-amber-600 shadow-amber-100",
+  };
+
+  return (
+    <div className="bg-white p-8 rounded-[2.5rem] border border-gray-100 shadow-xl shadow-gray-50 group hover:shadow-2xl hover:shadow-blue-50 transition-all relative overflow-hidden">
+       <div className="absolute top-0 right-0 w-24 h-24 bg-gray-50 rounded-full blur-3xl -mr-12 -mt-12 transition-all group-hover:bg-blue-50"></div>
+       
+       <div className="relative z-10">
+          <div className={`w-14 h-14 ${colors[color].replace('bg-', 'bg-opacity-10 bg-')} rounded-2xl flex items-center justify-center mb-6 transition-transform group-hover:scale-110 shadow-inner`}>
+             <div className={`${colors[color].split(' ')[1]}`}>
+                {icon}
+             </div>
+          </div>
+          <p className="text-xs font-black text-gray-400 uppercase tracking-widest mb-1">{label}</p>
+          <div className="flex items-end justify-between">
+             <h4 className="text-3xl font-black text-gray-900 tracking-tight">{value}</h4>
+             <div className="flex items-center gap-1 text-xs font-black text-emerald-500 bg-emerald-50 px-2 py-1 rounded-lg">
+                <ArrowUpRight className="w-3 h-3" />
+                {trend}
+             </div>
+          </div>
+       </div>
     </div>
   );
 };
+
+
+const LayoutDashboardWrapper = ({ children }) => <FacultyLayout children={children} />;
 
 export default FacultyEventDashboard;

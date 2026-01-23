@@ -1,256 +1,237 @@
-import React, { useState } from "react";
-import {
-  BarChart,
-  Bar,
-  LineChart,
-  Line,
-  PieChart,
-  Pie,
-  Cell,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  Legend,
-  ResponsiveContainer,
-} from "recharts";
+import React, { useEffect, useState } from "react";
 import {
   Calendar,
   Users,
   TrendingUp,
-  MessageSquare,
-  Download,
-  Filter,
+  Activity,
+  UserCheck
 } from "lucide-react";
-import AdminHeader from "../components/AdminHeader";
+import AdminLayout from "../components/AdminLayout";
+import axios from "axios";
+import toast from 'react-hot-toast';
+import StatCard from '../components/Statscard';
 
 const EventDashboard = () => {
-  const [selectedEvent, setSelectedEvent] = useState("all");
-  const [dateRange, setDateRange] = useState("month");
+  const [loading, setLoading] = useState(true);
+  const [dashboard, setDashboard] = useState({
+    totalEvents: 0,
+    upcomingEvents: 0,
+    pastEvents: 0,
+    totalStudents: 0,
+    totalFaculties: 0,
+    totalUsers: 0,
+    totalRegistrations: 0,
+    totalCategories: 0,
+    eventCategories: [],
+    latestRegistrations: [],
+    popularEvents: [],
+    totalAttendance: 0,
+    avgAttendanceRate: 0
+  });
 
-  const events = [
-    { id: 1, name: "Tech Fest 2024", date: "2024-11-20", registrations: 450, attended: 380, capacity: 500 },
-    { id: 2, name: "Cultural Night", date: "2024-11-15", registrations: 320, attended: 295, capacity: 400 },
-    { id: 3, name: "Workshop: AI/ML", date: "2024-11-10", registrations: 150, attended: 142, capacity: 150 },
-  ];
+  useEffect(() => {
+    fetchDashboardStats();
+  }, []);
 
-  const registrationTrend = [
-    { date: "Week 1", registrations: 85, attendance: 78 },
-    { date: "Week 2", registrations: 120, attendance: 110 },
-    { date: "Week 3", registrations: 150, attendance: 142 },
-    { date: "Week 4", registrations: 200, attendance: 185 },
-  ];
+  const token = localStorage.getItem("adminToken");
 
-  const eventCategories = [
-    { name: "Technical", value: 35, color: "#3b82f6" },
-    { name: "Cultural", value: 30, color: "#8b5cf6" },
-    { name: "Sports", value: 20, color: "#10b981" },
-    { name: "Workshops", value: 15, color: "#f59e0b" },
-  ];
+  const fetchDashboardStats = async () => {
+    try {
+      const response = await axios.get("http://localhost:5000/api/admin/dashboard/stats", {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+      if (response.data.success) {
+        setDashboard(response.data.stats);
+      }
+    } catch (error) {
+      console.error(error);
+      toast.error('Failed to fetch dashboard stats');
+    } finally {
+      setLoading(false);
+    }
+  };
 
-  const totalRegistrations = events.reduce((s, e) => s + e.registrations, 0);
-  const totalAttendance = events.reduce((s, e) => s + e.attended, 0);
-  const avgAttendanceRate = ((totalAttendance / totalRegistrations) * 100).toFixed(1);
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-xl">Loading dashboard...</div>
+      </div>
+    );
+  }
+
+  const {
+    totalEvents,
+    upcomingEvents,
+    pastEvents,
+    totalUsers,
+    totalRegistrations,
+    totalAttendance,
+    avgAttendanceRate,
+    eventCategories,
+    latestRegistrations,
+    popularEvents
+  } = dashboard;
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <AdminHeader />
-      
-      <div className="max-w-7xl mx-auto px-4 py-8">
-        {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-2xl font-bold text-gray-900 mb-2">Analytics Dashboard</h1>
-          <p className="text-gray-600">Event performance and insights</p>
+    <AdminLayout>
+      <div className="py-2">
+        <h1 className="text-3xl font-bold mb-6">Overview</h1>
+
+        {/* Overview Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+          <StatCard
+            title="Total Events"
+            value={totalEvents || 0}
+            icon={<Calendar className="w-8 h-8 text-blue-500" />}
+            bgColor="bg-blue-50"
+          />
+          <StatCard
+            title="Total Registrations"
+            value={totalRegistrations || 0}
+            icon={<Users className="w-8 h-8 text-green-500" />}
+            bgColor="bg-green-50"
+          />
+          <StatCard
+            title="Total Attendance"
+            value={totalAttendance || 0}
+            icon={<UserCheck className="w-8 h-8 text-purple-500" />}
+            bgColor="bg-purple-50"
+          />
+          <StatCard
+            title="Attendance Rate"
+            value={`${avgAttendanceRate || 0}%`}
+            icon={<TrendingUp className="w-8 h-8 text-orange-500" />}
+            bgColor="bg-orange-50"
+          />
         </div>
 
-        {/* Filters */}
-        <div className="bg-white rounded-xl border border-gray-200 p-4 mb-6">
-          <div className="flex flex-col md:flex-row gap-4 justify-between">
-            <div className="flex flex-col sm:flex-row gap-4">
-              <div className="flex items-center gap-2">
-                <Filter className="w-4 h-4 text-gray-500" />
-                <select
-                  value={selectedEvent}
-                  onChange={(e) => setSelectedEvent(e.target.value)}
-                  className="px-4 py-2 border border-gray-300 rounded-lg"
-                >
-                  <option value="all">All Events</option>
-                  {events.map((e) => (
-                    <option key={e.id} value={e.id}>{e.name}</option>
-                  ))}
-                </select>
-              </div>
-              <select
-                value={dateRange}
-                onChange={(e) => setDateRange(e.target.value)}
-                className="px-4 py-2 border border-gray-300 rounded-lg"
-              >
-                <option value="week">Last Week</option>
-                <option value="month">Last Month</option>
-                <option value="quarter">Last Quarter</option>
-                <option value="year">Last Year</option>
-              </select>
-            </div>
-            <button className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 flex items-center gap-2">
-              <Download className="w-4 h-4" />
-              Export Report
-            </button>
-          </div>
+        {/* Secondary Stats */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+          <StatCard
+            title="Upcoming Events"
+            value={upcomingEvents || 0}
+            icon={<Activity className="w-6 h-6 text-indigo-500" />}
+            bgColor="bg-indigo-50"
+          />
+          <StatCard
+            title="Past Events"
+            value={pastEvents || 0}
+            icon={<Calendar className="w-6 h-6 text-gray-500" />}
+            bgColor="bg-gray-50"
+          />
+          <StatCard
+            title="Total Users"
+            value={totalUsers || 0}
+            icon={<Users className="w-6 h-6 text-pink-500" />}
+            bgColor="bg-pink-50"
+          />
         </div>
 
-        {/* Stats Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-          <div className="bg-white rounded-xl border border-gray-200 p-4">
-            <div className="flex items-center gap-3 mb-2">
-              <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
-                <Calendar className="w-5 h-5 text-blue-600" />
-              </div>
-              <div>
-                <p className="text-sm text-gray-600">Total Events</p>
-                <p className="text-2xl font-bold text-gray-900">{events.length}</p>
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-white rounded-xl border border-gray-200 p-4">
-            <div className="flex items-center gap-3 mb-2">
-              <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
-                <Users className="w-5 h-5 text-purple-600" />
-              </div>
-              <div>
-                <p className="text-sm text-gray-600">Registrations</p>
-                <p className="text-2xl font-bold text-gray-900">{totalRegistrations}</p>
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-white rounded-xl border border-gray-200 p-4">
-            <div className="flex items-center gap-3 mb-2">
-              <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
-                <TrendingUp className="w-5 h-5 text-green-600" />
-              </div>
-              <div>
-                <p className="text-sm text-gray-600">Attendance Rate</p>
-                <p className="text-2xl font-bold text-gray-900">{avgAttendanceRate}%</p>
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-white rounded-xl border border-gray-200 p-4">
-            <div className="flex items-center gap-3 mb-2">
-              <div className="w-10 h-10 bg-orange-100 rounded-lg flex items-center justify-center">
-                <MessageSquare className="w-5 h-5 text-orange-600" />
-              </div>
-              <div>
-                <p className="text-sm text-gray-600">Avg Rating</p>
-                <p className="text-2xl font-bold text-gray-900">4.2/5</p>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Charts Grid */}
+        {/* Events by Category & Popular Events */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-          {/* Registration Trend */}
-          <div className="bg-white rounded-xl border border-gray-200 p-4">
-            <h3 className="font-semibold text-gray-900 mb-4">Registration Trend</h3>
-            <div className="h-64">
-              <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={registrationTrend}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-                  <XAxis dataKey="date" stroke="#6b7280" fontSize={12} />
-                  <YAxis stroke="#6b7280" fontSize={12} />
-                  <Tooltip />
-                  <Line 
-                    type="monotone" 
-                    dataKey="registrations" 
-                    stroke="#3b82f6" 
-                    strokeWidth={2}
-                    name="Registrations"
-                  />
-                  <Line 
-                    type="monotone" 
-                    dataKey="attendance" 
-                    stroke="#10b981" 
-                    strokeWidth={2}
-                    name="Attendance"
-                  />
-                </LineChart>
-              </ResponsiveContainer>
+          {/* Events by Category */}
+          <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 font-sans">
+            <h2 className="text-xl font-semibold mb-4 text-gray-800">Events by Category</h2>
+            <div className="space-y-3">
+              {eventCategories && eventCategories.length > 0 ? (
+                eventCategories.map((cat, index) => (
+                  <div key={index} className="flex justify-between items-center p-2 rounded-lg hover:bg-gray-50 transition-colors group">
+                    <span className="font-medium capitalize text-gray-600 group-hover:text-blue-600 transition-colors uppercase text-sm tracking-wide">{cat._id || 'Uncategorized'}</span>
+                    <span className="bg-blue-50 text-blue-600 px-3 py-1 rounded-full text-sm font-bold">
+                      {cat.count}
+                    </span>
+                  </div>
+                ))
+              ) : (
+                <p className="text-gray-500 italic">No category data available</p>
+              )}
             </div>
           </div>
 
-          {/* Event Categories */}
-          <div className="bg-white rounded-xl border border-gray-200 p-4">
-            <h3 className="font-semibold text-gray-900 mb-4">Event Categories</h3>
-            <div className="h-64">
-              <ResponsiveContainer width="100%" height="100%">
-                <PieChart>
-                  <Pie
-                    data={eventCategories}
-                    cx="50%"
-                    cy="50%"
-                    innerRadius={60}
-                    outerRadius={80}
-                    paddingAngle={5}
-                    dataKey="value"
-                    label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
-                  >
-                    {eventCategories.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={entry.color} />
-                    ))}
-                  </Pie>
-                  <Tooltip />
-                  <Legend />
-                </PieChart>
-              </ResponsiveContainer>
+          {/* Popular Events */}
+          <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+            <h2 className="text-xl font-semibold mb-4 text-gray-800">Top Popular Events</h2>
+            <div className="space-y-3">
+              {popularEvents && popularEvents.length > 0 ? (
+                popularEvents.map((event, index) => (
+                  <div key={event._id} className="border-b border-gray-50 pb-3 last:border-0 hover:bg-gray-50 p-3 rounded-xl transition-all group">
+                    <div className="flex justify-between items-start">
+                      <div>
+                        <p className="font-semibold text-gray-800 group-hover:text-blue-600 transition-colors">{event.title}</p>
+                        <p className="text-xs text-gray-400 font-medium">Rank #{index + 1} • Top Engagement</p>
+                      </div>
+                      <span className="bg-green-50 text-green-600 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-tight">
+                        {event.regCount} registrations
+                      </span>
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <p className="text-gray-500 italic text-center py-4">No popular events yet</p>
+              )}
             </div>
           </div>
         </div>
 
-        {/* Events Table */}
-        <div className="bg-white rounded-xl border border-gray-200">
-          <div className="p-4 border-b border-gray-200">
-            <h3 className="font-semibold text-gray-900">Recent Events Performance</h3>
+        {/* Recent Registrations */}
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+          <div className="p-6 border-b border-gray-50 flex justify-between items-center">
+            <h2 className="text-xl font-semibold text-gray-800">Recent Registrations</h2>
+            <button className="text-blue-600 text-sm font-bold hover:text-blue-700 transition-colors tracking-tight">VIEW ALL DASHBOARD &rarr;</button>
           </div>
           <div className="overflow-x-auto">
             <table className="w-full">
-              <thead className="bg-gray-50">
+              <thead className="bg-gray-50/50">
                 <tr>
-                  <th className="py-3 px-4 text-left text-sm font-medium text-gray-600">Event Name</th>
-                  <th className="py-3 px-4 text-left text-sm font-medium text-gray-600">Date</th>
-                  <th className="py-3 px-4 text-left text-sm font-medium text-gray-600">Registrations</th>
-                  <th className="py-3 px-4 text-left text-sm font-medium text-gray-600">Attended</th>
-                  <th className="py-3 px-4 text-left text-sm font-medium text-gray-600">Rate</th>
+                  <th className="px-6 py-4 text-left text-xs font-bold text-gray-400 uppercase tracking-widest">Student</th>
+                  <th className="px-6 py-4 text-left text-xs font-bold text-gray-400 uppercase tracking-widest">Event</th>
+                  <th className="px-6 py-4 text-left text-xs font-bold text-gray-400 uppercase tracking-widest">Date</th>
+                  <th className="px-6 py-4 text-left text-xs font-bold text-gray-400 uppercase tracking-widest">Status</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-200">
-                {events.map((event) => {
-                  const rate = ((event.attended / event.registrations) * 100).toFixed(1);
-                  return (
-                    <tr key={event.id} className="hover:bg-gray-50">
-                      <td className="py-3 px-4 text-gray-900">{event.name}</td>
-                      <td className="py-3 px-4 text-gray-600">{event.date}</td>
-                      <td className="py-3 px-4 text-gray-600">{event.registrations}</td>
-                      <td className="py-3 px-4 text-gray-600">{event.attended}</td>
-                      <td className="py-3 px-4">
-                        <span className={`px-3 py-1 rounded-full text-xs font-medium ${
-                          rate >= 90 ? "bg-green-100 text-green-800" :
-                          rate >= 80 ? "bg-blue-100 text-blue-800" :
-                          "bg-yellow-100 text-yellow-800"
-                        }`}>
-                          {rate}%
+              <tbody className="divide-y divide-gray-50">
+                {latestRegistrations && latestRegistrations.length > 0 ? (
+                  latestRegistrations.map((reg) => (
+                    <tr key={reg._id} className="hover:bg-blue-50/30 transition-colors">
+                      <td className="px-6 py-4">
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center text-white font-bold text-sm shadow-sm shadow-blue-100">
+                            {reg.userid?.name?.charAt(0) || 'U'}
+                          </div>
+                          <div>
+                            <p className="font-bold text-sm text-gray-900 leading-tight">{reg.userid?.name || 'Unknown User'}</p>
+                            <p className="text-xs text-gray-400 font-medium">{reg.userid?.email || 'No Email'}</p>
+                          </div>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 text-sm text-gray-700 font-semibold">
+                        {reg.eventid?.title || 'Unknown Event'}
+                      </td>
+                      <td className="px-6 py-4 text-sm text-gray-500 font-medium">
+                        {reg.registeredAt ? new Date(reg.registeredAt).toLocaleDateString() : 'N/A'}
+                      </td>
+                      <td className="px-6 py-4">
+                        <span className="px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-blue-50 text-blue-600 border border-blue-100 shadow-sm shadow-blue-50">
+                          Registered
                         </span>
                       </td>
                     </tr>
-                  );
-                })}
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan="4" className="px-6 py-12 text-center text-gray-400 italic">
+                      No recent registrations found
+                    </td>
+                  </tr>
+                )}
               </tbody>
             </table>
           </div>
         </div>
       </div>
-    </div>
+    </AdminLayout>
   );
 };
 

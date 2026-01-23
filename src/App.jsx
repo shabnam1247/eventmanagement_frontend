@@ -26,7 +26,9 @@ import RegistrationList from "./admin/pages/RegistrationList";
 import AdminLogin from "./admin/pages/AdminLogin";
 import AdminChatroomApp from "./admin/pages/Chatroom";
 import EventDashboard from "./admin/pages/Analytics";
+import AdminFeedbackList from "./admin/pages/Feedback";
 import EditEventPage from "./admin/pages/EditEvent";
+import CategoryManagement from "./admin/pages/Categories";
 import FacultyEventPanel from "./faculty/pages/Events";
 import FacultyStudentPanel from "./faculty/pages/Students";
 import FacultyAddStudentPage from "./faculty/pages/AddStudent";
@@ -38,10 +40,15 @@ import FacultyCalendar from "./faculty/pages/Calendar";
 import FacultyRegisterPage from "./faculty/pages/Register";
 import FacultyOTPVerification from "./faculty/pages/OTPPage";
 import FacultyEventDashboard from "./faculty/pages/Analytics";
+import FacultyViewEventPage from "./faculty/pages/ViewEvent";
+import FacultyEditEventPage from "./faculty/pages/EditEvent";
+
+import { Toaster } from "react-hot-toast";
 
 function App() {
   return (
     <>
+      <Toaster position="top-right" reverseOrder={false} />
       <Routes>
         <Route path="/" element={<Home />}></Route>
         <Route path="/login" element={<Login />}></Route>
@@ -69,7 +76,9 @@ function App() {
         <Route path="/admin/login" element={<AdminLogin />} />
         <Route path="/admin/chatroom" element={<AdminChatroomApp />} />
         <Route path="/admin/dashboard" element={<EventDashboard />} />
+        <Route path="/admin/feedback" element={<AdminFeedbackList />} />
         <Route path="/admin/editevent/:id" element={<EditEventPage />} />
+        <Route path="/admin/categories" element={<CategoryManagement />} />
 
         <Route path="/faculty/events" element={<FacultyEventPanel />} />
         <Route path="/faculty/login" element={<FacultyLogin />} />
@@ -82,6 +91,8 @@ function App() {
         <Route path='/faculty/register' element={<FacultyRegisterPage/>} />
          <Route path='/faculty/otp' element={<FacultyOTPVerification/>} />
          <Route path='/faculty/dashboard' element={<FacultyEventDashboard/>} />
+         <Route path='/faculty/event/:id' element={<FacultyViewEventPage />} />
+         <Route path='/faculty/editevent/:id' element={<FacultyEditEventPage />} />
       </Routes>
     </>
   );

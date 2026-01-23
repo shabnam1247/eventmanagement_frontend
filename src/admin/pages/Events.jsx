@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Search, Plus, Calendar, MapPin, Users, Eye, Edit, Trash2, Loader2 } from "lucide-react";
-import AdminHeader from "../components/AdminHeader";
+import AdminLayout from "../components/AdminLayout";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import toast, { Toaster } from "react-hot-toast";
@@ -90,194 +90,224 @@ const AdminEventPanel = () => {
   };
 
   const filteredEvents = events.filter((event) => {
-    const matchesSearch = event.title.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesStatus = statusFilter === "all" || event.status === statusFilter;
-    return matchesSearch && matchesStatus;
+    const titleMatch = event.title?.toLowerCase().includes(searchTerm.toLowerCase());
+    const statusMatch = statusFilter === "all" || event.status === statusFilter;
+    return titleMatch && statusMatch;
   });
 
   const getStatusColor = (status) => {
     switch (status) {
-      case "upcoming": return "bg-blue-100 text-blue-800";
-      case "ongoing": return "bg-green-100 text-green-800";
-      case "completed": return "bg-gray-100 text-gray-800";
-      default: return "bg-gray-100 text-gray-800";
+      case "upcoming": return "bg-blue-50 text-blue-600 border-blue-100";
+      case "ongoing": return "bg-green-50 text-green-600 border-green-100";
+      case "pastevents": return "bg-gray-50 text-gray-600 border-gray-100";
+      default: return "bg-gray-50 text-gray-600 border-gray-100";
     }
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <AdminLayout>
       <Toaster position="top-right" />
-      <AdminHeader />
       
-      <div className="max-w-7xl mx-auto px-4 py-8">
-        {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-2xl font-bold text-gray-900 mb-2">Event Management</h1>
-          <p className="text-gray-600">Manage and monitor all events</p>
+      <div className="py-2">
+        <div className="mb-8 flex justify-between items-end">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900 mb-2 font-sans tracking-tight">Events Management</h1>
+            <p className="text-gray-500 font-medium tracking-tight">Create, publish and manage your institution's events</p>
+          </div>
+          
+          <button
+            onClick={handleAddClick}
+            className="px-5 py-2.5 bg-blue-600 text-white rounded-xl hover:bg-blue-700 flex items-center gap-2 shadow-lg shadow-blue-200 transition-all active:scale-95 font-bold"
+          >
+            <Plus className="w-5 h-5" />
+            CREATE NEW EVENT
+          </button>
         </div>
 
         {/* Stats Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-          <div className="bg-white rounded-xl border border-gray-200 p-4">
-            <div className="flex justify-between items-center mb-2">
-              <h3 className="text-sm font-medium text-gray-600">Total Events</h3>
-              <Calendar className="w-5 h-5 text-blue-600" />
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 hover:shadow-md transition-shadow">
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-sm font-bold text-gray-400 uppercase tracking-widest">Total Events</h3>
+              <div className="w-10 h-10 bg-blue-50 rounded-xl flex items-center justify-center">
+                <Calendar className="w-5 h-5 text-blue-600" />
+              </div>
             </div>
-            <p className="text-2xl font-bold text-gray-900">{events.length}</p>
+            <p className="text-3xl font-bold text-gray-900">{events.length}</p>
           </div>
           
-          <div className="bg-white rounded-xl border border-gray-200 p-4">
-            <div className="flex justify-between items-center mb-2">
-              <h3 className="text-sm font-medium text-gray-600">Upcoming</h3>
-              <Calendar className="w-5 h-5 text-green-600" />
+          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 hover:shadow-md transition-shadow">
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-sm font-bold text-gray-400 uppercase tracking-widest">Upcoming</h3>
+              <div className="w-10 h-10 bg-green-50 rounded-xl flex items-center justify-center">
+                <Calendar className="w-5 h-5 text-green-600" />
+              </div>
             </div>
-            <p className="text-2xl font-bold text-gray-900">
+            <p className="text-3xl font-bold text-gray-900">
               {events.filter(e => e.status === "upcoming").length}
             </p>
           </div>
           
-          <div className="bg-white rounded-xl border border-gray-200 p-4">
-            <div className="flex justify-between items-center mb-2">
-              <h3 className="text-sm font-medium text-gray-600">Total Seats</h3>
-              <Users className="w-5 h-5 text-purple-600" />
+          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 hover:shadow-md transition-shadow">
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-sm font-bold text-gray-400 uppercase tracking-widest">Total Seats</h3>
+              <div className="w-10 h-10 bg-purple-50 rounded-xl flex items-center justify-center">
+                <Users className="w-5 h-5 text-purple-600" />
+              </div>
             </div>
-            <p className="text-2xl font-bold text-gray-900">
+            <p className="text-3xl font-bold text-gray-900">
               {events.reduce((sum, e) => sum + (e.maxParticipants || 0), 0)}
             </p>
           </div>
           
-          <div className="bg-white rounded-xl border border-gray-200 p-4">
-            <div className="flex justify-between items-center mb-2">
-              <h3 className="text-sm font-medium text-gray-600">Completed</h3>
-              <Calendar className="w-5 h-5 text-gray-600" />
+          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 hover:shadow-md transition-shadow">
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-sm font-bold text-gray-400 uppercase tracking-widest">Completed</h3>
+              <div className="w-10 h-10 bg-gray-50 rounded-xl flex items-center justify-center">
+                <Calendar className="w-5 h-5 text-gray-400" />
+              </div>
             </div>
-            <p className="text-2xl font-bold text-gray-900">
+            <p className="text-3xl font-bold text-gray-900">
               {events.filter(e => e.status === "completed" || e.status === "pastevents").length}
             </p>
           </div>
         </div>
 
         {/* Main Card */}
-        <div className="bg-white rounded-xl border border-gray-200">
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
           {/* Toolbar */}
-          <div className="p-4 border-b border-gray-200">
+          <div className="p-6 border-b border-gray-50 bg-gray-50/30">
             <div className="flex flex-col md:flex-row gap-4 justify-between">
-              <div className="flex flex-col sm:flex-row gap-4">
-                <div className="relative">
+              <div className="flex items-center gap-4 flex-1">
+                <div className="relative flex-1 max-w-md">
                   <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
                   <input
                     type="text"
-                    placeholder="Search events..."
+                    placeholder="Search events by title..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
-                    className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg w-full sm:w-64"
+                    className="pl-10 pr-4 py-2.5 border border-gray-200 rounded-xl w-full focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all outline-none"
                   />
                 </div>
                 <select
                   value={statusFilter}
                   onChange={(e) => setStatusFilter(e.target.value)}
-                  className="px-4 py-2 border border-gray-300 rounded-lg"
+                  className="px-4 py-2.5 border border-gray-200 rounded-xl bg-white text-gray-600 font-medium outline-none focus:ring-2 focus:ring-blue-500 transition-all border-none shadow-sm"
                 >
-                  <option value="all">All Status</option>
-                  <option value="upcoming">Upcoming</option>
-                  <option value="ongoing">Ongoing</option>
-                  <option value="completed">Completed</option>
+                  <option value="all">Every Status</option>
+                  <option value="upcoming">Upcoming Only</option>
+                  <option value="ongoing">Active Now</option>
+                  <option value="pastevents">Past Events</option>
                 </select>
               </div>
-              
-              <button
-                onClick={handleAddClick}
-                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center gap-2"
-              >
-                <Plus className="w-4 h-4" />
-                New Event
-              </button>
             </div>
           </div>
 
-          {/* Table */}
           <div className="overflow-x-auto">
             {loading ? (
-              <div className="p-12 text-center">
-                <Loader2 className="w-8 h-8 animate-spin text-blue-600 mx-auto mb-4" />
-                <p className="text-gray-500">Loading events...</p>
+              <div className="p-20 text-center">
+                <Loader2 className="w-10 h-10 animate-spin text-blue-600 mx-auto mb-4" />
+                <p className="text-gray-400 font-medium">Retrieving event data...</p>
               </div>
             ) : (
               <table className="w-full">
-                <thead className="bg-gray-50">
+                <thead className="bg-gray-50/50">
                   <tr>
-                    <th className="py-3 px-4 text-left text-sm font-medium text-gray-600">Event Name</th>
-                    <th className="py-3 px-4 text-left text-sm font-medium text-gray-600">Date</th>
-                    <th className="py-3 px-4 text-left text-sm font-medium text-gray-600">Location</th>
-                    <th className="py-3 px-4 text-left text-sm font-medium text-gray-600">Max Seats</th>
-                    <th className="py-3 px-4 text-left text-sm font-medium text-gray-600">Status</th>
-                    <th className="py-3 px-4 text-left text-sm font-medium text-gray-600">Category</th>
-                    <th className="py-3 px-4 text-left text-sm font-medium text-gray-600">Organizer</th>
-                    <th className="py-3 px-4 text-left text-sm font-medium text-gray-600">Speakers</th>
-                    <th className="py-3 px-4 text-left text-sm font-medium text-gray-600">Actions</th>
+                    <th className="py-4 px-6 text-left text-xs font-bold text-gray-400 uppercase tracking-widest">Event Name</th>
+                    <th className="py-4 px-6 text-left text-xs font-bold text-gray-400 uppercase tracking-widest">Schedule</th>
+                    <th className="py-4 px-6 text-left text-xs font-bold text-gray-400 uppercase tracking-widest">Capacity</th>
+                    <th className="py-4 px-6 text-left text-xs font-bold text-gray-400 uppercase tracking-widest">Status</th>
+                    <th className="py-4 px-6 text-left text-xs font-bold text-gray-400 uppercase tracking-widest">Detail</th>
+                    <th className="py-4 px-6 text-left text-xs font-bold text-gray-400 uppercase tracking-widest">Actions</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-gray-200">
+                <tbody className="divide-y divide-gray-50">
                   {filteredEvents.length === 0 ? (
                     <tr>
-                      <td colSpan="9" className="py-8 text-center text-gray-500">
-                        No events found matching your search.
+                      <td colSpan="6" className="py-20 text-center">
+                        <div className="flex flex-col items-center gap-2">
+                           <div className="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center mb-2">
+                             <Calendar className="w-8 h-8 text-gray-200" />
+                           </div>
+                           <p className="text-gray-400 font-medium">No events found matching your criteria.</p>
+                        </div>
                       </td>
                     </tr>
                   ) : (
                     filteredEvents.map((event) => (
-                      <tr key={event._id} className="hover:bg-gray-50">
-                        <td className="py-3 px-4 text-gray-900 font-medium">{event.title}</td>
-                        <td className="py-3 px-4 text-gray-600">
-                          {new Date(event.date).toLocaleDateString("en-IN", {
-                            year: "numeric",
-                            month: "short",
-                            day: "numeric",
-                          })}
+                      <tr key={event._id} className="hover:bg-blue-50/30 transition-colors group">
+                        <td className="py-4 px-6">
+                           <div className="flex items-center gap-3">
+                              <div className="w-10 h-10 rounded-xl bg-gray-100 flex items-center justify-center overflow-hidden border border-gray-100">
+                                 {event.image ? (
+                                   <img src={event.image} alt="" className="w-full h-full object-cover" />
+                                 ) : (
+                                   <Calendar className="w-5 h-5 text-gray-400" />
+                                 )}
+                              </div>
+                              <div>
+                                <p className="font-bold text-gray-900 group-hover:text-blue-600 transition-colors">{event.title}</p>
+                                <p className="text-xs text-gray-400 flex items-center gap-1 font-medium italic">
+                                  <MapPin className="w-3 h-3 text-blue-400" /> {event.location}
+                                </p>
+                              </div>
+                           </div>
                         </td>
-                        <td className="py-3 px-4 text-gray-600">
+                        <td className="py-4 px-6">
+                          <p className="text-sm font-bold text-gray-700">
+                            {new Date(event.date).toLocaleDateString("en-IN", {
+                              month: "short",
+                              day: "numeric",
+                              year: "numeric"
+                            })}
+                          </p>
+                          <p className="text-xs text-gray-400 font-medium uppercase tracking-tight">{event.timing}</p>
+                        </td>
+                        <td className="py-4 px-6">
                           <div className="flex items-center gap-2">
-                            <MapPin className="w-4 h-4 text-gray-400" />
-                            {event.location}
+                            <div className="w-full bg-gray-100 rounded-full h-1.5 max-w-[60px]">
+                               <div className="bg-blue-500 h-1.5 rounded-full" style={{width: '60%'}}></div>
+                            </div>
+                            <span className="text-xs font-bold text-gray-600">{event.maxParticipants}</span>
                           </div>
                         </td>
-                        <td className="py-3 px-4 text-gray-600">
-                          <div className="flex items-center gap-2">
-                            <Users className="w-4 h-4 text-gray-400" />
-                            {event.maxParticipants}
-                          </div>
-                        </td>
-                        <td className="py-3 px-4">
-                          <span className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(event.status)}`}>
-                            {event.status.charAt(0).toUpperCase() + event.status.slice(1)}
+                        <td className="py-4 px-6">
+                          <span className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest border ${getStatusColor(event.status)}`}>
+                            {event.status}
                           </span>
                         </td>
-                        <td className="py-3 px-4 text-gray-600">{event.category?.name}</td>
-                        <td className="py-3 px-4 text-gray-600">{event.organizer?.name || "Not Assigned"}</td>
-                        <td className="py-3 px-4 text-gray-600">{event.speakers?.join(", ") || "Not Assigned"}</td>
-                        <td className="py-3 px-4">
-                          <div className="flex gap-2">
+                        <td className="py-4 px-6 text-sm text-gray-500 font-medium">
+                          <div className="flex flex-col">
+                             <span className="text-xs font-bold text-gray-400 uppercase tracking-tighter">Category</span>
+                             <span className="text-blue-600 font-bold">{event.category?.name || "None"}</span>
+                          </div>
+                        </td>
+                        <td className="py-4 px-6">
+                          <div className="flex gap-1">
                             <button 
                               onClick={() => handleView(event._id)}
-                              className="p-1 text-gray-400 hover:text-blue-600 transition-colors"
+                              className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all"
+                              title="View Details"
                             >
-                              <Eye className="w-4 h-4" />
+                              <Eye className="w-5 h-5" />
                             </button>
                             <button 
                               onClick={() => handleEdit(event._id)}
-                              className="p-1 text-gray-400 hover:text-green-600 transition-colors"
+                              className="p-2 text-gray-400 hover:text-green-600 hover:bg-green-50 rounded-lg transition-all"
+                              title="Edit Event"
                             >
-                              <Edit className="w-4 h-4" />
+                              <Edit className="w-5 h-5" />
                             </button>
                             <button 
                               onClick={() => handleDeleteRequest(event._id, event.title)}
                               disabled={deleting === event._id}
-                              className="p-1 text-gray-400 hover:text-red-600 transition-colors disabled:opacity-50"
+                              className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all disabled:opacity-50"
+                              title="Delete Event"
                             >
                               {deleting === event._id ? (
-                                <Loader2 className="w-4 h-4 animate-spin" />
+                                <Loader2 className="w-5 h-5 animate-spin" />
                               ) : (
-                                <Trash2 className="w-4 h-4" />
+                                <Trash2 className="w-5 h-5" />
                               )}
                             </button>
                           </div>
@@ -290,15 +320,14 @@ const AdminEventPanel = () => {
             )}
           </div>
 
-          {/* Footer */}
-          <div className="p-4 border-t border-gray-200 flex justify-between items-center">
-            <p className="text-sm text-gray-600">
-              Showing {filteredEvents.length} of {events.length} events
+          <div className="p-6 bg-gray-50/30 border-t border-gray-50 flex justify-between items-center italic">
+            <p className="text-sm text-gray-500 font-medium">
+              Showing <span className="text-blue-600 font-bold">{filteredEvents.length}</span> active events in total
             </p>
           </div>
         </div>
       </div>
-    </div>
+    </AdminLayout>
   );
 };
 

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
-import { Calendar, MapPin, Image, ArrowLeft, User, Loader2, Info } from "lucide-react";
-import AdminHeader from "../components/AdminHeader";
+import { Calendar, MapPin, Image as ImageIcon, ArrowLeft, User, Loader2, Info, Edit3, Save } from "lucide-react";
+import AdminLayout from "../components/AdminLayout";
 import { useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
 import toast, { Toaster } from "react-hot-toast";
@@ -33,23 +33,19 @@ function EditEventPage() {
     const fetchData = async () => {
       setFetching(true);
       try {
-        // Fetch faculties for the dropdown
         const facRes = await axios.get("http://localhost:5000/api/admin/faculties");
         if (facRes.data.success) {
           setFaculties(facRes.data.faculties);
         }
 
-        // Fetch categories for the dropdown
         const catRes = await axios.get("http://localhost:5000/api/admin/categories");
         if (catRes.data.success) {
           setCategories(catRes.data.categories);
         }
 
-        // Fetch the event details
         const eventRes = await axios.get(`http://localhost:5000/api/admin/event/${id}`);
         if (eventRes.data.success) {
           const event = eventRes.data.event;
-          // Format date for input field (YYYY-MM-DD)
           const formattedDate = event.date ? new Date(event.date).toISOString().split('T')[0] : "";
           
           setEventData({
@@ -133,73 +129,76 @@ function EditEventPage() {
 
   if (fetching) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
-      </div>
+      <AdminLayout>
+        <div className="flex items-center justify-center min-h-[400px]">
+          <Loader2 className="w-10 h-10 animate-spin text-blue-600" />
+        </div>
+      </AdminLayout>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <AdminLayout>
       <Toaster position="top-right" />
-      <AdminHeader />
       
-      <div className="max-w-2xl mx-auto px-4 py-8">
+      <div className="py-2 max-w-4xl mx-auto">
         {/* Back Button */}
         <button
           onClick={() => navigate(-1)}
-          className="flex items-center gap-2 text-blue-600 hover:text-blue-800 mb-6"
+          className="flex items-center gap-2 text-blue-600 hover:text-blue-800 mb-8 font-bold group transition-all"
         >
-          <ArrowLeft className="w-4 h-4" />
-          Back to Events
+          <div className="w-8 h-8 rounded-full bg-blue-50 flex items-center justify-center group-hover:bg-blue-100 transition-colors">
+            <ArrowLeft className="w-4 h-4" />
+          </div>
+          Cancel Editing
         </button>
 
         {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-2xl font-bold text-gray-900 mb-2">Edit Event</h1>
-          <p className="text-gray-600">Update the details for "{eventData.title}"</p>
+        <div className="mb-10 text-center">
+          <div className="inline-flex items-center justify-center w-16 h-16 bg-blue-600 rounded-[2rem] shadow-xl shadow-blue-100 mb-6">
+             <Edit3 className="w-8 h-8 text-white" />
+          </div>
+          <h1 className="text-4xl font-black text-gray-900 mb-2 tracking-tight">Modify Event Instance</h1>
+          <p className="text-gray-500 font-medium text-lg">You are updating: <span className="text-blue-600 font-black">"{eventData.title}"</span></p>
         </div>
 
-        {/* Form */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-          <form onSubmit={handleSubmit} className="space-y-6">
-            {/* Title */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Event Title *
-              </label>
+        {/* Form Container */}
+        <div className="bg-white rounded-[2.5rem] shadow-2xl shadow-blue-50 border border-gray-100 p-8 md:p-12 relative overflow-hidden">
+          <div className="absolute top-0 right-0 w-48 h-48 bg-blue-50/20 rounded-full blur-3xl -mr-24 -mt-24"></div>
+          
+          <form onSubmit={handleSubmit} className="space-y-8 relative z-10">
+            {/* Main Details Section */}
+            <div className="space-y-2">
+              <label className="text-xs font-black text-gray-400 uppercase tracking-widest px-1">Master Title</label>
               <input
                 type="text"
                 name="title"
                 value={eventData.title}
                 onChange={handleChange}
                 required
-                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-6 py-4 bg-gray-50 border-none rounded-2xl focus:ring-4 focus:ring-blue-100 transition-all font-bold text-gray-800 text-lg"
                 placeholder="Enter event title"
               />
             </div>
 
             {/* Date and Timing */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Date *
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+              <div className="space-y-2">
+                <label className="text-xs font-black text-gray-400 uppercase tracking-widest flex items-center gap-2 px-1">
+                   <Calendar className="w-3.5 h-3.5" /> Scheduled Date
                 </label>
-                <div className="relative">
-                  <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
-                  <input
-                    type="date"
-                    name="date"
-                    value={eventData.date}
-                    onChange={handleChange}
-                    required
-                    className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
-                </div>
+                <input
+                  type="date"
+                  name="date"
+                  value={eventData.date}
+                  onChange={handleChange}
+                  required
+                  className="w-full px-6 py-4 bg-gray-50 border-none rounded-2xl focus:ring-4 focus:ring-blue-100 transition-all font-bold text-gray-800"
+                />
               </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Timing *
+              <div className="space-y-2">
+                <label className="text-xs font-black text-gray-400 uppercase tracking-widest flex items-center gap-2 px-1">
+                   <Edit3 className="w-3.5 h-3.5 invisible" /> Active Window (Time)
                 </label>
                 <input
                   type="text"
@@ -207,207 +206,209 @@ function EditEventPage() {
                   value={eventData.timing}
                   onChange={handleChange}
                   required
-                  className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-6 py-4 bg-gray-50 border-none rounded-2xl focus:ring-4 focus:ring-blue-100 transition-all font-bold text-gray-800"
                   placeholder="e.g., 10:00 AM - 4:00 PM"
                 />
               </div>
             </div>
 
             {/* Location and Venue */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Location *
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+              <div className="space-y-2">
+                <label className="text-xs font-black text-gray-400 uppercase tracking-widest flex items-center gap-2 px-1">
+                   <MapPin className="w-3.5 h-3.5" /> Primary Location
                 </label>
-                <div className="relative">
-                  <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
-                  <input
-                    type="text"
-                    name="location"
-                    value={eventData.location}
-                    onChange={handleChange}
-                    required
-                    className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    placeholder="Enter location"
-                  />
-                </div>
+                <input
+                  type="text"
+                  name="location"
+                  value={eventData.location}
+                  onChange={handleChange}
+                  required
+                  className="w-full px-6 py-4 bg-gray-50 border-none rounded-2xl focus:ring-4 focus:ring-blue-100 transition-all font-bold text-gray-800"
+                  placeholder="Enter location"
+                />
               </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Venue
-                </label>
+              <div className="space-y-2">
+                <label className="text-xs font-black text-gray-400 uppercase tracking-widest px-1">Specific Room/Hall</label>
                 <input
                   type="text"
                   name="venue"
                   value={eventData.venue}
                   onChange={handleChange}
-                  className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-6 py-4 bg-gray-50 border-none rounded-2xl focus:ring-4 focus:ring-blue-100 transition-all font-bold text-gray-800"
                   placeholder="e.g., Main Auditorium"
                 />
               </div>
             </div>
 
             {/* Category and Max Participants */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Category *
-                </label>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+              <div className="space-y-2">
+                <label className="text-xs font-black text-gray-400 uppercase tracking-widest px-1">Global Classification</label>
                 <select
                   name="category"
                   value={eventData.category}
                   onChange={handleChange}
                   required
-                  className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-6 py-4 bg-gray-50 border-none rounded-2xl focus:ring-4 focus:ring-blue-100 transition-all font-bold text-gray-800 cursor-pointer"
                 >
                   <option value="">Select Category</option>
                   {categories.map((cat) => (
-                    <option key={cat._id} value={cat._id}>
-                      {cat.name}
-                    </option>
+                    <option key={cat._id} value={cat._id}>{cat.name}</option>
                   ))}
                 </select>
               </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Max Participants *
-                </label>
+              <div className="space-y-2">
+                <label className="text-xs font-black text-gray-400 uppercase tracking-widest px-1">Attendee Limit</label>
                 <input
                   type="number"
                   name="maxParticipants"
                   value={eventData.maxParticipants}
                   onChange={handleChange}
                   required
-                  className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  placeholder="Enter number"
+                  className="w-full px-6 py-4 bg-gray-50 border-none rounded-2xl focus:ring-4 focus:ring-blue-100 transition-all font-bold text-gray-800"
+                  placeholder="Enter max seats"
                 />
               </div>
             </div>
 
             {/* Status and Organizer */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Status *
-                </label>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+              <div className="space-y-2">
+                <label className="text-xs font-black text-gray-400 uppercase tracking-widest px-1">Publication Status</label>
                 <select
                   name="status"
                   value={eventData.status}
                   onChange={handleChange}
                   required
-                  className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-6 py-4 bg-gray-100 border-none rounded-2xl focus:ring-4 focus:ring-blue-100 transition-all font-black text-blue-600 cursor-pointer"
                 >
                   <option value="upcoming">Upcoming</option>
-                  <option value="ongoing">Ongoing</option>
-                  <option value="completed">Completed</option>
+                  <option value="ongoing">Active / Ongoing</option>
+                  <option value="completed">Past / Completed</option>
                   <option value="cancelled">Cancelled</option>
                 </select>
               </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Event Organizer
+              <div className="space-y-2">
+                <label className="text-xs font-black text-gray-400 uppercase tracking-widest flex items-center gap-2 px-1">
+                   <User className="w-3.5 h-3.5" /> Assigned Faculty Lead
                 </label>
-                <div className="relative">
-                  <User className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
-                  <select
-                    name="organizer"
-                    value={eventData.organizer}
-                    onChange={handleChange}
-                    className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  >
-                    <option value="">Select Organizer (Optional)</option>
-                    {faculties.map((faculty) => (
-                      <option key={faculty._id} value={faculty._id}>
-                        {faculty.name} - {faculty.email}
-                      </option>
-                    ))}
-                  </select>
-                </div>
+                <select
+                  name="organizer"
+                  value={eventData.organizer}
+                  onChange={handleChange}
+                  className="w-full px-6 py-4 bg-gray-50 border-none rounded-2xl focus:ring-4 focus:ring-blue-100 transition-all font-bold text-gray-800 cursor-pointer"
+                >
+                  <option value="">Select Organizer (Optional)</option>
+                  {faculties.map((faculty) => (
+                    <option key={faculty._id} value={faculty._id}>
+                      {faculty.name}
+                    </option>
+                  ))}
+                </select>
               </div>
             </div>
 
             {/* Speakers */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Speakers (Comma separated)
-              </label>
+            <div className="space-y-2">
+              <label className="text-xs font-black text-gray-400 uppercase tracking-widest px-1">Speakers (Comma separated list)</label>
               <input
                 type="text"
                 name="speakers"
                 value={eventData.speakers}
                 onChange={handleChange}
-                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-6 py-4 bg-gray-50 border-none rounded-2xl focus:ring-4 focus:ring-blue-100 transition-all font-bold text-gray-700"
                 placeholder="e.g., John Doe, Jane Smith"
               />
             </div>
 
-            {/* Image Upload */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Event Image
+            {/* Image Overlay */}
+            <div className="space-y-3">
+              <label className="text-xs font-black text-gray-400 uppercase tracking-widest flex items-center gap-2 px-1">
+                 <ImageIcon className="w-3.5 h-3.5" /> Media Asset (Thumbnail)
               </label>
-              {existingImage && !eventData.image && (
-                <div className="mb-2 relative w-32 h-20 group">
-                  <img 
-                    src={existingImage} 
-                    alt="Current event" 
-                    className="w-full h-full object-cover rounded-lg border border-gray-200"
+              <div className="flex flex-col md:flex-row gap-6 items-start">
+                {existingImage && !eventData.image && (
+                  <div className="relative group w-full md:w-48 h-32 flex-shrink-0">
+                    <img 
+                      src={existingImage} 
+                      alt="Current" 
+                      className="w-full h-full object-cover rounded-2xl border border-gray-100 shadow-sm"
+                    />
+                    <div className="absolute inset-x-0 bottom-0 bg-black/60 backdrop-blur-sm p-2 rounded-b-2xl">
+                       <p className="text-[10px] text-white font-black text-center uppercase tracking-tighter">Current Live Image</p>
+                    </div>
+                  </div>
+                )}
+                <div className="flex-1 w-full bg-gray-50 rounded-2xl p-6 border-2 border-dashed border-gray-200 hover:border-blue-400 transition-all relative">
+                   <input
+                    type="file"
+                    name="image"
+                    accept="image/*"
+                    onChange={handleChange}
+                    className="absolute inset-0 opacity-0 cursor-pointer z-10"
                   />
-                  <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center rounded-lg">
-                    <p className="text-[10px] text-white font-medium">Keep Current</p>
+                  <div className="text-center">
+                     <ImageIcon className="w-10 h-10 text-blue-200 mx-auto mb-2" />
+                     <p className="text-sm font-bold text-gray-400">
+                       {eventData.image ? eventData.image.name : "Replace existing image or drag here"}
+                     </p>
+                     <p className="text-[10px] text-gray-300 font-medium italic mt-2">Maximum file size: 5MB</p>
                   </div>
                 </div>
-              )}
-              <div className="relative">
-                <Image className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
-                <input
-                  type="file"
-                  name="image"
-                  accept="image/*"
-                  onChange={handleChange}
-                  className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
               </div>
-              <p className="mt-1 text-xs text-gray-500 flex items-center gap-1">
-                <Info className="w-3 h-3" /> Leave empty to keep the current image
-              </p>
             </div>
 
-            {/* Description */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Description *
-              </label>
+            {/* Final Narration */}
+            <div className="space-y-2">
+              <label className="text-xs font-black text-gray-400 uppercase tracking-widest px-1">Event Narration / Mission</label>
               <textarea
                 name="description"
-                rows="4"
+                rows="6"
                 value={eventData.description}
                 onChange={handleChange}
                 required
-                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="Enter event description"
+                className="w-full px-6 py-6 bg-gray-50 border-none rounded-[2rem] focus:ring-4 focus:ring-blue-100 transition-all font-medium text-gray-700 leading-relaxed"
+                placeholder="Update the event story..."
               />
             </div>
 
-            {/* Submit Button */}
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-            >
-              {loading ? (
-                <>
-                  <Loader2 className="w-5 h-5 animate-spin" />
-                  Updating Event...
-                </>
-              ) : (
-                "Update Event"
-              )}
-            </button>
+            {/* Form Footer */}
+            <div className="pt-6 border-t border-gray-50 flex flex-col md:flex-row gap-4">
+              <button
+                type="submit"
+                disabled={loading}
+                className="flex-1 py-5 bg-blue-600 text-white font-black rounded-2xl shadow-xl shadow-blue-100 hover:bg-blue-700 hover:shadow-2xl hover:-translate-y-1 active:scale-95 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-3 text-lg"
+              >
+                {loading ? (
+                  <>
+                    <Loader2 className="w-6 h-6 animate-spin" />
+                    SYNCING CHANGES...
+                  </>
+                ) : (
+                  <>
+                    <Save className="w-6 h-6" />
+                    UPDATE GLOBAL EVENT
+                  </>
+                )}
+              </button>
+              <button
+                type="button"
+                onClick={() => navigate(-1)}
+                className="px-8 py-5 bg-gray-50 text-gray-500 font-bold rounded-2xl hover:bg-gray-100 transition-all active:scale-95 text-lg"
+              >
+                DISCARD
+              </button>
+            </div>
           </form>
         </div>
+        
+        <div className="mt-12 text-center text-gray-300 flex items-center justify-center gap-2">
+           <Info className="w-4 h-4" />
+           <p className="text-xs font-bold uppercase tracking-widest">Administrator override portal • Secure access</p>
+        </div>
       </div>
-    </div>
+    </AdminLayout>
   );
 }
 

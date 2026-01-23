@@ -1,9 +1,12 @@
 import React, { useState } from "react";
 import { MessageSquare, Star, Send, CheckCircle, User, Mail, Phone } from "lucide-react";
 import Header from "../components/Header";
+import axios from "axios";
+import toast from "react-hot-toast";
 
 const FeedbackForm = () => {
   const [submitted, setSubmitted] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -17,26 +20,38 @@ const FeedbackForm = () => {
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     
     if (!formData.name || !formData.email || !formData.message || formData.rating === 0) {
-      alert("Please fill all required fields");
+      toast.error("Please fill all required fields");
       return;
     }
 
-    setSubmitted(true);
-    
-    setTimeout(() => {
-      setFormData({
-        name: "",
-        email: "",
-        phone: "",
-        rating: 0,
-        message: "",
-      });
-      setSubmitted(false);
-    }, 2000);
+    setLoading(true);
+    try {
+      const response = await axios.post("http://localhost:5000/api/user/feedback", formData);
+      if (response.data.success) {
+        setSubmitted(true);
+        toast.success("Feedback submitted successfully!");
+        setFormData({
+          name: "",
+          email: "",
+          phone: "",
+          rating: 0,
+          message: "",
+        });
+        
+        setTimeout(() => {
+          setSubmitted(false);
+        }, 3000);
+      }
+    } catch (error) {
+      console.error(error);
+      toast.error(error.response?.data?.message || "Failed to submit feedback");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (

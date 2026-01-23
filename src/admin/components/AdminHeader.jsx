@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Calendar, Users, UserCheck, GraduationCap, LogOut } from 'lucide-react';
+import { Calendar, Users, UserCheck, GraduationCap, LogOut, MessageSquare } from 'lucide-react';
 import { GrAnalytics } from 'react-icons/gr';
 
 function AdminHeader() {
@@ -32,6 +32,11 @@ function AdminHeader() {
       path: '/admin/faculty',
       label: 'Faculty',
       icon: <GraduationCap className="w-4 h-4" />
+    },
+    {
+      path: '/admin/feedback',
+      label: 'Feedback',
+      icon: <MessageSquare className="w-4 h-4" />
     },
   ];
 
