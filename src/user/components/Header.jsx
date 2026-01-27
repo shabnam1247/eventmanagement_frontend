@@ -13,6 +13,7 @@ export default function Header() {
     { name: "Gallery", path: "/mediagallery" },
     { name: "Events", path: "/event" },
     { name: "Calendar", path: "/studentcalendar" },
+    { name: "My Events", path: "/myevents" },
     { name: "Contact", path: "/contact" },
     { name: "Profile", path: "/profile" },
     { name: "Login", path: "/login" },

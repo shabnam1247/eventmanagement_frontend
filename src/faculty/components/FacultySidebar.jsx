@@ -11,7 +11,9 @@ import {
   ChevronRight,
   Menu,
   X,
-  Clock
+  Clock,
+  Scan,
+  Grid3x3
 } from 'lucide-react';
 
 const FacultySidebar = () => {
@@ -47,9 +49,14 @@ const FacultySidebar = () => {
       icon: <Clock className="w-5 h-5" />
     },
     {
-      path: '/faculty/chatroom',
-      label: 'Faculty Chatroom',
-      icon: <MessageSquare className="w-5 h-5" />
+      path: '/faculty/gallery',
+      label: 'Media Gallery',
+      icon: <Grid3x3 className="w-5 h-5" />
+    },
+    {
+      path: '/faculty/check-in',
+      label: 'Attendance Check-in',
+      icon: <Scan className="w-5 h-5" />
     },
   ];
 
