@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import Header from "../components/Header";
 import { 
   FaFacebookF, 
@@ -19,57 +19,55 @@ import {
 } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import Footer from "../components/Footer";
+import axios from "axios";
 
 const HomePage = () => {
   const navigate = useNavigate();
+  const [events, setEvents] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
 
-  const events = [
-    {
-      id: 1,
-      title: "Annual Music Fest",
-      date: "Nov 20, 2024",
-      category: "Cultural",
-      image: "https://images.unsplash.com/photo-1511379938547-c1f69419868d?auto=format&fit=crop&w=800",
-      seats: 45,
-      totalSeats: 200
-    },
-    {
-      id: 2,
-      title: "Tech Innovation Summit",
-      date: "Dec 5, 2024",
-      category: "Technical",
-      image: "https://images.unsplash.com/photo-1540575467063-178a50c2df87?auto=format&fit=crop&w=800",
-      seats: 120,
-      totalSeats: 300
-    },
-    {
-      id: 3,
-      title: "Inter-College Football",
-      date: "Jan 22, 2025",
-      category: "Sports",
-      image: "https://images.unsplash.com/photo-1575361204480-aadea25e6e68?auto=format&fit=crop&w=800",
-      seats: 18,
-      totalSeats: 50
-    },
-    {
-      id: 4,
-      title: "AI & ML Workshop",
-      date: "Jan 15, 2025",
-      category: "Workshop",
-      image: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=800",
-      seats: 86,
-      totalSeats: 150
-    },
-    {
-      id: 5,
-      title: "Cultural Fest 2025",
-      date: "Feb 21, 2025",
-      category: "Cultural",
-      image: "https://images.unsplash.com/photo-1547825407-d21c9be4d481?auto=format&fit=crop&w=800",
-      seats: 245,
-      totalSeats: 500
+  useEffect(() => {
+    // Check if user is logged in
+    const userData = localStorage.getItem('userData');
+    setIsLoggedIn(!!userData);
+
+    // Fetch upcoming events
+    fetchUpcomingEvents();
+  }, []);
+
+  const fetchUpcomingEvents = async () => {
+    try {
+      setLoading(true);
+      const response = await axios.get("http://localhost:5000/api/users/events");
+      
+      if (response.data.success && response.data.events) {
+        // Filter only upcoming events and take first 6
+        const upcomingEvents = response.data.events
+          .filter(event => event.status === 'upcoming')
+          .slice(0, 6)
+          .map(event => ({
+            id: event._id,
+            title: event.title,
+            date: new Date(event.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
+            category: event.category || 'General',
+            image: event.images && event.images.length > 0 
+              ? event.images[0] 
+              : "https://images.unsplash.com/photo-1540575467063-178a50c2df87?auto=format&fit=crop&w=800",
+            location: event.location || 'Campus',
+            maxRegistrations: event.maxRegistrations || 100,
+            registeredCount: event.registeredCount || 0
+          }));
+        setEvents(upcomingEvents);
+      }
+    } catch (error) {
+      console.error("Error fetching events:", error);
+      // Keep empty array if error
+      setEvents([]);
+    } finally {
+      setLoading(false);
     }
-  ];
+  };
 
   const stats = [
     { icon: <FaCalendarAlt />, value: "400+", label: "Events Managed", color: "from-blue-500 to-cyan-500" },
@@ -88,7 +86,6 @@ const HomePage = () => {
   ];
 
   const handleViewEvents = () => navigate('/event');
-  const handleRegister = (id) => navigate(`/register?event=${id}`);
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
@@ -122,12 +119,14 @@ const HomePage = () => {
                 Explore Events
                 <FaArrowRight className="group-hover:translate-x-1 transition-transform" />
               </button>
-              <button
-                onClick={() => navigate('/register')}
-                className="px-8 py-4 bg-white/10 backdrop-blur-sm text-white font-semibold rounded-2xl border-2 border-white/30 hover:bg-white/20 transition-all duration-300"
-              >
-                Get Started Free
-              </button>
+              {!isLoggedIn && (
+                <button
+                  onClick={() => navigate('/userregister')}
+                  className="px-8 py-4 bg-white/10 backdrop-blur-sm text-white font-semibold rounded-2xl border-2 border-white/30 hover:bg-white/20 transition-all duration-300"
+                >
+                  Get Started Free
+                </button>
+              )}
             </div>
           </div>
         </div>
@@ -147,59 +146,92 @@ const HomePage = () => {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {events.map((event) => (
-            <div key={event.id} className="group bg-white rounded-3xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2">
-              <div className="relative overflow-hidden h-56">
-                <img 
-                  src={event.image} 
-                  alt={event.title}
-                  className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                />
-                <div className="absolute top-4 left-4">
-                  <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
-                    event.category === 'Cultural' ? 'bg-purple-500 text-white' :
-                    event.category === 'Technical' ? 'bg-blue-500 text-white' :
-                    event.category === 'Sports' ? 'bg-green-500 text-white' :
-                    'bg-orange-500 text-white'
-                  }`}>
-                    {event.category}
-                  </span>
-                </div>
-                <div className="absolute top-4 right-4 bg-white/90 backdrop-blur-sm px-3 py-1 rounded-full">
-                  <span className="text-gray-900 font-bold">{event.date}</span>
+        {loading ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {[1, 2, 3, 4, 5, 6].map((n) => (
+              <div key={n} className="bg-white rounded-3xl overflow-hidden shadow-lg animate-pulse">
+                <div className="h-56 bg-gray-200"></div>
+                <div className="p-6">
+                  <div className="h-6 bg-gray-200 rounded mb-3"></div>
+                  <div className="h-4 bg-gray-200 rounded w-3/4 mb-6"></div>
+                  <div className="h-10 bg-gray-200 rounded"></div>
                 </div>
               </div>
+            ))}
+          </div>
+        ) : events.length === 0 ? (
+          <div className="text-center py-20">
+            <FaCalendarAlt className="text-gray-300 text-6xl mx-auto mb-4" />
+            <h3 className="text-2xl font-bold text-gray-400 mb-2">No Upcoming Events</h3>
+            <p className="text-gray-500">Check back later for exciting campus events!</p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {events.map((event) => {
+              const availableSeats = event.maxRegistrations - event.registeredCount;
+              const seatPercentage = (availableSeats / event.maxRegistrations) * 100;
               
-              <div className="p-6">
-                <h3 className="text-xl font-bold text-gray-900 mb-3 group-hover:text-blue-600 transition-colors">
-                  {event.title}
-                </h3>
-                
-                <div className="mb-6">
-                  <div className="flex justify-between text-sm text-gray-600 mb-2">
-                    <span>Available Seats</span>
-                    <span className="font-semibold">{event.seats} / {event.totalSeats}</span>
+              return (
+                <div key={event.id} className="group bg-white rounded-3xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2">
+                  <div className="relative overflow-hidden h-56">
+                    <img 
+                      src={event.image} 
+                      alt={event.title}
+                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                      onError={(e) => {
+                        e.target.src = "https://images.unsplash.com/photo-1540575467063-178a50c2df87?auto=format&fit=crop&w=800";
+                      }}
+                    />
+                    <div className="absolute top-4 left-4">
+                      <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                        event.category === 'Cultural' ? 'bg-purple-500 text-white' :
+                        event.category === 'Technical' ? 'bg-blue-500 text-white' :
+                        event.category === 'Sports' ? 'bg-green-500 text-white' :
+                        'bg-orange-500 text-white'
+                      }`}>
+                        {event.category}
+                      </span>
+                    </div>
+                    <div className="absolute top-4 right-4 bg-white/90 backdrop-blur-sm px-3 py-1 rounded-full">
+                      <span className="text-gray-900 font-bold">{event.date}</span>
+                    </div>
                   </div>
-                  <div className="w-full bg-gray-200 rounded-full h-2">
-                    <div 
-                      className="bg-gradient-to-r from-cyan-500 to-blue-500 h-2 rounded-full"
-                      style={{ width: `${(event.seats / event.totalSeats) * 100}%` }}
-                    ></div>
+                  
+                  <div className="p-6">
+                    <h3 className="text-xl font-bold text-gray-900 mb-3 group-hover:text-blue-600 transition-colors line-clamp-2">
+                      {event.title}
+                    </h3>
+                    
+                    <div className="mb-6">
+                      <div className="flex justify-between text-sm text-gray-600 mb-2">
+                        <span>Available Seats</span>
+                        <span className="font-semibold">{availableSeats} / {event.maxRegistrations}</span>
+                      </div>
+                      <div className="w-full bg-gray-200 rounded-full h-2">
+                        <div 
+                          className={`h-2 rounded-full ${
+                            seatPercentage > 50 ? 'bg-gradient-to-r from-cyan-500 to-blue-500' :
+                            seatPercentage > 20 ? 'bg-gradient-to-r from-yellow-500 to-orange-500' :
+                            'bg-gradient-to-r from-red-500 to-pink-500'
+                          }`}
+                          style={{ width: `${seatPercentage}%` }}
+                        ></div>
+                      </div>
+                    </div>
+                    
+                    <button
+                      onClick={() => navigate(`/eventdetails/${event.id}`)}
+                      className="w-full py-3 bg-gradient-to-r from-gray-900 to-gray-800 text-white font-semibold rounded-xl hover:shadow-lg transform hover:-translate-y-0.5 transition-all duration-300 flex items-center justify-center gap-2"
+                    >
+                      View Details
+                      <FaArrowRight className="group-hover:translate-x-1 transition-transform" />
+                    </button>
                   </div>
                 </div>
-                
-                <button
-                  onClick={() => handleRegister(event.id)}
-                  className="w-full py-3 bg-gradient-to-r from-gray-900 to-gray-800 text-white font-semibold rounded-xl hover:shadow-lg transform hover:-translate-y-0.5 transition-all duration-300 flex items-center justify-center gap-2"
-                >
-                  Register Now
-                  <FaArrowRight className="group-hover:translate-x-1 transition-transform" />
-                </button>
-              </div>
-            </div>
-          ))}
-        </div>
+              );
+            })}
+          </div>
+        )}
 
         <div className="text-center mt-12">
           <button

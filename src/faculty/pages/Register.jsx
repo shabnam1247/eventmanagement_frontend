@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { User, Mail, Phone, Lock, ArrowLeft, GraduationCap, Loader2, Sparkles, ShieldCheck, Zap, BookOpen } from "lucide-react";
+import { User, Mail, Phone, Lock, ArrowLeft, GraduationCap, BookOpen } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import toast, { Toaster } from "react-hot-toast";
@@ -104,195 +104,180 @@ export default function FacultyRegisterPage() {
   ];
 
   return (
-    <div className="min-h-screen bg-white flex items-center justify-center px-6 py-12 relative overflow-hidden">
+    <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4 py-8">
       <Toaster position="top-right" />
-      
-      {/* Background Decor */}
-      <div className="absolute top-0 left-0 w-full h-full pointer-events-none overflow-hidden">
-         <div className="absolute top-[-20%] left-[-10%] w-[60%] h-[60%] bg-blue-50 rounded-full blur-[140px] opacity-40"></div>
-         <div className="absolute bottom-[-10%] right-[-5%] w-[40%] h-[40%] bg-blue-50 rounded-full blur-[100px] opacity-30"></div>
-      </div>
 
-      <div className="w-full max-w-[540px] relative z-10 space-y-8">
+      <div className="w-full max-w-2xl">
         {/* Navigation */}
         <button
           onClick={() => navigate('/faculty/login')}
-          className="group flex items-center gap-3 text-gray-400 hover:text-blue-600 font-black text-[10px] uppercase tracking-[0.3em] transition-all"
+          className="flex items-center gap-2 text-gray-600 hover:text-blue-600 font-medium transition-all mb-6"
         >
-          <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
+          <ArrowLeft className="w-4 h-4" />
           Back to Login
         </button>
 
         {/* Register Card */}
-        <div className="bg-white rounded-[3rem] border border-gray-100 shadow-2xl shadow-gray-100/50 p-12 relative">
-           <div className="absolute top-8 right-10 flex gap-2">
-              <ShieldCheck className="w-8 h-8 text-blue-100" />
-              <Zap className="w-8 h-8 text-blue-50" />
-           </div>
-
+        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 md:p-8">
           {/* Header */}
-          <div className="mb-12">
-            <h1 className="text-4xl font-black text-gray-900 tracking-tight leading-none">Faculty <span className="text-blue-600">Register</span></h1>
-            <p className="text-xs font-black text-gray-400 uppercase tracking-widest mt-3">Create your faculty account</p>
+          <div className="mb-6">
+            <h2 className="text-2xl font-bold text-gray-900 mb-2">Faculty Registration</h2>
+            <p className="text-sm text-gray-600">Create your faculty account</p>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-8">
-            {/* Form Fields */}
-            <div className="space-y-6">
-              <div className="space-y-2">
-                <label className="text-xs font-black text-gray-400 uppercase tracking-widest ml-1">Full Name</label>
-                <div className="relative group">
-                  <User className="absolute left-6 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-300 group-focus-within:text-blue-600 transition-colors" />
+          <form onSubmit={handleSubmit} className="space-y-5">
+            {/* Full Name */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
+              <div className="relative">
+                <User className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+                <input
+                  type="text"
+                  name="name"
+                  value={formData.name}
+                  onChange={handleChange}
+                  className={`w-full pl-10 pr-4 py-2.5 border rounded-lg focus:outline-none focus:ring-2 ${
+                    errors.name ? 'border-red-300 focus:ring-red-500' : 'border-gray-300 focus:ring-blue-500'
+                  }`}
+                  placeholder="Enter your full name"
+                />
+              </div>
+              {errors.name && <p className="text-xs text-red-600 mt-1">{errors.name}</p>}
+            </div>
+
+            {/* Email */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Email Address</label>
+              <div className="relative">
+                <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+                <input
+                  type="email"
+                  name="email"
+                  value={formData.email}
+                  onChange={handleChange}
+                  className={`w-full pl-10 pr-4 py-2.5 border rounded-lg focus:outline-none focus:ring-2 ${
+                    errors.email ? 'border-red-300 focus:ring-red-500' : 'border-gray-300 focus:ring-blue-500'
+                  }`}
+                  placeholder="faculty@university.edu"
+                />
+              </div>
+              {errors.email && <p className="text-xs text-red-600 mt-1">{errors.email}</p>}
+            </div>
+
+            {/* Faculty ID and Phone */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Faculty ID</label>
+                <div className="relative">
+                  <GraduationCap className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
                   <input
                     type="text"
-                    name="name"
-                    value={formData.name}
+                    name="facultyId"
+                    value={formData.facultyId}
                     onChange={handleChange}
-                    className={`w-full pl-16 pr-6 py-4 bg-gray-50 border-none rounded-2xl focus:ring-4 transition-all font-bold text-gray-800 placeholder:text-gray-300 ${
-                      errors.name ? 'ring-4 ring-rose-50' : 'focus:ring-blue-50'
+                    className={`w-full pl-10 pr-4 py-2.5 border rounded-lg focus:outline-none focus:ring-2 ${
+                      errors.facultyId ? 'border-red-300 focus:ring-red-500' : 'border-gray-300 focus:ring-blue-500'
                     }`}
-                    placeholder="Enter your full name"
+                    placeholder="FACXXXX"
                   />
                 </div>
-                {errors.name && <p className="text-[9px] font-black text-rose-500 uppercase tracking-widest ml-2">{errors.name}</p>}
+                {errors.facultyId && <p className="text-xs text-red-600 mt-1">{errors.facultyId}</p>}
               </div>
-
-              <div className="space-y-2">
-                <label className="text-xs font-black text-gray-400 uppercase tracking-widest ml-1">Email Address</label>
-                <div className="relative group">
-                  <Mail className="absolute left-6 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-300 group-focus-within:text-blue-600 transition-colors" />
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Phone Number</label>
+                <div className="relative">
+                  <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
                   <input
-                    type="email"
-                    name="email"
-                    value={formData.email}
+                    type="tel"
+                    name="phone"
+                    value={formData.phone}
                     onChange={handleChange}
-                    className={`w-full pl-16 pr-6 py-4 bg-gray-50 border-none rounded-2xl focus:ring-4 transition-all font-bold text-gray-800 placeholder:text-gray-300 ${
-                      errors.email ? 'ring-4 ring-rose-50' : 'focus:ring-blue-50'
+                    className={`w-full pl-10 pr-4 py-2.5 border rounded-lg focus:outline-none focus:ring-2 ${
+                      errors.phone ? 'border-red-300 focus:ring-red-500' : 'border-gray-300 focus:ring-blue-500'
                     }`}
-                    placeholder="faculty@university.edu"
+                    placeholder="10-digit number"
                   />
                 </div>
-                {errors.email && <p className="text-[9px] font-black text-rose-500 uppercase tracking-widest ml-2">{errors.email}</p>}
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="space-y-2">
-                  <label className="text-xs font-black text-gray-400 uppercase tracking-widest ml-1">Faculty ID</label>
-                  <div className="relative group">
-                    <GraduationCap className="absolute left-6 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-300 group-focus-within:text-blue-600 transition-colors" />
-                    <input
-                      type="text"
-                      name="facultyId"
-                      value={formData.facultyId}
-                      onChange={handleChange}
-                      className={`w-full pl-16 pr-6 py-4 bg-gray-50 border-none rounded-2xl focus:ring-4 transition-all font-bold text-gray-800 placeholder:text-gray-300 ${
-                        errors.facultyId ? 'ring-4 ring-rose-50' : 'focus:ring-blue-50'
-                      }`}
-                      placeholder="FACXXXX"
-                    />
-                  </div>
-                  {errors.facultyId && <p className="text-[9px] font-black text-rose-500 uppercase tracking-widest ml-2">{errors.facultyId}</p>}
-                </div>
-                <div className="space-y-2">
-                  <label className="text-xs font-black text-gray-400 uppercase tracking-widest ml-1">Phone Number</label>
-                  <div className="relative group">
-                    <Phone className="absolute left-6 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-300 group-focus-within:text-blue-600 transition-colors" />
-                    <input
-                      type="tel"
-                      name="phone"
-                      value={formData.phone}
-                      onChange={handleChange}
-                      className={`w-full pl-16 pr-6 py-4 bg-gray-50 border-none rounded-2xl focus:ring-4 transition-all font-bold text-gray-800 placeholder:text-gray-300 ${
-                        errors.phone ? 'ring-4 ring-rose-50' : 'focus:ring-blue-50'
-                      }`}
-                      placeholder="10-digit number"
-                    />
-                  </div>
-                  {errors.phone && <p className="text-[9px] font-black text-rose-500 uppercase tracking-widest ml-2">{errors.phone}</p>}
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <label className="text-xs font-black text-gray-400 uppercase tracking-widest ml-1">Department</label>
-                <div className="relative group">
-                  <BookOpen className="absolute left-6 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-300 group-focus-within:text-blue-600 transition-colors pointer-events-none" />
-                  <select
-                    name="department"
-                    value={formData.department}
-                    onChange={handleChange}
-                    className={`w-full pl-16 pr-6 py-4 bg-gray-50 border-none rounded-2xl focus:ring-4 transition-all font-bold text-gray-800 appearance-none ${
-                        errors.department ? 'ring-4 ring-rose-50' : 'focus:ring-blue-50'
-                    }`}
-                  >
-                    <option value="">Select Department</option>
-                    {departments.map((dept, index) => (
-                      <option key={index} value={dept}>{dept}</option>
-                    ))}
-                  </select>
-                </div>
-                {errors.department && <p className="text-[9px] font-black text-rose-500 uppercase tracking-widest ml-2">{errors.department}</p>}
-              </div>
-
-              <div className="space-y-2">
-                <label className="text-xs font-black text-gray-400 uppercase tracking-widest ml-1">Password</label>
-                <div className="relative group">
-                  <Lock className="absolute left-6 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-300 group-focus-within:text-blue-600 transition-colors" />
-                  <input
-                    type="password"
-                    name="password"
-                    value={formData.password}
-                    onChange={handleChange}
-                    className={`w-full pl-16 pr-6 py-4 bg-gray-50 border-none rounded-2xl focus:ring-4 transition-all font-bold text-gray-800 placeholder:text-gray-300 ${
-                      errors.password ? 'ring-4 ring-rose-50' : 'focus:ring-blue-50'
-                    }`}
-                    placeholder="Min 6 characters"
-                  />
-                </div>
-                {errors.password && <p className="text-[9px] font-black text-rose-500 uppercase tracking-widest ml-2">{errors.password}</p>}
+                {errors.phone && <p className="text-xs text-red-600 mt-1">{errors.phone}</p>}
               </div>
             </div>
 
+            {/* Department */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Department</label>
+              <div className="relative">
+                <BookOpen className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none z-10" />
+                <select
+                  name="department"
+                  value={formData.department}
+                  onChange={handleChange}
+                  className={`w-full pl-10 pr-4 py-2.5 border rounded-lg focus:outline-none focus:ring-2 appearance-none ${
+                      errors.department ? 'border-red-300 focus:ring-red-500' : 'border-gray-300 focus:ring-blue-500'
+                  }`}
+                >
+                  <option value="">Select Department</option>
+                  {departments.map((dept, index) => (
+                    <option key={index} value={dept}>{dept}</option>
+                  ))}
+                </select>
+              </div>
+              {errors.department && <p className="text-xs text-red-600 mt-1">{errors.department}</p>}
+            </div>
+
+            {/* Password */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Password</label>
+              <div className="relative">
+                <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+                <input
+                  type="password"
+                  name="password"
+                  value={formData.password}
+                  onChange={handleChange}
+                  className={`w-full pl-10 pr-4 py-2.5 border rounded-lg focus:outline-none focus:ring-2 ${
+                    errors.password ? 'border-red-300 focus:ring-red-500' : 'border-gray-300 focus:ring-blue-500'
+                  }`}
+                  placeholder="Min 6 characters"
+                />
+              </div>
+              {errors.password && <p className="text-xs text-red-600 mt-1">{errors.password}</p>}
+            </div>
+
+            {/* Submit Button */}
             <button
               type="submit"
               disabled={loading}
-              className="w-full py-6 bg-blue-600 text-white rounded-[2rem] font-black text-sm uppercase tracking-[0.2em] shadow-2xl shadow-blue-100 hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-3 transition-all hover:-translate-y-1 active:scale-[0.98]"
+              className="w-full py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
             >
               {loading ? (
                 <>
-                  <Loader2 className="w-5 h-5 animate-spin" />
+                  <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
                   Registering...
                 </>
               ) : (
-                <>
-                  Register
-                  <Sparkles className="w-4 h-4 ml-1" />
-                </>
+                "Create Account"
               )}
             </button>
           </form>
 
-          <div className="mt-10 text-center">
-            <p className="text-xs font-black text-gray-300 uppercase tracking-widest">
-              Already have an account?{' '}
-              <button
-                type="button"
-                onClick={() => navigate('/faculty/login')}
-                className="text-blue-600 hover:text-blue-800 font-black ml-1"
-              >
-                Login here
-              </button>
-            </p>
+          {/* Login Link */}
+          <div className="mt-6 text-center text-sm text-gray-600">
+            Already have an account?{' '}
+            <button
+              type="button"
+              onClick={() => navigate('/faculty/login')}
+              className="text-blue-600 hover:text-blue-700 font-medium"
+            >
+              Login here
+            </button>
           </div>
         </div>
 
         {/* Footer */}
-        <div className="text-center">
-           <p className="text-xs font-black text-gray-300 uppercase tracking-widest leading-relaxed">
-             Authorized Faculty registration only. By registering, you agree to our terms and conditions.
-           </p>
+        <div className="mt-6 text-center text-sm text-gray-500">
+          <p>By registering, you agree to our Terms and Conditions</p>
         </div>
       </div>
     </div>
   );
 }
-

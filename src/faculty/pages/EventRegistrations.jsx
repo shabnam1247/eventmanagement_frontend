@@ -5,14 +5,8 @@ import {
   Trash2, 
   Download, 
   Filter, 
-  ArrowLeft,
   UserCheck,
-  Calendar,
-  Mail,
-  MoreVertical,
-  Fingerprint,
-  Zap,
-  Target
+  Calendar
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import FacultyLayout from "../components/FacultyLayout";
@@ -61,141 +55,147 @@ const FacultyRegistrationList = () => {
     return matchesSearch && matchesStatus;
   });
 
-  const getStatusConfig = (status) => {
+  const getStatusColor = (status) => {
     switch (status) {
-      case "confirmed": return { color: "text-emerald-600 bg-emerald-50", icon: <UserCheck className="w-3 h-3" /> };
-      case "pending": return { color: "text-amber-600 bg-amber-50", icon: <Zap className="w-3 h-3" /> };
-      case "cancelled": return { color: "text-rose-600 bg-rose-50", icon: <Target className="w-3 h-3" /> };
-      default: return { color: "text-gray-600 bg-gray-50", icon: <Fingerprint className="w-3 h-3" /> };
+      case "confirmed": return "bg-green-50 text-green-600 border-green-100";
+      case "pending": return "bg-blue-50 text-blue-600 border-blue-100";
+      case "cancelled": return "bg-red-50 text-red-600 border-red-100";
+      default: return "bg-gray-50 text-gray-600 border-gray-100";
     }
   };
 
   return (
     <FacultyLayout>
-      <div className="space-y-8">
-        {/* Header Section */}
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
-           <div className="space-y-1">
-              <h1 className="text-4xl font-black text-gray-900 tracking-tight">Event <span className="text-blue-600">Registrations</span></h1>
-              <p className="text-gray-500 font-medium tracking-tight">Monitor real-time event registration traffic and status</p>
-           </div>
-           
-           <button className="flex items-center gap-3 px-8 py-4 bg-gray-900 text-white rounded-2xl font-black text-sm hover:bg-black shadow-xl shadow-gray-200 transition-all hover:-translate-y-1 active:scale-95">
-              <Download className="w-5 h-5" />
-              EXPORT LIST
-           </button>
+      <div className="py-2">
+        {/* Header */}
+        <div className="mb-8 flex justify-between items-end">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900 mb-2 font-sans tracking-tight">Event Registrations</h1>
+            <p className="text-gray-500 font-medium tracking-tight">Monitor student registrations across all events</p>
+          </div>
+          
+          <button className="px-5 py-2.5 bg-white border border-gray-200 text-gray-700 rounded-xl hover:bg-gray-50 flex items-center gap-2 shadow-sm font-bold transition-all active:scale-95">
+            <Download className="w-5 h-5" />
+            EXPORT TO CSV
+          </button>
         </div>
 
-        {/* Filter Section */}
-        <div className="bg-white p-4 rounded-[2rem] border border-gray-100 shadow-xl shadow-gray-50/50 flex flex-col md:flex-row gap-4 items-center">
-            <div className="relative group w-full flex-1">
-              <Search className="absolute left-6 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-300 group-focus-within:text-blue-600 transition-colors" />
-              <input
-                type="text"
-                placeholder="Search by student name, email or event name..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-16 pr-6 py-4 bg-gray-50 border-none rounded-2xl focus:ring-4 focus:ring-blue-50 transition-all font-bold text-gray-800 placeholder:text-gray-300"
-              />
-            </div>
-
-            <div className="flex items-center gap-2 w-full md:w-auto">
-               <div className="flex items-center gap-2 px-4 py-2 bg-gray-50 rounded-2xl border border-transparent hover:border-gray-200 transition-all">
-                  <Filter className="w-4 h-4 text-gray-400" />
-                  <select
-                    value={statusFilter}
-                    onChange={(e) => setStatusFilter(e.target.value)}
-                    className="bg-transparent border-none focus:ring-0 font-bold text-xs text-gray-600 uppercase cursor-pointer"
-                  >
-                    <option value="all">Status: All</option>
-                    <option value="confirmed">Status: Confirmed</option>
-                    <option value="pending">Status: Pending</option>
-                    <option value="cancelled">Status: Cancelled</option>
-                  </select>
-               </div>
-            </div>
-        </div>
-
-        {/* Registrations Table */}
-        <div className="bg-white rounded-[2.5rem] border border-gray-100 shadow-2xl shadow-gray-50/50 overflow-hidden">
-           <div className="overflow-x-auto">
-             <table className="w-full">
-               <thead>
-                 <tr className="bg-gray-50/50">
-                    <th className="py-6 px-10 text-left text-xs font-black text-gray-400 uppercase tracking-widest">Sl No.</th>
-                    <th className="py-6 px-8 text-left text-xs font-black text-gray-400 uppercase tracking-widest">Student Details</th>
-                    <th className="py-6 px-8 text-left text-xs font-black text-gray-400 uppercase tracking-widest">Event Details</th>
-                    <th className="py-6 px-8 text-left text-xs font-black text-gray-400 uppercase tracking-widest">Registration Status</th>
-                    <th className="py-6 px-10 text-right text-xs font-black text-gray-400 uppercase tracking-widest">Actions</th>
-                 </tr>
-               </thead>
-               <tbody className="divide-y divide-gray-50">
-                 {filteredRegistrations.map((reg, index) => {
-                    const status = getStatusConfig(reg.status);
-                    return (
-                        <tr key={reg.id} className="hover:bg-blue-50/30 transition-all group">
-                           <td className="py-8 px-10">
-                              <span className="text-xs font-black text-gray-300 tabular-nums">#{index + 1}</span>
-                           </td>
-                           <td className="py-8 px-8">
-                              <div className="flex items-center gap-4">
-                                 <div className="w-12 h-12 rounded-xl bg-gray-100 flex items-center justify-center font-black text-gray-400 group-hover:bg-blue-600 group-hover:text-white transition-all">
-                                    {reg.name.charAt(0)}
-                                 </div>
-                                 <div>
-                                    <p className="font-black text-gray-900 tracking-tight group-hover:text-blue-600 transition-colors">{reg.name}</p>
-                                    <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mt-1">Reg No: {reg.regNo}</p>
-                                 </div>
-                              </div>
-                           </td>
-                           <td className="py-8 px-8">
-                              <p className="text-sm font-black text-gray-800 uppercase tabular-nums">{reg.event}</p>
-                              <div className="flex items-center gap-2 mt-1">
-                                 <Calendar className="w-3 h-3 text-gray-300" />
-                                 <span className="text-xs font-bold text-gray-400 uppercase tracking-widest">{reg.date}</span>
-                              </div>
-                           </td>
-                           <td className="py-8 px-8">
-                              <div className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-xl font-black text-xs uppercase tracking-widest shadow-sm ${status.color}`}>
-                                 {status.icon}
-                                 {reg.status}
-                              </div>
-                           </td>
-                           <td className="py-8 px-10 text-right">
-                              <div className="flex items-center justify-end gap-2">
-                                 <button className="p-3 bg-gray-50 text-gray-400 hover:bg-white hover:text-blue-600 hover:shadow-lg rounded-xl transition-all active:scale-90">
-                                    <Eye className="w-5 h-5" />
-                                 </button>
-                                 <button className="p-3 bg-gray-50 text-gray-400 hover:bg-red-50 hover:text-red-500 hover:shadow-lg rounded-xl transition-all active:scale-90">
-                                    <Trash2 className="w-5 h-5" />
-                                 </button>
-                                 <button className="p-3 bg-gray-50 text-gray-400 hover:bg-gray-100 rounded-xl transition-all">
-                                    <MoreVertical className="w-5 h-5" />
-                                 </button>
-                              </div>
-                           </td>
-                        </tr>
-                    )
-                 })}
-               </tbody>
-             </table>
-           </div>
-
-           {/* Table Footer */}
-           <div className="p-8 border-t border-gray-50 flex flex-col sm:flex-row justify-between items-center gap-6">
-              <p className="text-xs font-black text-gray-300 uppercase tracking-widest">
-                Showing {filteredRegistrations.length} registrations from record
-              </p>
-              <div className="flex gap-3">
-                 <button className="px-6 py-3 bg-gray-50 text-gray-400 font-black text-xs uppercase rounded-xl hover:bg-white hover:shadow-md transition-all">Previous</button>
-                 <button className="px-6 py-3 bg-blue-600 text-white font-black text-xs uppercase rounded-xl shadow-lg shadow-blue-100 hover:bg-blue-700 hover:-translate-y-0.5 transition-all">Next Page</button>
+        {/* Toolbar */}
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 mb-8">
+          <div className="flex flex-col md:flex-row gap-4 justify-between">
+            <div className="flex flex-col sm:flex-row gap-4 flex-1">
+              <div className="relative flex-1 max-w-md">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+                <input
+                  type="text"
+                  placeholder="Search by student name, email, or event..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="pl-10 pr-4 py-2.5 border border-gray-200 rounded-xl w-full focus:ring-2 focus:ring-blue-500 outline-none transition-all font-medium"
+                />
               </div>
-           </div>
+              <div className="flex items-center gap-3">
+                <Filter className="w-5 h-5 text-gray-400" />
+                <select
+                  value={statusFilter}
+                  onChange={(e) => setStatusFilter(e.target.value)}
+                  className="px-4 py-2.5 border border-gray-200 bg-white rounded-xl text-gray-600 font-bold outline-none shadow-sm"
+                >
+                  <option value="all">All Status</option>
+                  <option value="confirmed">Confirmed</option>
+                  <option value="pending">Pending</option>
+                  <option value="cancelled">Cancelled</option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Main Table Content */}
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead className="bg-gray-50/50">
+                <tr>
+                  <th className="py-4 px-6 text-left text-xs font-bold text-gray-400 uppercase tracking-widest">Student Information</th>
+                  <th className="py-4 px-6 text-left text-xs font-bold text-gray-400 uppercase tracking-widest">Event Details</th>
+                  <th className="py-4 px-6 text-left text-xs font-bold text-gray-400 uppercase tracking-widest">Registration Date</th>
+                  <th className="py-4 px-6 text-left text-xs font-bold text-gray-400 uppercase tracking-widest">Status</th>
+                  <th className="py-4 px-6 text-right text-xs font-bold text-gray-400 uppercase tracking-widest">Actions</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-50">
+                {filteredRegistrations.length === 0 ? (
+                  <tr>
+                    <td colSpan="5" className="py-20 text-center">
+                      <div className="flex flex-col items-center gap-2">
+                        <div className="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center mb-2">
+                          <UserCheck className="w-8 h-8 text-gray-200" />
+                        </div>
+                        <p className="text-gray-400 font-medium italic">No registrations found matching your filters.</p>
+                      </div>
+                    </td>
+                  </tr>
+                ) : (
+                  filteredRegistrations.map((reg) => (
+                    <tr key={reg.id} className="hover:bg-blue-50/20 transition-colors group">
+                      <td className="py-4 px-6">
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 rounded-xl bg-gray-100 flex items-center justify-center text-gray-400 group-hover:bg-blue-600 group-hover:text-white transition-all font-bold shadow-sm">
+                            {reg.name.charAt(0)}
+                          </div>
+                          <div>
+                            <p className="font-bold text-gray-900 group-hover:text-blue-600 transition-colors leading-tight">
+                              {reg.name}
+                            </p>
+                            <p className="text-xs text-gray-400 font-medium italic">{reg.email}</p>
+                          </div>
+                        </div>
+                      </td>
+                      <td className="py-4 px-6">
+                        <p className="text-sm font-bold text-gray-800">{reg.event}</p>
+                        <div className="flex items-center gap-1 mt-1">
+                          <Calendar className="w-3 h-3 text-gray-400" />
+                          <p className="text-[10px] text-gray-400 font-bold uppercase tracking-tight italic">
+                            {new Date(reg.date).toLocaleDateString('en-IN', { month: 'short', day: 'numeric', year: 'numeric' })}
+                          </p>
+                        </div>
+                      </td>
+                      <td className="py-4 px-6 text-sm text-gray-600 font-medium">
+                        {new Date(reg.date).toLocaleDateString('en-IN', { month: 'short', day: 'numeric', year: 'numeric' })}
+                      </td>
+                      <td className="py-4 px-6">
+                        <span className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest border ${getStatusColor(reg.status)}`}>
+                          {reg.status}
+                        </span>
+                      </td>
+                      <td className="py-4 px-6 text-right">
+                        <div className="flex justify-end gap-1">
+                          <button className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all shadow-sm">
+                            <Eye className="w-4 h-4" />
+                          </button>
+                          <button className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all shadow-sm">
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
+
+          {/* Footer Card */}
+          <div className="p-6 bg-gray-50/30 border-t border-gray-50 italic">
+            <p className="text-sm text-gray-500 font-medium">
+              A total of <span className="text-blue-600 font-bold">{filteredRegistrations.length}</span> students are currently registered for your events.
+            </p>
+          </div>
         </div>
       </div>
     </FacultyLayout>
   );
 };
-
 
 export default FacultyRegistrationList;

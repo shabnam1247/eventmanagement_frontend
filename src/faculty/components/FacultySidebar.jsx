@@ -11,8 +11,7 @@ import {
   ChevronRight,
   Menu,
   X,
-  Clock,
-  Briefcase
+  Clock
 } from 'lucide-react';
 
 const FacultySidebar = () => {
@@ -24,12 +23,12 @@ const FacultySidebar = () => {
   const navItems = [
     {
       path: '/faculty/dashboard',
-      label: 'Dashboard',
+      label: 'Analytics',
       icon: <LayoutDashboard className="w-5 h-5" />
     },
     {
       path: '/faculty/events',
-      label: 'Manage Events',
+      label: 'Events Management',
       icon: <Calendar className="w-5 h-5" />
     },
     {
@@ -39,7 +38,7 @@ const FacultySidebar = () => {
     },
     {
       path: '/faculty/students',
-      label: 'Students list',
+      label: 'Students List',
       icon: <Users className="w-5 h-5" />
     },
     {
@@ -49,7 +48,7 @@ const FacultySidebar = () => {
     },
     {
       path: '/faculty/chatroom',
-      label: 'Chatroom',
+      label: 'Faculty Chatroom',
       icon: <MessageSquare className="w-5 h-5" />
     },
   ];
@@ -66,7 +65,7 @@ const FacultySidebar = () => {
       {/* Mobile Toggle */}
       <button 
         onClick={() => setIsMobileOpen(!isMobileOpen)}
-        className="lg:hidden fixed top-4 right-4 z-50 p-2 bg-blue-600 text-white rounded-lg shadow-lg"
+        className="lg:hidden fixed top-4 left-4 z-50 p-2 bg-blue-600 text-white rounded-lg shadow-lg"
       >
         {isMobileOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
       </button>
@@ -86,46 +85,41 @@ const FacultySidebar = () => {
         ${isMobileOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
       `}>
         {/* Logo Section */}
-        <div className="h-20 flex items-center px-6 border-b border-gray-50">
+        <div className="h-16 flex items-center px-4 border-b border-gray-100">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center flex-shrink-0 shadow-lg shadow-blue-100">
-              <Briefcase className="w-6 h-6 text-white" />
+            <div className="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center flex-shrink-0 animate-pulse">
+              <Calendar className="w-6 h-6 text-white" />
             </div>
             {!isCollapsed && (
-              <div className="font-black text-xl tracking-tight text-gray-900">
+              <div className="font-bold text-xl tracking-tight">
                 Event<span className="text-blue-600">Hub</span>
-                <span className="block text-xs text-blue-400 -mt-1 uppercase font-black tracking-widest">Faculty Portal</span>
+                <span className="block text-[10px] text-gray-400 -mt-1 uppercase tracking-widest">Faculty Panel</span>
               </div>
             )}
           </div>
         </div>
 
-        {/* Navigation */}
-        <div className="flex flex-col h-[calc(100vh-80px)] justify-between py-8">
-          <nav className="px-4 space-y-2">
+        {/* Nav Items */}
+        <div className="flex flex-col h-[calc(100vh-64px)] justify-between py-6">
+          <nav className="px-3 space-y-1">
             {navItems.map((item) => (
               <Link
                 key={item.path}
                 to={item.path}
                 onClick={() => setIsMobileOpen(false)}
                 className={`
-                  flex items-center gap-3 px-4 py-3.5 rounded-2xl font-bold transition-all group relative
+                  flex items-center gap-3 px-3 py-3 rounded-xl font-medium transition-all group
                   ${isActive(item.path) 
-                    ? 'bg-blue-600 text-white shadow-xl shadow-blue-100' 
-                    : 'text-gray-400 hover:bg-blue-50 hover:text-blue-600'}
+                    ? 'bg-blue-600 text-white shadow-lg shadow-blue-200 lg:translate-x-1' 
+                    : 'text-gray-500 hover:bg-blue-50 hover:text-blue-600'}
                 `}
               >
-                <div className={`${isActive(item.path) ? 'text-white' : 'text-gray-300 group-hover:text-blue-600'} transition-colors`}>
+                <div className={`${isActive(item.path) ? 'text-white' : 'text-gray-400 group-hover:text-blue-600'}`}>
                   {item.icon}
                 </div>
-                {!isCollapsed && <span className="text-sm truncate">{item.label}</span>}
-                
-                {isActive(item.path) && !isCollapsed && (
-                   <div className="absolute right-4 w-2 h-2 bg-white rounded-full"></div>
-                )}
-
+                {!isCollapsed && <span className="truncate">{item.label}</span>}
                 {isCollapsed && (
-                  <div className="absolute left-full ml-4 bg-gray-900 text-white px-3 py-2 rounded-lg text-xs font-bold opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-50 pointer-events-none shadow-xl">
+                  <div className="absolute left-20 bg-gray-900 text-white px-2 py-1 rounded text-xs opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-50 pointer-events-none">
                     {item.label}
                   </div>
                 )}
@@ -134,23 +128,23 @@ const FacultySidebar = () => {
           </nav>
 
           {/* Bottom Actions */}
-          <div className="px-4 space-y-4">
+          <div className="px-3 space-y-2">
             {!isMobileOpen && (
               <button
                 onClick={() => setIsCollapsed(!isCollapsed)}
-                className="hidden lg:flex w-full items-center gap-3 px-4 py-3.5 rounded-2xl text-gray-400 hover:bg-gray-50 transition-all font-bold"
+                className="hidden lg:flex w-full items-center gap-3 px-3 py-3 rounded-xl text-gray-500 hover:bg-gray-100 transition-all"
               >
-                {isCollapsed ? <ChevronRight className="w-5 h-5" /> : <ChevronLeft className="w-5 h-5" />}
-                {!isCollapsed && <span className="text-sm">Collapse Sidebar</span>}
+                {isCollapsed ? <ChevronRight className="w-5 h-5 ml-1" /> : <ChevronLeft className="w-5 h-5" />}
+                {!isCollapsed && <span>Collapse</span>}
               </button>
             )}
             
             <button
               onClick={handleLogout}
-              className="flex w-full items-center gap-3 px-4 py-3.5 rounded-2xl font-black text-red-500 hover:bg-red-50 transition-all active:scale-95"
+              className="flex w-full items-center gap-3 px-3 py-3 rounded-xl font-medium text-red-500 hover:bg-red-50 transition-all border border-transparent hover:border-red-100"
             >
-              <LogOut className="w-5 h-5" />
-              {!isCollapsed && <span className="text-sm uppercase tracking-widest">Logout</span>}
+              <LogOut className="w-5 h-5 ml-1" />
+              {!isCollapsed && <span>Sign Out</span>}
             </button>
           </div>
         </div>

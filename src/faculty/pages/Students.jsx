@@ -7,13 +7,7 @@ import {
   BookOpen, 
   Eye, 
   Edit, 
-  Trash2,
-  Filter,
-  Mail,
-  MoreVertical,
-  ShieldCheck,
-  ShieldAlert,
-  Users
+  Trash2
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import FacultyLayout from "../components/FacultyLayout";
@@ -75,173 +69,176 @@ const FacultyStudentPanel = () => {
     return matchesSearch && matchesDept;
   });
 
+  const stats = {
+    total: students.length,
+    active: students.filter(s => s.status === "Active").length,
+    inactive: students.filter(s => s.status === "Inactive").length
+  };
+
   return (
     <FacultyLayout>
-      <div className="space-y-8">
-        {/* Header Section */}
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
-           <div className="space-y-1">
-              <h1 className="text-4xl font-black text-gray-900 tracking-tight">Student <span className="text-blue-600">List</span></h1>
-              <p className="text-gray-500 font-medium tracking-tight">Manage and monitor all student registrations</p>
-           </div>
-           
-           <button
+      <div className="py-2">
+        {/* Header */}
+        <div className="mb-8 flex justify-between items-end">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900 mb-2 font-sans tracking-tight">Student Management</h1>
+            <p className="text-gray-500 font-medium tracking-tight">Manage and monitor all student registrations</p>
+          </div>
+          
+          <button
             onClick={handleAddClick}
-            className="group flex items-center gap-3 px-8 py-4 bg-blue-600 text-white rounded-2xl font-black text-sm hover:bg-blue-700 shadow-xl shadow-blue-100 transition-all hover:-translate-y-1 active:scale-95"
+            className="px-5 py-2.5 bg-blue-600 text-white rounded-xl hover:bg-blue-700 flex items-center gap-2 shadow-sm font-bold transition-all active:scale-95"
           >
-            <Plus className="w-5 h-5 group-hover:rotate-90 transition-transform" />
-            ADD NEW STUDENT
+            <Plus className="w-5 h-5" />
+            ADD STUDENT
           </button>
         </div>
 
-        {/* Overview Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-           <OverviewCard 
-             label="Total Students" 
-             value={students.length} 
-             icon={<Users className="w-5 h-5 text-blue-600" />} 
-             bg="bg-blue-50"
-           />
-           <OverviewCard 
-             label="Active Status" 
-             value={students.filter(s => s.status === "Active").length} 
-             icon={<ShieldCheck className="w-5 h-5 text-emerald-600" />} 
-             bg="bg-emerald-50"
-           />
-           <OverviewCard 
-             label="Inactive Status" 
-             value={students.filter(s => s.status === "Inactive").length} 
-             icon={<ShieldAlert className="w-5 h-5 text-rose-600" />} 
-             bg="bg-rose-50"
-           />
-        </div>
-
-        {/* Search & Filter Section */}
-        <div className="bg-white p-4 rounded-[2rem] border border-gray-100 shadow-xl shadow-gray-50/50 flex flex-col md:flex-row gap-4 items-center">
-            <div className="relative group w-full flex-1">
-              <Search className="absolute left-6 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-300 group-focus-within:text-blue-600 transition-colors" />
-              <input
-                type="text"
-                placeholder="Search by name or registration number..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-16 pr-6 py-4 bg-gray-50 border-none rounded-2xl focus:ring-4 focus:ring-blue-50 transition-all font-bold text-gray-800 placeholder:text-gray-300"
-              />
-            </div>
-
-            <div className="flex items-center gap-2 w-full md:w-auto">
-               <div className="flex items-center gap-2 px-4 py-2 bg-gray-50 rounded-2xl border border-transparent hover:border-gray-200 transition-all">
-                  <Filter className="w-4 h-4 text-gray-400" />
-                  <select
-                    value={departmentFilter}
-                    onChange={(e) => setDepartmentFilter(e.target.value)}
-                    className="bg-transparent border-none focus:ring-0 font-bold text-xs text-gray-600 uppercase cursor-pointer"
-                  >
-                    <option value="all">Department: All</option>
-                    <option value="Computer Science">Dept: CS</option>
-                    <option value="Electronics">Dept: EC</option>
-                    <option value="Mechanical">Dept: ME</option>
-                  </select>
-               </div>
-            </div>
-        </div>
-
-        {/* Students Table */}
-        <div className="bg-white rounded-[2.5rem] border border-gray-100 shadow-2xl shadow-gray-50/50 overflow-hidden">
-           <div className="overflow-x-auto">
-             <table className="w-full">
-               <thead>
-                 <tr className="bg-gray-50/50">
-                    <th className="py-6 px-10 text-left text-xs font-black text-gray-400 uppercase tracking-widest">Student Details</th>
-                    <th className="py-6 px-8 text-left text-xs font-black text-gray-400 uppercase tracking-widest">Academic Info</th>
-                    <th className="py-6 px-8 text-left text-xs font-black text-gray-400 uppercase tracking-widest">Email Address</th>
-                    <th className="py-6 px-8 text-left text-xs font-black text-gray-400 uppercase tracking-widest">Status</th>
-                    <th className="py-6 px-10 text-right text-xs font-black text-gray-400 uppercase tracking-widest">Actions</th>
-                 </tr>
-               </thead>
-               <tbody className="divide-y divide-gray-50">
-                 {filteredStudents.map((student) => (
-                    <tr key={student.id} className="hover:bg-blue-50/30 transition-all group">
-                       <td className="py-8 px-10">
-                          <div className="flex items-center gap-5">
-                             <div className="w-14 h-14 bg-gray-100 rounded-2xl flex items-center justify-center font-black text-gray-400 text-xl group-hover:bg-blue-600 group-hover:text-white transition-all shadow-inner">
-                                {student.name.charAt(0)}
-                             </div>
-                             <div>
-                                <p className="font-black text-gray-900 text-lg tracking-tight group-hover:text-blue-600 transition-colors">{student.name}</p>
-                                <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mt-1 flex items-center gap-1">
-                                   <GraduationCap className="w-3 h-3" /> {student.regno}
-                                </p>
-                             </div>
-                          </div>
-                       </td>
-                       <td className="py-8 px-8">
-                          <div className="text-sm font-black text-gray-800 uppercase tracking-tight">{student.department}</div>
-                          <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mt-1">{student.year}</p>
-                       </td>
-                       <td className="py-8 px-8">
-                          <div className="flex items-center gap-2 text-sm font-bold text-gray-500">
-                             <Mail className="w-4 h-4 text-gray-300" />
-                             {student.email}
-                          </div>
-                       </td>
-                       <td className="py-8 px-8">
-                          <div className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-xl font-black text-xs uppercase tracking-widest ${
-                            student.status === "Active" 
-                              ? "bg-emerald-50 text-emerald-600" 
-                              : "bg-rose-50 text-rose-600"
-                          }`}>
-                            <div className={`w-1.5 h-1.5 rounded-full ${student.status === "Active" ? 'bg-emerald-500' : 'bg-rose-500'}`}></div>
-                            {student.status}
-                          </div>
-                       </td>
-                       <td className="py-8 px-10 text-right">
-                          <div className="flex items-center justify-end gap-2">
-                             <button className="p-3 bg-gray-50 text-gray-400 hover:bg-white hover:text-blue-600 hover:shadow-lg rounded-xl transition-all active:scale-90">
-                                <Eye className="w-5 h-5" />
-                             </button>
-                             <button className="p-3 bg-gray-50 text-gray-400 hover:bg-white hover:text-emerald-600 hover:shadow-lg rounded-xl transition-all active:scale-90">
-                                <Edit className="w-5 h-5" />
-                             </button>
-                             <div className="w-px h-6 bg-gray-100 mx-2"></div>
-                             <button className="p-3 bg-gray-50 text-gray-400 hover:bg-red-50 hover:text-red-500 hover:shadow-lg rounded-xl transition-all active:scale-90">
-                                <Trash2 className="w-5 h-5" />
-                             </button>
-                          </div>
-                       </td>
-                    </tr>
-                 ))}
-               </tbody>
-             </table>
-           </div>
-
-           {/* Table Footer */}
-           <div className="p-8 border-t border-gray-50 flex flex-col sm:flex-row justify-between items-center gap-6">
-              <p className="text-xs font-black text-gray-300 uppercase tracking-widest">
-                Displaying {filteredStudents.length} students from registration record
-              </p>
-              <div className="flex gap-3">
-                 <button className="px-6 py-3 bg-gray-50 text-gray-400 font-black text-xs uppercase rounded-xl hover:bg-white hover:shadow-md transition-all">Previous</button>
-                 <button className="px-6 py-3 bg-blue-600 text-white font-black text-xs uppercase rounded-xl shadow-lg shadow-blue-100 hover:bg-blue-700 hover:-translate-y-0.5 transition-all">Next Page</button>
+        {/* Stats Grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-8">
+          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 hover:shadow-md transition-shadow">
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-sm font-bold text-gray-400 uppercase tracking-widest">Total Students</h3>
+              <div className="w-10 h-10 bg-blue-50 rounded-xl flex items-center justify-center">
+                 <User className="w-5 h-5 text-blue-600" />
               </div>
-           </div>
+            </div>
+            <p className="text-3xl font-bold text-gray-900">{stats.total}</p>
+          </div>
+          
+          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 hover:shadow-md transition-shadow">
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-sm font-bold text-gray-400 uppercase tracking-widest">Active</h3>
+              <div className="w-10 h-10 bg-green-50 rounded-xl flex items-center justify-center">
+                 <GraduationCap className="w-5 h-5 text-green-600" />
+              </div>
+            </div>
+            <p className="text-3xl font-bold text-gray-900">{stats.active}</p>
+          </div>
+          
+          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 hover:shadow-md transition-shadow">
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-sm font-bold text-gray-400 uppercase tracking-widest">Inactive</h3>
+              <div className="w-10 h-10 bg-amber-50 rounded-xl flex items-center justify-center">
+                 <BookOpen className="w-5 h-5 text-amber-600" />
+              </div>
+            </div>
+            <p className="text-3xl font-bold text-gray-900">{stats.inactive}</p>
+          </div>
+        </div>
+
+        {/* Main Card */}
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+          {/* Toolbar */}
+          <div className="p-6 border-b border-gray-50 bg-gray-50/30">
+            <div className="flex flex-col md:flex-row gap-4 justify-between">
+              <div className="flex items-center gap-4 flex-1">
+                <div className="relative flex-1 max-w-md">
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+                  <input
+                    type="text"
+                    placeholder="Search by name or registration number..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="pl-10 pr-4 py-2.5 border border-gray-200 rounded-xl w-full focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all outline-none"
+                  />
+                </div>
+                <select
+                  value={departmentFilter}
+                  onChange={(e) => setDepartmentFilter(e.target.value)}
+                  className="px-4 py-2.5 border border-gray-200 bg-white rounded-xl text-gray-600 font-medium outline-none shadow-sm transition-all"
+                >
+                  <option value="all">All Departments</option>
+                  <option value="Computer Science">Computer Science</option>
+                  <option value="Electronics">Electronics</option>
+                  <option value="Mechanical">Mechanical</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead className="bg-gray-50/50">
+                <tr>
+                  <th className="py-4 px-6 text-left text-xs font-bold text-gray-400 uppercase tracking-widest">Student Information</th>
+                  <th className="py-4 px-6 text-left text-xs font-bold text-gray-400 uppercase tracking-widest">Reg No</th>
+                  <th className="py-4 px-6 text-left text-xs font-bold text-gray-400 uppercase tracking-widest">Department</th>
+                  <th className="py-4 px-6 text-left text-xs font-bold text-gray-400 uppercase tracking-widest">Status</th>
+                  <th className="py-4 px-6 text-right text-xs font-bold text-gray-400 uppercase tracking-widest">Actions</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-50">
+                {filteredStudents.length === 0 ? (
+                  <tr>
+                    <td colSpan="5" className="py-20 text-center">
+                      <div className="flex flex-col items-center gap-2">
+                         <div className="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center mb-2">
+                           <User className="w-8 h-8 text-gray-200" />
+                         </div>
+                         <p className="text-gray-400 font-medium italic">No students found matching your criteria.</p>
+                      </div>
+                    </td>
+                  </tr>
+                ) : (
+                  filteredStudents.map((student) => (
+                    <tr key={student.id} className="hover:bg-blue-50/20 transition-colors group">
+                      <td className="py-4 px-6">
+                        <div className="flex items-center">
+                          <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center text-white font-bold text-sm shadow-sm">
+                            {student.name.charAt(0)}
+                          </div>
+                          <div className="ml-3">
+                            <div className="text-sm font-bold text-gray-900 leading-tight group-hover:text-blue-600 transition-colors">{student.name}</div>
+                            <div className="text-xs text-gray-400 font-medium italic">{student.email}</div>
+                          </div>
+                        </div>
+                      </td>
+                      <td className="py-4 px-6 text-sm text-gray-700 font-bold">
+                        {student.regno}
+                      </td>
+                      <td className="py-4 px-6 text-sm text-gray-500 font-medium">
+                        <div>{student.department}</div>
+                        <div className="text-xs text-gray-400">{student.year}</div>
+                      </td>
+                      <td className="py-4 px-6">
+                        <span className={`inline-flex items-center px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest ${
+                          student.status === "Active" 
+                            ? "bg-green-50 text-green-600 border border-green-100 shadow-sm shadow-green-50" 
+                            : "bg-amber-50 text-amber-600 border border-amber-100 shadow-sm shadow-amber-50"
+                        }`}>
+                          {student.status}
+                        </span>
+                      </td>
+                      <td className="py-4 px-6 text-right">
+                        <div className="flex justify-end gap-1">
+                          <button className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all shadow-sm">
+                            <Eye className="w-4 h-4" />
+                          </button>
+                          <button className="p-2 text-gray-400 hover:text-green-600 hover:bg-green-50 rounded-lg transition-all shadow-sm">
+                            <Edit className="w-4 h-4" />
+                          </button>
+                          <button className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all shadow-sm">
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
+
+          <div className="p-6 bg-gray-50/30 border-t border-gray-50 italic">
+            <p className="text-sm text-gray-500 font-medium">
+              Showing <span className="text-blue-600 font-bold">{filteredStudents.length}</span> registered students
+            </p>
+          </div>
         </div>
       </div>
     </FacultyLayout>
   );
 };
-
-
-const OverviewCard = ({ label, value, icon, bg }) => (
-  <div className="bg-white p-6 rounded-3xl border border-gray-100 shadow-xl shadow-gray-50/50 flex items-center gap-6 transition-transform hover:scale-[1.02]">
-     <div className={`w-14 h-14 ${bg} rounded-2xl flex items-center justify-center shrink-0`}>
-        {icon}
-     </div>
-     <div>
-        <p className="text-xs font-black text-gray-400 uppercase tracking-widest">{label}</p>
-        <p className="text-2xl font-black text-gray-900 tracking-tight mt-1">{value}</p>
-     </div>
-  </div>
-);
 
 export default FacultyStudentPanel;

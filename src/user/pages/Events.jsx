@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { 
   Search, 
   Calendar, 
@@ -11,118 +11,23 @@ import {
   BookOpen,
   Trophy,
   Sparkles,
-  Eye
+  Eye,
+  Loader2
 } from "lucide-react";
 import Header from "../components/Header";
-import image1 from "../../assets/eventimage1.jpg"
 import { useNavigate } from "react-router-dom";
-
-const eventsData = [
-  {
-    id: 1,
-    title: "Tech Symposium 2025",
-    date: "2025-11-05",
-    time: "9:00 AM - 5:00 PM",
-    venue: "Auditorium Block A",
-    category: "upcoming",
-    type: "tech",
-    image: image1,
-    description: "A national-level tech fest showcasing innovation and research.",
-    seats: 45,
-    totalSeats: 200,
-    registered: 155
-  },
-  {
-    id: 2,
-    title: "Cultural Fest",
-    date: "2025-11-12",
-    time: "6:00 PM - 10:00 PM",
-    venue: "Open Stage",
-    category: "upcoming",
-    type: "cultural",
-    image: image1,
-    description: "Dance, music, and cultural events from all departments.",
-    seats: 120,
-    totalSeats: 300,
-    registered: 180
-  },
-  {
-    id: 3,
-    title: "Annual Quiz Competition",
-    date: "2025-12-22",
-    time: "2:00 PM - 6:00 PM",
-    venue: "Seminar Hall",
-    category: "upcoming",
-    type: "academic",
-    image: image1,
-    description: "Annual inter-departmental quiz competition.",
-    seats: 30,
-    totalSeats: 100,
-    registered: 70
-  },
-  {
-    id: 4,
-    title: "Sports Meet",
-    date: "2025-09-22",
-    time: "8:00 AM - 6:00 PM",
-    venue: "College Ground",
-    category: "past",
-    type: "sports",
-    image: image1,
-    description: "Annual inter-departmental sports competition.",
-    seats: 0,
-    totalSeats: 500,
-    registered: 500
-  },
-  {
-    id: 5,
-    title: "Union Inauguration",
-    date: "2025-09-27",
-    time: "4:00 PM - 8:00 PM",
-    venue: "College Auditorium",
-    category: "past",
-    type: "cultural",
-    image: image1,
-    description: "Inauguration, dance, music from all departments.",
-    seats: 0,
-    totalSeats: 400,
-    registered: 400
-  },
-  {
-    id: 6,
-    title: "Seminar on AI & ML",
-    date: "2025-10-15",
-    time: "10:00 AM - 4:00 PM",
-    venue: "Conference Hall",
-    category: "upcoming",
-    type: "tech",
-    image: image1,
-    description: "Machine learning, internship, certification.",
-    seats: 86,
-    totalSeats: 150,
-    registered: 64
-  },
-  {
-    id: 7,
-    title: "Graduation Ceremony",
-    date: "2025-12-07",
-    time: "3:00 PM - 7:00 PM",
-    venue: "Main Auditorium",
-    category: "past",
-    type: "academic",
-    image: image1,
-    description: "An inspiring event celebrating graduates' hard work and accomplishments.",
-    seats: 0,
-    totalSeats: 600,
-    registered: 600
-  },
-];
+import axios from "axios";
 
 const typeIcons = {
   tech: <Sparkles className="w-4 h-4" />,
+  Technical: <Sparkles className="w-4 h-4" />,
   cultural: <Music className="w-4 h-4" />,
+  Cultural: <Music className="w-4 h-4" />,
   academic: <BookOpen className="w-4 h-4" />,
-  sports: <Trophy className="w-4 h-4" />
+  Academic: <BookOpen className="w-4 h-4" />,
+  sports: <Trophy className="w-4 h-4" />,
+  Sports: <Trophy className="w-4 h-4" />,
+  General: <Award className="w-4 h-4" />
 };
 
 const EventPage = () => {
@@ -130,19 +35,57 @@ const EventPage = () => {
   const [typeFilter, setTypeFilter] = useState("all");
   const [searchTerm, setSearchTerm] = useState("");
   const [sortBy, setSortBy] = useState("date");
+  const [events, setEvents] = useState([]);
+  const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    fetchEvents();
+  }, []);
+
+  const fetchEvents = async () => {
+    try {
+      setLoading(true);
+      const response = await axios.get("http://localhost:5000/api/users/events");
+      
+      if (response.data.success && response.data.events) {
+        const formattedEvents = response.data.events.map(event => ({
+          id: event._id,
+          title: event.title,
+          date: new Date(event.date).toLocaleDateString('en-US', { year: 'numeric', month: '2-digit', day: '2-digit' }),
+          time: event.time || "Time TBA",
+          venue: event.location || "Venue TBA",
+          category: event.status || "upcoming", // upcoming, ongoing, pastevents
+          type: event.category || "General", // Technical, Cultural, etc
+          image: event.images && event.images.length > 0 
+            ? event.images[0] 
+            : "https://images.unsplash.com/photo-1540575467063-178a50c2df87?auto=format&fit=crop&w=800",
+          description: event.description || "Event details coming soon.",
+          seats: event.maxRegistrations - (event.registeredCount || 0),
+          totalSeats: event.maxRegistrations || 100,
+          registered: event.registeredCount || 0
+        }));
+        setEvents(formattedEvents);
+      }
+    } catch (error) {
+      console.error("Error fetching events:", error);
+      setEvents([]);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleViewMore = (id) => {
     navigate(`/eventdetails/${id}`);
-  }
+  };
 
   const handleRegister = (id) => {
-    navigate(`/register?event=${id}`);
+    navigate(`/eventdetails/${id}`);
   }
 
-  const filteredEvents = eventsData.filter((event) => {
+  const filteredEvents = events.filter((event) => {
     const matchesCategory = filter === "all" || event.category === filter;
-    const matchesType = typeFilter === "all" || event.type === typeFilter;
+    const matchesType = typeFilter === "all" || event.type.toLowerCase() === typeFilter.toLowerCase();
     const matchesSearch = 
       event.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
       event.description.toLowerCase().includes(searchTerm.toLowerCase());
@@ -154,25 +97,30 @@ const EventPage = () => {
   });
 
   const categories = [
-    { id: "all", name: "All Events", count: eventsData.length },
-    { id: "upcoming", name: "Upcoming", count: eventsData.filter(e => e.category === "upcoming").length },
-    { id: "past", name: "Past Events", count: eventsData.filter(e => e.category === "past").length }
+    { id: "all", name: "All Events", count: events.length },
+    { id: "upcoming", name: "Upcoming", count: events.filter(e => e.category === "upcoming").length },
+    { id: "ongoing", name: "Ongoing", count: events.filter(e => e.category === "ongoing").length },
+    { id: "pastevents", name: "Past Events", count: events.filter(e => e.category === "pastevents").length }
   ];
 
   const eventTypes = [
     { id: "all", name: "All Types", icon: <Filter className="w-4 h-4" /> },
-    { id: "tech", name: "Tech", icon: typeIcons.tech },
-    { id: "cultural", name: "Cultural", icon: typeIcons.cultural },
-    { id: "academic", name: "Academic", icon: typeIcons.academic },
-    { id: "sports", name: "Sports", icon: typeIcons.sports }
+    { id: "technology", name: "Tech", icon: typeIcons.Technical },
+    { id: "cultural", name: "Cultural", icon: typeIcons.Cultural },
+    { id: "Academic", name: "Academic", icon: typeIcons.Academic },
+    { id: "sports", name: "Sports", icon: typeIcons.Sports }
   ];
 
   const getStatusColor = (category) => {
-    return category === "upcoming" ? "bg-green-100 text-green-800" : "bg-gray-100 text-gray-800";
+    if (category === "upcoming") return "bg-green-100 text-green-800";
+    if (category === "ongoing") return "bg-blue-100 text-blue-800";
+    return "bg-gray-100 text-gray-800";
   };
 
   const getStatusText = (category) => {
-    return category === "upcoming" ? "Upcoming" : "Completed";
+    if (category === "upcoming") return "Upcoming";
+    if (category === "ongoing") return "Ongoing";
+    return "Completed";
   };
 
   return (
@@ -275,11 +223,26 @@ const EventPage = () => {
         <div>
           <div className="flex justify-between items-center mb-6">
             <h2 className="text-2xl font-bold text-gray-800">
-              {filteredEvents.length} Event{filteredEvents.length !== 1 ? 's' : ''} Found
+              {loading ? "Loading..." : `${filteredEvents.length} Event${filteredEvents.length !== 1 ? 's' : ''} Found`}
             </h2>
           </div>
 
-          {filteredEvents.length > 0 ? (
+          {loading ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {[1, 2, 3, 4, 5, 6].map((n) => (
+                <div key={n} className="bg-white rounded-2xl overflow-hidden shadow-lg animate-pulse">
+                  <div className="h-48 bg-gray-200"></div>
+                  <div className="p-6 space-y-4">
+                    <div className="h-6 bg-gray-200 rounded"></div>
+                    <div className="h-4 bg-gray-200 rounded w-3/4"></div>
+                    <div className="h-4 bg-gray-200 rounded"></div>
+                    <div className="h-4 bg-gray-200 rounded w-1/2"></div>
+                    <div className="h-10 bg-gray-200 rounded"></div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : filteredEvents.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {filteredEvents.map((event) => (
                 <div
@@ -292,6 +255,9 @@ const EventPage = () => {
                       src={event.image}
                       alt={event.title}
                       className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
+                      onError={(e) => {
+                        e.target.src = "https://images.unsplash.com/photo-1540575467063-178a50c2df87?auto=format&fit=crop&w=800";
+                      }}
                     />
                     <div className="absolute top-4 left-4">
                       <span className={`px-3 py-1 rounded-full text-xs font-semibold ${getStatusColor(event.category)}`}>

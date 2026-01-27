@@ -1,20 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { 
-  Search, 
-  Plus, 
-  Calendar, 
-  MapPin, 
-  Users, 
-  Eye, 
-  Edit, 
-  Trash2, 
-  Filter,
-  ChevronRight,
-  Zap,
-  Clock,
-  CheckCircle2,
-  Loader2
-} from "lucide-react";
+import { Search, Plus, Calendar, MapPin, Users, Eye, Edit, Trash2, Loader2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import FacultyLayout from "../components/FacultyLayout";
 import axios from "axios";
@@ -24,19 +9,23 @@ const FacultyEventPanel = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [events, setEvents] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
+  const [deleting, setDeleting] = useState(null);
+
   const navigate = useNavigate();
+
+  const handleAddClick = () => {
+    navigate('/faculty/addevent');
+  };
 
   const fetchEvents = async () => {
     setLoading(true);
     try {
       const response = await axios.get("http://localhost:5000/api/admin/events");
-      if (response.data.success) {
-        setEvents(response.data.events);
-      }
+      setEvents(response.data.events || []);
     } catch (error) {
       console.error("Error fetching events:", error);
-      toast.error("Failed to load events");
+      toast.error("Failed to fetch events");
     } finally {
       setLoading(false);
     }
@@ -46,241 +35,300 @@ const FacultyEventPanel = () => {
     fetchEvents();
   }, []);
 
-  const handleAddClick = () => {
-    navigate('/faculty/addevent');
+  const handleDeleteRequest = (eventId, eventTitle) => {
+    toast((t) => (
+      <div className="flex flex-col gap-3">
+        <p className="text-sm font-medium text-gray-900">
+          Are you sure you want to delete <b>{eventTitle}</b>?
+        </p>
+        <div className="flex gap-2">
+          <button
+            onClick={() => {
+              toast.dismiss(t.id);
+              handleDelete(eventId);
+            }}
+            className="px-3 py-1.5 bg-red-600 text-white text-xs font-bold rounded-lg hover:bg-red-700 transition-colors"
+          >
+            Delete
+          </button>
+          <button
+            onClick={() => toast.dismiss(t.id)}
+            className="px-3 py-1.5 bg-gray-100 text-gray-700 text-xs font-bold rounded-lg hover:bg-gray-200 transition-colors"
+          >
+            Cancel
+          </button>
+        </div>
+      </div>
+    ), {
+      duration: 5000,
+      position: 'top-center',
+    });
   };
 
-  const handleDelete = async (id) => {
-    if (window.confirm("Are you sure you want to delete this event?")) {
-      try {
-        const response = await axios.delete(`http://localhost:5000/api/faculty/eventdelete/${id}`);
-        if (response.data.success) {
-          toast.success("Event deleted successfully");
-          fetchEvents();
-        }
-      } catch (error) {
-        console.error("Error deleting event:", error);
-        toast.error(error.response?.data?.message || "Failed to delete event");
+  const handleDelete = async (eventId) => {
+    setDeleting(eventId);
+    try {
+      const res = await axios.delete(`http://localhost:5000/api/faculty/eventdelete/${eventId}`);
+      if (res.data.success) {
+        toast.success("Event deleted successfully");
+        setEvents(events.filter(e => e._id !== eventId));
       }
+    } catch (error) {
+      console.error("Error deleting event:", error);
+      toast.error(error.response?.data?.message || "Failed to delete event");
+    } finally {
+      setDeleting(null);
     }
   };
 
+  const handleEdit = (eventId) => {
+    navigate(`/faculty/editevent/${eventId}`);
+  };
+
+  const handleView = (eventId) => {
+    navigate(`/faculty/event/${eventId}`);
+  };
+
   const filteredEvents = events.filter((event) => {
-    const matchesSearch = event.title.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesStatus = statusFilter === "all" || event.status === statusFilter;
-    return matchesSearch && matchesStatus;
+    const titleMatch = event.title?.toLowerCase().includes(searchTerm.toLowerCase());
+    const statusMatch = statusFilter === "all" || event.status === statusFilter;
+    return titleMatch && statusMatch;
   });
 
-  const getStatusConfig = (status) => {
+  const getStatusColor = (status) => {
     switch (status) {
-      case "upcoming": return { color: "text-blue-600 bg-blue-50", icon: <Clock className="w-3 h-3" /> };
-      case "ongoing": return { color: "text-amber-600 bg-amber-50", icon: <Zap className="w-3 h-3" /> };
-      case "completed": return { color: "text-emerald-600 bg-emerald-50", icon: <CheckCircle2 className="w-3 h-3" /> };
-      default: return { color: "text-gray-600 bg-gray-50", icon: <Clock className="w-3 h-3" /> };
+      case "upcoming": return "bg-blue-50 text-blue-600 border-blue-100";
+      case "ongoing": return "bg-green-50 text-green-600 border-green-100";
+      case "pastevents": return "bg-gray-50 text-gray-600 border-gray-100";
+      default: return "bg-gray-50 text-gray-600 border-gray-100";
     }
   };
 
   return (
     <FacultyLayout>
       <Toaster position="top-right" />
-      <div className="space-y-8">
-        {/* Header Section */}
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
-            <div className="space-y-1">
-              <h1 className="text-4xl font-black text-gray-900 tracking-tight">Manage <span className="text-blue-600">Events</span></h1>
-              <p className="text-gray-500 font-medium tracking-tight">Control and track all your scheduled events</p>
-            </div>
-           
-           <button
+      
+      <div className="py-2">
+        <div className="mb-8 flex justify-between items-end">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900 mb-2 font-sans tracking-tight">Events Management</h1>
+            <p className="text-gray-500 font-medium tracking-tight">Create, publish and manage your events</p>
+          </div>
+          
+          <button
             onClick={handleAddClick}
-            className="group flex items-center gap-3 px-8 py-4 bg-blue-600 text-white rounded-2xl font-black text-sm hover:bg-blue-700 shadow-xl shadow-blue-100 transition-all hover:-translate-y-1 active:scale-95"
+            className="px-5 py-2.5 bg-blue-600 text-white rounded-xl hover:bg-blue-700 flex items-center gap-2 shadow-lg shadow-blue-200 transition-all active:scale-95 font-bold"
           >
-            <Plus className="w-5 h-5 group-hover:rotate-90 transition-transform" />
+            <Plus className="w-5 h-5" />
             CREATE NEW EVENT
           </button>
         </div>
 
-        {/* Top Statistics */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-           <CompactStat 
-             label="Total Events" 
-             value={events.length} 
-             icon={<Calendar className="w-5 h-5 text-blue-600" />} 
-             bg="bg-blue-50"
-           />
-           <CompactStat 
-             label="Total Attendees" 
-             value={events.reduce((sum, e) => sum + (e.maxParticipants || 0), 0)} 
-             icon={<Users className="w-5 h-5 text-emerald-600" />} 
-             bg="bg-emerald-50"
-           />
-           <CompactStat 
-             label="Upcoming" 
-             value={events.filter(e => e.status === "upcoming").length} 
-             icon={<Zap className="w-5 h-5 text-amber-600" />} 
-             bg="bg-amber-50"
-           />
-        </div>
-
-        {/* Search & Filter Controls */}
-        <div className="bg-white p-4 rounded-[2rem] border border-gray-100 shadow-xl shadow-gray-50/50 flex flex-col md:flex-row gap-4 items-center">
-            <div className="relative group w-full flex-1">
-              <Search className="absolute left-6 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-300 group-focus-within:text-blue-600 transition-colors" />
-              <input
-                type="text"
-                placeholder="Search events by name..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-16 pr-6 py-4 bg-gray-50 border-none rounded-2xl focus:ring-4 focus:ring-blue-50 transition-all font-bold text-gray-800 placeholder:text-gray-300"
-              />
-            </div>
-
-            <div className="flex items-center gap-2 w-full md:w-auto">
-               <div className="flex items-center gap-2 px-4 py-2 bg-gray-50 rounded-2xl border border-transparent hover:border-gray-200 transition-all">
-                  <Filter className="w-4 h-4 text-gray-400" />
-                  <select
-                    value={statusFilter}
-                    onChange={(e) => setStatusFilter(e.target.value)}
-                    className="bg-transparent border-none focus:ring-0 font-bold text-xs text-gray-600 uppercase cursor-pointer"
-                  >
-                    <option value="all">Status: All</option>
-                    <option value="upcoming">Status: Upcoming</option>
-                    <option value="ongoing">Status: Ongoing</option>
-                    <option value="completed">Status: Completed</option>
-                  </select>
-               </div>
-            </div>
-        </div>
-
-        {/* Event Table Content */}
-        <div className="bg-white rounded-[2.5rem] border border-gray-100 shadow-2xl shadow-gray-50/50 overflow-hidden">
-           {loading ? (
-             <div className="flex flex-col items-center justify-center py-20">
-                <Loader2 className="w-10 h-10 text-blue-600 animate-spin mb-4" />
-                <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Accessing Event Data...</p>
-             </div>
-           ) : (
-             <div className="overflow-x-auto">
-               <table className="w-full">
-                 <thead>
-                   <tr className="bg-gray-50/50">
-                      <th className="py-6 px-10 text-left text-xs font-black text-gray-400 uppercase tracking-widest">Event Name</th>
-                      <th className="py-6 px-8 text-left text-xs font-black text-gray-400 uppercase tracking-widest">Current Status</th>
-                      <th className="py-6 px-8 text-left text-xs font-black text-gray-400 uppercase tracking-widest">Location</th>
-                      <th className="py-6 px-8 text-left text-xs font-black text-gray-400 uppercase tracking-widest">Attendees</th>
-                      <th className="py-6 px-10 text-right text-xs font-black text-gray-400 uppercase tracking-widest">Actions</th>
-                   </tr>
-                 </thead>
-                 <tbody className="divide-y divide-gray-50">
-                   {filteredEvents.map((event) => {
-                     const status = getStatusConfig(event.status);
-                     return (
-                      <tr key={event._id} className="hover:bg-blue-50/30 transition-all group">
-                         <td className="py-8 px-10">
-                            <div className="flex items-center gap-5">
-                               <div className="w-14 h-14 bg-blue-50 rounded-2xl flex items-center justify-center font-black text-blue-600 text-xl group-hover:bg-blue-600 group-hover:text-white transition-all shadow-inner">
-                                  {event.title.charAt(0)}
-                               </div>
-                               <div>
-                                  <p className="font-black text-gray-900 text-lg tracking-tight group-hover:text-blue-600 transition-colors">{event.title}</p>
-                                  <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mt-1 flex items-center gap-1">
-                                     <Calendar className="w-3 h-3" /> {new Date(event.date).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })}
-                                  </p>
-                               </div>
-                            </div>
-                         </td>
-                         <td className="py-8 px-8">
-                            <div className={`inline-flex items-center gap-2 px-4 py-2 rounded-xl font-black text-[10px] uppercase tracking-widest shadow-sm ${status.color}`}>
-                               {status.icon}
-                               {event.status}
-                            </div>
-                         </td>
-                         <td className="py-8 px-8">
-                            <div className="flex items-center gap-2 text-sm font-bold text-gray-500">
-                               <MapPin className="w-4 h-4 text-gray-300" />
-                               {event.location}
-                            </div>
-                            <p className="text-[10px] font-bold text-gray-300 uppercase tracking-widest mt-1 ml-6">{event.category?.name || "No Category"}</p>
-                         </td>
-                         <td className="py-8 px-8">
-                            <div className="flex items-center gap-3">
-                               <div className="flex -space-x-3">
-                                  {[1,2,3].map(i => (
-                                    <div key={i} className="w-8 h-8 rounded-full border-2 border-white bg-gray-100 flex items-center justify-center text-[8px] font-black text-gray-400 grayscale">U</div>
-                                  ))}
-                               </div>
-                               <span className="text-sm font-black text-gray-900">{event.maxParticipants}</span>
-                            </div>
-                         </td>
-                         <td className="py-8 px-10 text-right">
-                            <div className="flex items-center justify-end gap-2">
-                               <button 
-                                 onClick={() => navigate(`/faculty/event/${event._id}`)}
-                                 className="p-3 bg-gray-50 text-gray-400 hover:bg-white hover:text-blue-600 hover:shadow-lg rounded-xl transition-all active:scale-90"
-                               >
-                                  <Eye className="w-5 h-5" />
-                               </button>
-                               <button 
-                                 onClick={() => navigate(`/faculty/editevent/${event._id}`)}
-                                 className="p-3 bg-gray-50 text-gray-400 hover:bg-white hover:text-emerald-600 hover:shadow-lg rounded-xl transition-all active:scale-90"
-                               >
-                                  <Edit className="w-5 h-5" />
-                               </button>
-                               <div className="w-px h-6 bg-gray-100 mx-2"></div>
-                               <button 
-                                 onClick={() => handleDelete(event._id)}
-                                 className="p-3 bg-gray-50 text-gray-400 hover:bg-red-50 hover:text-red-500 hover:shadow-lg rounded-xl transition-all active:scale-90"
-                               >
-                                  <Trash2 className="w-5 h-5" />
-                               </button>
-                            </div>
-                         </td>
-                      </tr>
-                   )})}
-                 </tbody>
-               </table>
-             </div>
-           )}
-
-           {/* Table Footer Actions */}
-           <div className="p-8 border-t border-gray-50 flex flex-col sm:flex-row justify-between items-center gap-6">
-              <p className="text-[10px] font-black text-gray-300 uppercase tracking-[0.3em]">
-                Showing {filteredEvents.length} events from database
-              </p>
-              <div className="flex gap-3">
-                 <button className="px-6 py-3 bg-gray-50 text-gray-400 font-black text-[10px] uppercase rounded-xl hover:bg-white hover:shadow-md transition-all">Previous</button>
-                 <button className="px-6 py-3 bg-blue-600 text-white font-black text-[10px] uppercase rounded-xl shadow-lg shadow-blue-100 hover:bg-blue-700 hover:-translate-y-0.5 transition-all">Next Page</button>
+        {/* Stats Grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 hover:shadow-md transition-shadow">
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-sm font-bold text-gray-400 uppercase tracking-widest">Total Events</h3>
+              <div className="w-10 h-10 bg-blue-50 rounded-xl flex items-center justify-center">
+                <Calendar className="w-5 h-5 text-blue-600" />
               </div>
-           </div>
+            </div>
+            <p className="text-3xl font-bold text-gray-900">{events.length}</p>
+          </div>
+          
+          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 hover:shadow-md transition-shadow">
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-sm font-bold text-gray-400 uppercase tracking-widest">Upcoming</h3>
+              <div className="w-10 h-10 bg-green-50 rounded-xl flex items-center justify-center">
+                <Calendar className="w-5 h-5 text-green-600" />
+              </div>
+            </div>
+            <p className="text-3xl font-bold text-gray-900">
+              {events.filter(e => e.status === "upcoming").length}
+            </p>
+          </div>
+          
+          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 hover:shadow-md transition-shadow">
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-sm font-bold text-gray-400 uppercase tracking-widest">Total Seats</h3>
+              <div className="w-10 h-10 bg-purple-50 rounded-xl flex items-center justify-center">
+                <Users className="w-5 h-5 text-purple-600" />
+              </div>
+            </div>
+            <p className="text-3xl font-bold text-gray-900">
+              {events.reduce((sum, e) => sum + (e.maxParticipants || 0), 0)}
+            </p>
+          </div>
+          
+          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 hover:shadow-md transition-shadow">
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-sm font-bold text-gray-400 uppercase tracking-widest">Completed</h3>
+              <div className="w-10 h-10 bg-gray-50 rounded-xl flex items-center justify-center">
+                <Calendar className="w-5 h-5 text-gray-400" />
+              </div>
+            </div>
+            <p className="text-3xl font-bold text-gray-900">
+              {events.filter(e => e.status === "completed" || e.status === "pastevents").length}
+            </p>
+          </div>
         </div>
 
-        {/* Global Footer */}
-        <div className="flex justify-center pt-6 pb-10">
-           <p className="text-[10px] font-black text-gray-200 uppercase tracking-[0.5em] flex items-center gap-4">
-              <span className="w-20 h-px bg-gray-100"></span>
-              Event Management Dashboard
-              <span className="w-20 h-px bg-gray-100"></span>
-           </p>
+        {/* Main Card */}
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+          {/* Toolbar */}
+          <div className="p-6 border-b border-gray-50 bg-gray-50/30">
+            <div className="flex flex-col md:flex-row gap-4 justify-between">
+              <div className="flex items-center gap-4 flex-1">
+                <div className="relative flex-1 max-w-md">
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+                  <input
+                    type="text"
+                    placeholder="Search events by title..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="pl-10 pr-4 py-2.5 border border-gray-200 rounded-xl w-full focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all outline-none"
+                  />
+                </div>
+                <select
+                  value={statusFilter}
+                  onChange={(e) => setStatusFilter(e.target.value)}
+                  className="px-4 py-2.5 border border-gray-200 rounded-xl bg-white text-gray-600 font-medium outline-none focus:ring-2 focus:ring-blue-500 transition-all border-none shadow-sm"
+                >
+                  <option value="all">Every Status</option>
+                  <option value="upcoming">Upcoming Only</option>
+                  <option value="ongoing">Active Now</option>
+                  <option value="pastevents">Past Events</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <div className="overflow-x-auto">
+            {loading ? (
+              <div className="p-20 text-center">
+                <Loader2 className="w-10 h-10 animate-spin text-blue-600 mx-auto mb-4" />
+                <p className="text-gray-400 font-medium">Retrieving event data...</p>
+              </div>
+            ) : (
+              <table className="w-full">
+                <thead className="bg-gray-50/50">
+                  <tr>
+                    <th className="py-4 px-6 text-left text-xs font-bold text-gray-400 uppercase tracking-widest">Event Name</th>
+                    <th className="py-4 px-6 text-left text-xs font-bold text-gray-400 uppercase tracking-widest">Schedule</th>
+                    <th className="py-4 px-6 text-left text-xs font-bold text-gray-400 uppercase tracking-widest">Capacity</th>
+                    <th className="py-4 px-6 text-left text-xs font-bold text-gray-400 uppercase tracking-widest">Status</th>
+                    <th className="py-4 px-6 text-left text-xs font-bold text-gray-400 uppercase tracking-widest">Detail</th>
+                    <th className="py-4 px-6 text-left text-xs font-bold text-gray-400 uppercase tracking-widest">Actions</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-50">
+                  {filteredEvents.length === 0 ? (
+                    <tr>
+                      <td colSpan="6" className="py-20 text-center">
+                        <div className="flex flex-col items-center gap-2">
+                           <div className="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center mb-2">
+                             <Calendar className="w-8 h-8 text-gray-200" />
+                           </div>
+                           <p className="text-gray-400 font-medium">No events found matching your criteria.</p>
+                        </div>
+                      </td>
+                    </tr>
+                  ) : (
+                    filteredEvents.map((event) => (
+                      <tr key={event._id} className="hover:bg-blue-50/30 transition-colors group">
+                        <td className="py-4 px-6">
+                           <div className="flex items-center gap-3">
+                              <div className="w-10 h-10 rounded-xl bg-gray-100 flex items-center justify-center overflow-hidden border border-gray-100">
+                                 {event.image ? (
+                                   <img src={event.image} alt="" className="w-full h-full object-cover" />
+                                 ) : (
+                                   <Calendar className="w-5 h-5 text-gray-400" />
+                                 )}
+                              </div>
+                              <div>
+                                <p className="font-bold text-gray-900 group-hover:text-blue-600 transition-colors">{event.title}</p>
+                                <p className="text-xs text-gray-400 flex items-center gap-1 font-medium italic">
+                                  <MapPin className="w-3 h-3 text-blue-400" /> {event.location}
+                                </p>
+                              </div>
+                           </div>
+                        </td>
+                        <td className="py-4 px-6">
+                          <p className="text-sm font-bold text-gray-700">
+                            {new Date(event.date).toLocaleDateString("en-IN", {
+                              month: "short",
+                              day: "numeric",
+                              year: "numeric"
+                            })}
+                          </p>
+                          <p className="text-xs text-gray-400 font-medium uppercase tracking-tight">{event.timing}</p>
+                        </td>
+                        <td className="py-4 px-6">
+                          <div className="flex items-center gap-2">
+                            <div className="w-full bg-gray-100 rounded-full h-1.5 max-w-[60px]">
+                               <div className="bg-blue-500 h-1.5 rounded-full" style={{width: '60%'}}></div>
+                            </div>
+                            <span className="text-xs font-bold text-gray-600">{event.maxParticipants}</span>
+                          </div>
+                        </td>
+                        <td className="py-4 px-6">
+                          <span className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest border ${getStatusColor(event.status)}`}>
+                            {event.status}
+                          </span>
+                        </td>
+                        <td className="py-4 px-6 text-sm text-gray-500 font-medium">
+                          <div className="flex flex-col">
+                             <span className="text-xs font-bold text-gray-400 uppercase tracking-tighter">Category</span>
+                             <span className="text-blue-600 font-bold">{event.category?.name || "None"}</span>
+                          </div>
+                        </td>
+                        <td className="py-4 px-6">
+                          <div className="flex gap-1">
+                            <button 
+                              onClick={() => handleView(event._id)}
+                              className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all"
+                              title="View Details"
+                            >
+                              <Eye className="w-5 h-5" />
+                            </button>
+                            <button 
+                              onClick={() => handleEdit(event._id)}
+                              className="p-2 text-gray-400 hover:text-green-600 hover:bg-green-50 rounded-lg transition-all"
+                              title="Edit Event"
+                            >
+                              <Edit className="w-5 h-5" />
+                            </button>
+                            <button 
+                              onClick={() => handleDeleteRequest(event._id, event.title)}
+                              disabled={deleting === event._id}
+                              className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all disabled:opacity-50"
+                              title="Delete Event"
+                            >
+                              {deleting === event._id ? (
+                                <Loader2 className="w-5 h-5 animate-spin" />
+                              ) : (
+                                <Trash2 className="w-5 h-5" />
+                              )}
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
+            )}
+          </div>
+
+          <div className="p-6 bg-gray-50/30 border-t border-gray-50 flex justify-between items-center italic">
+            <p className="text-sm text-gray-500 font-medium">
+              Showing <span className="text-blue-600 font-bold">{filteredEvents.length}</span> active events in total
+            </p>
+          </div>
         </div>
       </div>
     </FacultyLayout>
   );
 };
-
-
-const CompactStat = ({ label, value, icon, bg }) => (
-  <div className="bg-white p-6 rounded-3xl border border-gray-100 shadow-xl shadow-gray-50/50 flex items-center gap-6 transition-transform hover:scale-[1.02]">
-     <div className={`w-14 h-14 ${bg} rounded-2xl flex items-center justify-center shrink-0`}>
-        {icon}
-     </div>
-     <div>
-        <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">{label}</p>
-        <p className="text-2xl font-black text-gray-900 tracking-tighter mt-1">{value || 0}</p>
-     </div>
-     <div className="ml-auto">
-        <ChevronRight className="w-4 h-4 text-gray-200" />
-     </div>
-  </div>
-);
 
 export default FacultyEventPanel;

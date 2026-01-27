@@ -56,7 +56,7 @@ function FacultyViewEventPage() {
              <div className="w-16 h-16 border-4 border-blue-100 border-t-blue-600 rounded-full animate-spin"></div>
              <Zap className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-6 h-6 text-blue-600 animate-pulse" />
           </div>
-          <p className="text-[10px] font-black text-gray-400 uppercase tracking-[0.3em]">Loading event data...</p>
+          <p className="text-gray-400 font-medium">Loading event data...</p>
         </div>
       </FacultyLayout>
     );
