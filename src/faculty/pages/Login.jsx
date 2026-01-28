@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Lock, Mail, GraduationCap, ShieldCheck } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import toast, { Toaster } from "react-hot-toast";
+import toast from "react-hot-toast";
 
 const FacultyLogin = () => {
   const [email, setEmail] = useState("");
@@ -43,7 +43,6 @@ const FacultyLogin = () => {
 
   return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
-      <Toaster position="top-right" />
       <div className="w-full max-w-md">
         {/* Logo/Header */}
         <div className="text-center mb-8">

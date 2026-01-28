@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { User, Mail, Phone, Lock, ArrowLeft, GraduationCap, School, BookOpen, Loader2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import toast, { Toaster } from "react-hot-toast";
+import toast from "react-hot-toast";
 
 export default function RegisterPage() {
   const navigate = useNavigate();
@@ -105,7 +105,6 @@ export default function RegisterPage() {
 
   return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4 py-8">
-      <Toaster position="top-right" />
       <div className="w-full max-w-lg">
         {/* Back Button */}
         <button

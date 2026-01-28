@@ -19,7 +19,7 @@ import {
 } from "lucide-react";
 import FacultyLayout from "../components/FacultyLayout";
 import axios from "axios";
-import toast, { Toaster } from "react-hot-toast";
+import toast from "react-hot-toast";
 
 function FacultyViewEventPage() {
   const { id } = useParams();
@@ -66,7 +66,6 @@ function FacultyViewEventPage() {
 
   return (
     <FacultyLayout>
-      <Toaster position="top-right" />
       
       <div className="space-y-8 pb-12">
         {/* Navigation */}
@@ -154,103 +153,129 @@ function FacultyViewEventPage() {
                  />
               </div>
 
-              {/* Information Grid */}
-              <div className="grid grid-cols-1 lg:grid-cols-5 gap-16">
-                 {/* Left Column: Description */}
-                 <div className="lg:col-span-3 space-y-12">
-                    <section className="space-y-6">
-                       <h3 className="text-xl font-black text-gray-900 tracking-tight flex items-center gap-3">
-                          <div className="w-2 h-6 bg-blue-600 rounded-full"></div>
-                          Description
-                       </h3>
-                       <p className="text-gray-600 text-lg leading-relaxed font-medium whitespace-pre-wrap">
-                          {event.description || "No description provided for this event."}
-                       </p>
-                    </section>
+               {/* Information Grid */}
+               <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                  {/* Left Column: Description & Venue */}
+                  <div className="space-y-8">
+                     <section className="bg-gray-50/50 rounded-[2.5rem] p-8 border border-gray-100">
+                        <h3 className="text-xl font-black text-gray-900 tracking-tight flex items-center gap-3 mb-6">
+                           <div className="w-2 h-6 bg-blue-600 rounded-full"></div>
+                           Description
+                        </h3>
+                        <p className="text-gray-600 text-base leading-relaxed font-medium whitespace-pre-wrap">
+                           {event.description || "No description provided for this event."}
+                        </p>
+                     </section>
 
-                    {event.venue && (
-                       <div className="p-8 bg-gray-50 rounded-[2.5rem] border border-gray-100 flex items-start gap-6 group hover:bg-white hover:shadow-2xl transition-all">
-                          <div className="w-14 h-14 bg-white rounded-2xl shadow-sm flex items-center justify-center text-rose-500 group-hover:scale-110 transition-transform">
-                             <MapPin className="w-7 h-7" />
-                          </div>
-                          <div>
-                             <p className="text-xs font-black text-gray-400 uppercase tracking-widest mb-1">Venue Details</p>
-                             <p className="text-xl font-black text-gray-900 tracking-tight uppercase">{event.venue}</p>
-                             <p className="text-sm font-bold text-gray-400 mt-2">Located at {event.location}</p>
-                          </div>
-                       </div>
-                    )}
-                 </div>
+                     {event.venue && (
+                        <div className="p-8 bg-gray-50 rounded-[2.5rem] border border-gray-100 flex items-start gap-6 group hover:bg-white hover:shadow-2xl transition-all">
+                           <div className="w-14 h-14 bg-white rounded-2xl shadow-sm flex items-center justify-center text-rose-500 group-hover:scale-110 transition-transform">
+                              <MapPin className="w-7 h-7" />
+                           </div>
+                           <div>
+                              <p className="text-xs font-black text-gray-400 uppercase tracking-widest mb-1">Venue Details</p>
+                              <p className="text-xl font-black text-gray-900 tracking-tight uppercase">{event.venue}</p>
+                              <p className="text-sm font-bold text-gray-400 mt-2">Located at {event.location}</p>
+                           </div>
+                        </div>
+                     )}
 
-                 {/* Right Column: Faculty & Attendance */}
-                 <div className="lg:col-span-2 space-y-10">
-                    {/* Faculty Host */}
-                    <div className="bg-gray-900 rounded-[3rem] p-10 text-white relative overflow-hidden group">
-                       <div className="absolute top-0 right-0 w-32 h-32 bg-blue-600/20 blur-3xl rounded-full group-hover:bg-blue-600/30 transition-all"></div>
-                       <h4 className="text-xs font-black text-gray-400 uppercase tracking-widest mb-8">Event Organizer</h4>
-                       
-                       <div className="flex items-center gap-6 mb-10">
-                          <div className="w-20 h-20 bg-blue-600 rounded-3xl flex items-center justify-center font-black text-3xl shadow-xl shadow-blue-900/40 border border-blue-400/30">
-                             {(event.organizer?.name || "F").charAt(0).toUpperCase()}
-                          </div>
-                          <div>
-                             <h4 className="text-xl font-black tracking-tight">{event.organizer?.name || "Faculty Member"}</h4>
-                             <p className="text-xs font-bold text-blue-400 mt-1 uppercase tracking-widest">{event.organizer?.department || "Department"}</p>
-                          </div>
-                       </div>
+                     {/* Event Schedule / Timeline - Moved to left column for better layout */}
+                     {event.eventScheduletime && event.eventScheduletime.length > 0 && (
+                        <div className="bg-white rounded-[2.5rem] border border-gray-100 shadow-lg p-8">
+                           <h4 className="text-xs font-black text-gray-400 uppercase tracking-widest mb-6 flex items-center gap-2">
+                              <Clock className="w-4 h-4 text-blue-600" />
+                              Event Schedule
+                           </h4>
+                           <div className="space-y-3">
+                              {event.eventScheduletime.map((item, idx) => (
+                                 <div 
+                                    key={idx}
+                                    className="flex items-center gap-4 p-4 bg-gray-50 rounded-2xl hover:bg-blue-50 transition-all group"
+                                 >
+                                    <div className="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center text-white font-black text-sm shadow-lg group-hover:scale-110 transition-transform">
+                                       {idx + 1}
+                                    </div>
+                                    <div className="flex-1">
+                                       <p className="text-xs font-black text-blue-600 uppercase tracking-widest">{item.time}</p>
+                                       <p className="text-sm font-bold text-gray-900 mt-1">{item.title}</p>
+                                    </div>
+                                 </div>
+                              ))}
+                           </div>
+                        </div>
+                     )}
+                  </div>
 
-                       <div className="space-y-4 pt-8 border-t border-white/10">
-                          <div className="flex justify-between items-center text-xs font-bold text-gray-400">
-                             <span>EMAIL</span>
-                             <span className="text-white text-xs tracking-wider">{event.organizer?.email || "N/A"}</span>
-                          </div>
-                          <div className="flex justify-between items-center text-xs font-bold text-gray-400">
-                             <span>FACULTY ID</span>
-                             <span className="text-blue-400 text-xs tracking-wider uppercase">{event.organizer?.facultyId || "N/A"}</span>
-                          </div>
-                       </div>
-                    </div>
+                  {/* Right Column: Faculty & Attendance */}
+                  <div className="space-y-8">
+                     {/* Faculty Host */}
+                     <div className="bg-gray-900 rounded-[2.5rem] p-8 text-white relative overflow-hidden group">
+                        <div className="absolute top-0 right-0 w-32 h-32 bg-blue-600/20 blur-3xl rounded-full group-hover:bg-blue-600/30 transition-all"></div>
+                        <h4 className="text-xs font-black text-gray-400 uppercase tracking-widest mb-6">Event Organizer</h4>
+                        
+                        <div className="flex items-center gap-5 mb-8">
+                           <div className="w-16 h-16 bg-blue-600 rounded-2xl flex items-center justify-center font-black text-2xl shadow-xl shadow-blue-900/40 border border-blue-400/30">
+                              {(event.organizer?.name || "F").charAt(0).toUpperCase()}
+                           </div>
+                           <div>
+                              <h4 className="text-lg font-black tracking-tight">{event.organizer?.name || "Faculty Member"}</h4>
+                              <p className="text-xs font-bold text-blue-400 mt-1 uppercase tracking-widest">{event.organizer?.department || "Department"}</p>
+                           </div>
+                        </div>
 
-                    {/* Attendance Stats */}
-                    <div className="bg-white rounded-[3rem] border border-gray-100 shadow-xl p-10">
-                       <h4 className="text-xs font-black text-gray-400 uppercase tracking-widest mb-6">Attendance Overview</h4>
-                       <div className="space-y-6">
-                          <div className="flex items-center gap-4">
-                             <div className="w-12 h-12 bg-emerald-50 rounded-2xl flex items-center justify-center text-emerald-600">
-                                <Users className="w-6 h-6" />
-                             </div>
-                             <div>
-                                <p className="text-2xl font-black text-gray-900 leading-none">82%</p>
-                                <p className="text-xs font-black text-gray-400 uppercase tracking-widest mt-1">Registration Load</p>
-                             </div>
-                          </div>
-                          <div className="w-full h-2 bg-gray-50 rounded-full overflow-hidden">
-                             <div className="h-full bg-emerald-500 rounded-full w-[82%] shadow-sm"></div>
-                          </div>
-                          <button 
-                            onClick={() => navigate('/faculty/registrationlist')}
-                            className="w-full py-4 bg-gray-50 hover:bg-gray-100 text-gray-900 font-black text-xs uppercase tracking-widest rounded-2xl transition-all"
-                          >
-                             View All Registrations
-                          </button>
-                       </div>
-                    </div>
+                        <div className="space-y-3 pt-6 border-t border-white/10">
+                           <div className="flex justify-between items-center text-xs font-bold text-gray-400">
+                              <span>EMAIL</span>
+                              <span className="text-white text-xs tracking-wider">{event.organizer?.email || "N/A"}</span>
+                           </div>
+                           <div className="flex justify-between items-center text-xs font-bold text-gray-400">
+                              <span>FACULTY ID</span>
+                              <span className="text-blue-400 text-xs tracking-wider uppercase">{event.organizer?.facultyId || "N/A"}</span>
+                           </div>
+                        </div>
+                     </div>
 
-                    {/* Speakers */}
-                    {event.speakers && event.speakers.length > 0 && (
-                       <div className="space-y-6">
-                          <h4 className="text-xs font-black text-gray-400 uppercase tracking-widest ml-2">Event Speakers</h4>
-                          <div className="flex flex-wrap gap-2">
-                             {event.speakers.map((speaker, idx) => (
-                                <span key={idx} className="px-5 py-3 bg-blue-50 text-blue-700 rounded-2xl text-xs font-black uppercase tracking-widest hover:bg-blue-600 hover:text-white transition-all cursor-default">
-                                   {speaker}
-                                </span>
-                             ))}
-                          </div>
-                       </div>
-                    )}
-                 </div>
-              </div>
+                     {/* Attendance Stats */}
+                     <div className="bg-white rounded-[2.5rem] border border-gray-100 shadow-lg p-8">
+                        <h4 className="text-xs font-black text-gray-400 uppercase tracking-widest mb-5">Attendance Overview</h4>
+                        <div className="space-y-5">
+                           <div className="flex items-center gap-4">
+                              <div className="w-12 h-12 bg-emerald-50 rounded-2xl flex items-center justify-center text-emerald-600">
+                                 <Users className="w-6 h-6" />
+                              </div>
+                              <div>
+                                 <p className="text-2xl font-black text-gray-900 leading-none">82%</p>
+                                 <p className="text-xs font-black text-gray-400 uppercase tracking-widest mt-1">Registration Load</p>
+                              </div>
+                           </div>
+                           <div className="w-full h-2 bg-gray-50 rounded-full overflow-hidden">
+                              <div className="h-full bg-emerald-500 rounded-full w-[82%] shadow-sm"></div>
+                           </div>
+                           <button 
+                             onClick={() => navigate('/faculty/registrationlist')}
+                             className="w-full py-4 bg-gray-50 hover:bg-gray-100 text-gray-900 font-black text-xs uppercase tracking-widest rounded-2xl transition-all"
+                           >
+                              View All Registrations
+                           </button>
+                        </div>
+                     </div>
+
+                     {/* Speakers */}
+                     {event.speakers && event.speakers.length > 0 && (
+                        <div className="bg-white rounded-[2.5rem] border border-gray-100 shadow-lg p-8">
+                           <h4 className="text-xs font-black text-gray-400 uppercase tracking-widest mb-5">Event Speakers</h4>
+                           <div className="flex flex-wrap gap-2">
+                              {event.speakers.map((speaker, idx) => (
+                                 <span key={idx} className="px-4 py-2.5 bg-blue-50 text-blue-700 rounded-xl text-xs font-black uppercase tracking-widest hover:bg-blue-600 hover:text-white transition-all cursor-default">
+                                    {speaker}
+                                 </span>
+                              ))}
+                           </div>
+                        </div>
+                     )}
+                  </div>
+               </div>
            </div>
            
            {/* Footer */}

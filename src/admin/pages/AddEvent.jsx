@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from "react";
-import { Calendar, MapPin, Image as ImageIcon, ArrowLeft, User, Loader2, Sparkles, ClipboardCheck, Clock } from "lucide-react";
+import { Calendar, MapPin, Image as ImageIcon, ArrowLeft, User, Loader2, Sparkles, ClipboardCheck, Clock, Plus, Trash2 } from "lucide-react";
 import AdminLayout from "../components/AdminLayout";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import toast, { Toaster } from "react-hot-toast";
+import toast from "react-hot-toast";
 
 function AddEventPage() {
   const navigate = useNavigate();
@@ -23,6 +23,21 @@ function AddEventPage() {
     organizer: "",
     speakers: ""
   });
+  const [eventSchedule, setEventSchedule] = useState([]);
+  const [newScheduleItem, setNewScheduleItem] = useState({ time: "", title: "" });
+
+  const handleAddScheduleItem = () => {
+    if (newScheduleItem.time.trim() && newScheduleItem.title.trim()) {
+      setEventSchedule([...eventSchedule, { ...newScheduleItem }]);
+      setNewScheduleItem({ time: "", title: "" });
+    } else {
+      toast.error("Please enter both time and activity title");
+    }
+  };
+
+  const handleRemoveScheduleItem = (index) => {
+    setEventSchedule(eventSchedule.filter((_, i) => i !== index));
+  };
 
   useEffect(() => {
     fetchFaculties();
@@ -83,6 +98,9 @@ function AddEventPage() {
       if (eventData.image) {
         formData.append("image", eventData.image);
       }
+      if (eventSchedule.length > 0) {
+        formData.append("eventScheduletime", JSON.stringify(eventSchedule));
+      }
 
       const res = await axios.post("http://localhost:5000/api/admin/eventcreate", formData, {
         headers: { "Content-Type": "multipart/form-data" }
@@ -102,7 +120,6 @@ function AddEventPage() {
 
   return (
     <AdminLayout>
-      <Toaster position="top-right" />
       
       <div className="py-2 max-w-4xl mx-auto">
         {/* Back Button */}
@@ -275,6 +292,73 @@ function AddEventPage() {
                   placeholder="Comma separated list..."
                 />
               </div>
+            </div>
+
+            {/* Event Schedule Timeline */}
+            <div className="space-y-4">
+              <label className="text-xs font-black text-gray-400 uppercase tracking-widest flex items-center gap-2">
+                <Clock className="w-4 h-4" /> Event Schedule Timeline
+              </label>
+              
+              {/* Add New Schedule Item */}
+              <div className="flex flex-col md:flex-row gap-3">
+                <div className="flex-1">
+                  <input
+                    type="text"
+                    value={newScheduleItem.time}
+                    onChange={(e) => setNewScheduleItem({ ...newScheduleItem, time: e.target.value })}
+                    className="w-full px-4 py-3 bg-gray-50 border-none rounded-xl focus:ring-4 focus:ring-blue-100 transition-all font-bold text-gray-800 placeholder:text-gray-300 text-sm"
+                    placeholder="Time (e.g., 09:00 AM)"
+                  />
+                </div>
+                <div className="flex-[2]">
+                  <input
+                    type="text"
+                    value={newScheduleItem.title}
+                    onChange={(e) => setNewScheduleItem({ ...newScheduleItem, title: e.target.value })}
+                    className="w-full px-4 py-3 bg-gray-50 border-none rounded-xl focus:ring-4 focus:ring-blue-100 transition-all font-bold text-gray-800 placeholder:text-gray-300 text-sm"
+                    placeholder="Activity Title (e.g., Registration & Welcome)"
+                  />
+                </div>
+                <button
+                  type="button"
+                  onClick={handleAddScheduleItem}
+                  className="px-4 py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-all flex items-center gap-2 font-bold text-sm whitespace-nowrap"
+                >
+                  <Plus className="w-4 h-4" />
+                  Add
+                </button>
+              </div>
+
+              {/* Schedule Items List */}
+              {eventSchedule.length > 0 && (
+                <div className="bg-gray-50 rounded-2xl p-4 space-y-2">
+                  <p className="text-xs font-black text-gray-400 uppercase tracking-widest mb-3">
+                    Schedule Items ({eventSchedule.length})
+                  </p>
+                  {eventSchedule.map((item, idx) => (
+                    <div 
+                      key={idx}
+                      className="flex items-center gap-3 bg-white p-3 rounded-xl border border-gray-100 group hover:border-blue-200 transition-all"
+                    >
+                      <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center text-white font-black text-xs">
+                        {idx + 1}
+                      </div>
+                      <div className="flex-1">
+                        <span className="text-xs font-black text-blue-600 uppercase tracking-widest">{item.time}</span>
+                        <p className="text-sm font-bold text-gray-800">{item.title}</p>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => handleRemoveScheduleItem(idx)}
+                        className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all opacity-0 group-hover:opacity-100"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
 
             {/* Image Upload */}

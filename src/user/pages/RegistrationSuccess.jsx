@@ -78,28 +78,32 @@ export default function RegistrationSuccess() {
         {/* Registration ID & QR Ticket Section */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
           {/* ID Card */}
-          <div className="bg-gradient-to-br from-blue-600 to-indigo-700 rounded-3xl p-8 text-white text-center shadow-xl flex flex-col justify-center transform hover:scale-[1.02] transition-transform">
-            <p className="text-indigo-100 text-sm font-medium mb-2 uppercase tracking-widest">Registration ID</p>
-            <p className="text-4xl font-black tracking-tighter mb-2">{registration.id}</p>
-            <div className="h-1 w-12 bg-white/20 mx-auto rounded-full mb-4"></div>
-            <p className="text-xs text-indigo-100/70 leading-relaxed">
-              Save this ID for manual check-in if QR scanning is unavailable.
+          <div className="h-full bg-gradient-to-br from-indigo-600 to-blue-700 rounded-[2.5rem] p-10 text-white text-center shadow-2xl flex flex-col items-center justify-center transform hover:scale-[1.02] transition-transform relative overflow-hidden group">
+            <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-16 -mt-16 blur-2xl group-hover:bg-white/20 transition-all"></div>
+            <p className="text-indigo-100 text-xs font-black mb-4 uppercase tracking-[0.3em]">Registration ID</p>
+            <div className="bg-white/10 backdrop-blur-md px-4 py-6 rounded-2xl border border-white/20 mb-6 w-full">
+              <p className="text-xl md:text-2xl font-mono font-black tracking-widest text-white break-all">
+                {registration.id}
+              </p>
+            </div>
+            <p className="text-xs text-indigo-100 font-medium leading-relaxed opacity-80">
+              Save this unique identifier for manual check-in verification.
             </p>
           </div>
 
           {/* QR Card */}
-          <div className="bg-white rounded-3xl p-6 shadow-xl border border-gray-100 flex flex-col items-center text-center transform hover:scale-[1.02] transition-transform">
-            <div className="bg-gray-50 p-4 rounded-2xl border-2 border-dashed border-indigo-100 mb-4">
+          <div className="h-full bg-white rounded-[2.5rem] p-10 shadow-2xl border border-gray-100 flex flex-col items-center justify-center text-center transform hover:scale-[1.02] transition-transform">
+            <div className="bg-gray-50 p-6 rounded-3xl border-2 border-dashed border-indigo-100 mb-6 scale-110">
               <QRCodeSVG 
                 value={`REG_TICKET:${registration.id}`} 
                 size={140}
                 level="H"
-                includeMargin={true}
+                includeMargin={false}
               />
             </div>
-            <h3 className="font-bold text-gray-900 text-sm mb-1 uppercase tracking-tight">Digital Entry Ticket</h3>
-            <p className="text-[10px] text-gray-400 font-medium px-4">
-              Scan this QR code at the event entrance for instant check-in.
+            <h3 className="font-black text-gray-900 text-sm mb-2 uppercase tracking-widest">Digital Entry Ticket</h3>
+            <p className="text-[10px] text-gray-400 font-bold px-4 leading-relaxed uppercase tracking-widest">
+              Scan this QR code at the entrance for instant check-in.
             </p>
           </div>
         </div>

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import Header from "../components/Header";
 import { Grid3x3, Filter, Search, Loader2, Calendar, User, Eye, X, Image as ImageIcon } from "lucide-react";
 import axios from "axios";
-import toast, { Toaster } from "react-hot-toast";
+import toast from "react-hot-toast";
 
 const categories = ["All", "Events", "Campus", "Sports", "Cultural", "Academic", "Other"];
 
@@ -41,7 +41,6 @@ const Gallery = () => {
   return (
     <div className="min-h-screen bg-gray-50">
       <Header />
-      <Toaster position="top-right" />
       
       {/* Hero Section - Matching Events Page */}
       <div className="bg-gradient-to-r from-blue-600 to-purple-600">

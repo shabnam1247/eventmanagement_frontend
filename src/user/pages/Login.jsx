@@ -3,7 +3,7 @@ import { User, Lock, Calendar, Eye, EyeOff, Loader2 } from 'lucide-react';
 import Header from '../components/Header';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import toast, { Toaster } from 'react-hot-toast';
+import toast from 'react-hot-toast';
 
 const Login = () => {
   const navigate = useNavigate();
@@ -83,8 +83,6 @@ const Login = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <Toaster position="top-right" />
-      <Header />
       
       <div className="flex items-center justify-center min-h-[calc(100vh-5rem)] px-4 py-8">
         <div className="w-full max-w-md">

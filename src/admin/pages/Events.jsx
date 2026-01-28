@@ -3,7 +3,7 @@ import { Search, Plus, Calendar, MapPin, Users, Eye, Edit, Trash2, Loader2 } fro
 import AdminLayout from "../components/AdminLayout";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import toast, { Toaster } from "react-hot-toast";
+import toast from "react-hot-toast";
 
 const AdminEventPanel = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -106,8 +106,6 @@ const AdminEventPanel = () => {
 
   return (
     <AdminLayout>
-      <Toaster position="top-right" />
-      
       <div className="py-2">
         <div className="mb-8 flex justify-between items-end">
           <div>

@@ -3,7 +3,7 @@ import { Calendar, MapPin, Clock, Users, ArrowLeft, Loader2, AlertCircle } from 
 import Header from "../components/Header";
 import { useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
-import toast, { Toaster } from "react-hot-toast";
+import toast from "react-hot-toast";
 
 export default function EventDetails() {
   const navigate = useNavigate();
@@ -215,7 +215,6 @@ export default function EventDetails() {
   return (
     <div className="min-h-screen bg-gray-50">
       <Header />
-      <Toaster position="top-right" />
       
       <div className="max-w-6xl mx-auto px-4 py-8">
         {/* Back Button */}

@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { User, GraduationCap, Mail, Phone, ArrowLeft, UserPlus, Lock, Loader2 } from "lucide-react";
 import FacultyLayout from "../components/FacultyLayout";
 import { useNavigate } from "react-router-dom";
-import toast, { Toaster } from "react-hot-toast";
+import toast from "react-hot-toast";
 
 function FacultyAddStudentPage() {
   const navigate = useNavigate();
@@ -52,7 +52,6 @@ function FacultyAddStudentPage() {
 
   return (
     <FacultyLayout>
-      <Toaster position="top-right" />
       <div className="py-2 max-w-4xl mx-auto">
         {/* Back Button */}
         <button
@@ -200,7 +199,7 @@ function FacultyAddStudentPage() {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full py-5 bg-gradient-to-r from-blue-600 to-indigo-700 text-white font-black rounded-2xl shadow-xl shadow-blue-100 hover:shadow-2xl hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-3 text-lg disabled:opacity-50"
+                className="w-full py-5 bg-gradient-to-r from-blue-600 to-blue-700 text-white font-black rounded-2xl shadow-xl shadow-blue-100 hover:shadow-2xl hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-3 text-lg disabled:opacity-50"
               >
                 {loading ? (
                    <Loader2 className="w-6 h-6 animate-spin" />

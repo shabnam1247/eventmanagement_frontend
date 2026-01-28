@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Search, User, Briefcase, BookOpen, CheckCircle, XCircle, Loader2, GraduationCap } from "lucide-react";
 import AdminLayout from "../components/AdminLayout";
 import axios from "axios";
-import toast, { Toaster } from "react-hot-toast";
+import toast from "react-hot-toast";
 
 const FacultyPanel = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -67,7 +67,6 @@ const FacultyPanel = () => {
 
   return (
     <AdminLayout>
-      <Toaster position="top-right" />
       
       <div className="py-2">
         {/* Header */}

@@ -3,7 +3,7 @@ import { Layers, Plus, Trash2, Loader2, Search, ArrowLeft, Tag, Info } from "luc
 import AdminLayout from "../components/AdminLayout";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import toast, { Toaster } from "react-hot-toast";
+import toast from "react-hot-toast";
 
 function CategoryManagement() {
   const navigate = useNavigate();
@@ -72,7 +72,6 @@ function CategoryManagement() {
 
   return (
     <AdminLayout>
-      <Toaster position="top-right" />
       <div className="py-2 max-w-5xl mx-auto space-y-8">
         {/* Navigation Breadcrumb */}
         <button

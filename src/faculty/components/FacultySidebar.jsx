@@ -58,6 +58,11 @@ const FacultySidebar = () => {
       label: 'Attendance Check-in',
       icon: <Scan className="w-5 h-5" />
     },
+    {
+      path: '/faculty/feedback',
+      label: 'Student Reviews',
+      icon: <MessageSquare className="w-5 h-5" />
+    },
   ];
 
   const handleLogout = () => {

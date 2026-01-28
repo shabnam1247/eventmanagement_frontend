@@ -46,13 +46,30 @@ import FacultyEventDashboard from "./faculty/pages/Analytics";
 import FacultyViewEventPage from "./faculty/pages/ViewEvent";
 import FacultyEditEventPage from "./faculty/pages/EditEvent";
 import AttendanceScanner from "./faculty/pages/AttendanceScanner";
+import FacultyFeedbackList from "./faculty/pages/Feedback";
 
 import { Toaster } from "react-hot-toast";
 
 function App() {
   return (
     <>
-      <Toaster position="top-right" reverseOrder={false} />
+      <Toaster 
+        position="top-center" 
+        reverseOrder={false} 
+        containerStyle={{
+          zIndex: 100000,
+        }}
+        toastOptions={{
+          duration: 4000,
+          style: {
+            background: '#1e1b4b',
+            color: '#fff',
+            borderRadius: '12px',
+            fontSize: '14px',
+            padding: '16px 24px',
+          },
+        }}
+      />
       <Routes>
         <Route path="/" element={<Home />}></Route>
         <Route path="/login" element={<Login />}></Route>
@@ -101,6 +118,7 @@ function App() {
         <Route path='/faculty/event/:id' element={<FacultyViewEventPage />} />
         <Route path='/faculty/editevent/:id' element={<FacultyEditEventPage />} />
         <Route path='/faculty/check-in' element={<AttendanceScanner />} />
+        <Route path='/faculty/feedback' element={<FacultyFeedbackList />} />
       </Routes>
     </>
   );

@@ -1,4 +1,6 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import axios from "axios";
+import toast from "react-hot-toast";
 import {
   BarChart,
   Bar,
@@ -27,25 +29,45 @@ import {
   ArrowUpRight,
   Target,
   Medal,
-  Activity
+  Activity,
+  Loader2
 } from "lucide-react";
 import FacultyLayout from "../components/FacultyLayout";
 
 const FacultyEventDashboard = () => {
-  const [selectedEvent, setSelectedEvent] = useState("all");
-  const [dateRange, setDateRange] = useState("month");
+  const [loading, setLoading] = useState(true);
+  const [stats, setStats] = useState(null);
+  
+  const facultyData = JSON.parse(localStorage.getItem("facultyData") || "{}");
+  const facultyId = facultyData._id;
 
-  const events = [
-    { id: 1, name: "Tech Fest 2024", date: "2024-11-20", registrations: 450, attended: 380, capacity: 500 },
-    { id: 2, name: "Cultural Night", date: "2024-11-15", registrations: 320, attended: 295, capacity: 400 },
-    { id: 3, name: "Workshop: AI/ML", date: "2024-11-10", registrations: 150, attended: 142, capacity: 150 },
-  ];
+  useEffect(() => {
+    if (facultyId) {
+      fetchDashboardStats();
+    }
+  }, [facultyId]);
 
-  const registrationTrend = [
-    { date: "Week 1", registrations: 85, attendance: 78 },
-    { date: "Week 2", registrations: 120, attendance: 110 },
-    { date: "Week 3", registrations: 150, attendance: 142 },
-    { date: "Week 4", registrations: 200, attendance: 185 },
+  const fetchDashboardStats = async () => {
+    try {
+      setLoading(true);
+      const response = await axios.get(`http://localhost:5000/api/faculty/dashboard/stats/${facultyId}`);
+      if (response.data.success) {
+        setStats(response.data.stats);
+      }
+    } catch (error) {
+      console.error("Dashboard stats error:", error);
+      toast.error("Failed to load dashboard statistics");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Default charts data if no real data available yet for trends
+  const registrationTrend = stats?.registrationTrend || [
+    { date: "Week 1", registrations: 0, attendance: 0 },
+    { date: "Week 2", registrations: 0, attendance: 0 },
+    { date: "Week 3", registrations: 0, attendance: 0 },
+    { date: "Week 4", registrations: 0, attendance: 0 },
   ];
 
   const eventCategories = [
@@ -55,9 +77,21 @@ const FacultyEventDashboard = () => {
     { name: "Workshops", value: 15, color: "#f59e0b" },
   ];
 
-  const totalRegistrations = events.reduce((s, e) => s + e.registrations, 0);
-  const totalAttendance = events.reduce((s, e) => s + e.attended, 0);
-  const avgAttendanceRate = ((totalAttendance / totalRegistrations) * 100).toFixed(1);
+  if (loading) {
+    return (
+      <FacultyLayout>
+        <div className="flex items-center justify-center min-h-[500px]">
+          <Loader2 className="w-12 h-12 text-blue-600 animate-spin" />
+        </div>
+      </FacultyLayout>
+    );
+  }
+
+  const events = stats?.eventStats || [];
+  const totalRegistrations = stats?.totalRegistrations || 0;
+  const totalAttendance = stats?.totalAttendance || 0;
+  const avgAttendanceRate = totalRegistrations > 0 ? ((totalAttendance / totalRegistrations) * 100).toFixed(1) : 0;
+  const avgRating = stats?.avgRating || 0;
 
   return (
     <FacultyLayout>

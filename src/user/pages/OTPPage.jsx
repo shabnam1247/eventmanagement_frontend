@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Check, X, RefreshCw, Calendar, Loader2 } from 'lucide-react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import toast, { Toaster } from 'react-hot-toast';
+import toast from 'react-hot-toast';
 
 export default function OTPVerification() {
   const [otp, setOtp] = useState(['', '', '', '', '', '']);
@@ -90,7 +90,6 @@ export default function OTPVerification() {
 
   return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4 py-8">
-      <Toaster position="top-right" />
       <div className="w-full max-w-md">
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 md:p-8">
           {/* Header */}

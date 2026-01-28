@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from "react";
 import { 
   Calendar, MapPin, Clock, Users, ArrowRight, Loader2, 
-  Trash2, QrCode as QrIcon, X, CheckCircle2, AlertCircle
+  Trash2, QrCode as QrIcon, X, CheckCircle2, AlertCircle, Star
 } from "lucide-react";
 import Header from "../components/Header";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
-import toast, { Toaster } from "react-hot-toast";
+import toast from "react-hot-toast";
 import { QRCodeSVG } from "qrcode.react";
 
 export default function MyEvents() {
@@ -19,6 +19,15 @@ export default function MyEvents() {
   const [showCancelModal, setShowCancelModal] = useState(false);
   const [regToCancel, setRegToCancel] = useState(null);
   const [cancelling, setCancelling] = useState(false);
+  
+  // Feedback States
+  const [showFeedbackModal, setShowFeedbackModal] = useState(false);
+  const [feedbackLoading, setFeedbackLoading] = useState(false);
+  const [feedbackForm, setFeedbackForm] = useState({
+    rating: 0,
+    message: ""
+  });
+  const [hoveredRating, setHoveredRating] = useState(0);
 
   useEffect(() => {
     const userData = localStorage.getItem("userData");
@@ -75,6 +84,49 @@ export default function MyEvents() {
     }
   };
 
+  const handleOpenFeedback = (reg) => {
+    setSelectedReg(reg);
+    setFeedbackForm({ rating: 0, message: "" });
+    setShowFeedbackModal(true);
+  };
+
+  const handleFeedbackSubmit = async (e) => {
+    e.preventDefault();
+    if (feedbackForm.rating === 0) {
+      toast.error("Please select a rating");
+      return;
+    }
+    if (!feedbackForm.message.trim()) {
+      toast.error("Please enter a comment");
+      return;
+    }
+
+    try {
+      setFeedbackLoading(true);
+      const userData = JSON.parse(localStorage.getItem("userData"));
+      const response = await axios.post("http://localhost:5000/api/users/event-feedback", {
+        eventId: selectedReg.event._id,
+        userId: userData._id,
+        registrationId: selectedReg._id,
+        rating: feedbackForm.rating,
+        message: feedbackForm.message
+      });
+
+      if (response.data.success) {
+        toast.success("Thank you for your feedback!");
+        setShowFeedbackModal(false);
+        setRegistrations(prev => prev.map(r => 
+          r._id === selectedReg._id ? { ...r, feedbackSubmitted: true } : r
+        ));
+      }
+    } catch (error) {
+      console.error("Feedback error:", error);
+      toast.error(error.response?.data?.message || "Failed to submit feedback");
+    } finally {
+      setFeedbackLoading(false);
+    }
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50 flex flex-col">
@@ -92,7 +144,6 @@ export default function MyEvents() {
   return (
     <div className="min-h-screen bg-gray-50 pb-20">
       <Header />
-      <Toaster position="top-right" />
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-10">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
@@ -186,13 +237,28 @@ export default function MyEvents() {
                   </div>
 
                   <div className="grid grid-cols-2 gap-3">
-                    <button
-                      onClick={() => handleOpenQr(reg)}
-                      className="flex items-center justify-center gap-2 px-4 py-3 bg-indigo-50 text-indigo-600 rounded-2xl font-bold hover:bg-indigo-600 hover:text-white transition-all duration-300"
-                    >
-                      <QrIcon className="w-4 h-4" />
-                      QR Ticket
-                    </button>
+                    {reg.attended ? (
+                      <button
+                        onClick={() => handleOpenFeedback(reg)}
+                        disabled={reg.feedbackSubmitted}
+                        className={`flex items-center justify-center gap-2 px-4 py-3 rounded-2xl font-bold transition-all duration-300 ${
+                          reg.feedbackSubmitted 
+                            ? 'bg-green-50 text-green-600 cursor-not-allowed opacity-70' 
+                            : 'bg-amber-50 text-amber-600 hover:bg-amber-600 hover:text-white'
+                        }`}
+                      >
+                        <Star className={`w-4 h-4 ${reg.feedbackSubmitted ? 'fill-current' : ''}`} />
+                        {reg.feedbackSubmitted ? 'Reviewed' : 'Rate Experience'}
+                      </button>
+                    ) : (
+                      <button
+                        onClick={() => handleOpenQr(reg)}
+                        className="flex items-center justify-center gap-2 px-4 py-3 bg-indigo-50 text-indigo-600 rounded-2xl font-bold hover:bg-indigo-600 hover:text-white transition-all duration-300"
+                      >
+                        <QrIcon className="w-4 h-4" />
+                        QR Ticket
+                      </button>
+                    )}
                     <button
                       onClick={() => navigate(`/eventdetails/${reg.event._id}`)}
                       className="flex items-center justify-center gap-2 px-4 py-3 bg-gray-50 text-gray-600 rounded-2xl font-bold hover:bg-gray-100 transition-all duration-300"

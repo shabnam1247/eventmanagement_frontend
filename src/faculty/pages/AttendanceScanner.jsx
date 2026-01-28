@@ -6,7 +6,7 @@ import {
   Camera, StopCircle, Search, Keyboard
 } from 'lucide-react';
 import axios from 'axios';
-import toast, { Toaster } from 'react-hot-toast';
+import toast from 'react-hot-toast';
 import FacultySidebar from '../components/FacultySidebar';
 
 export default function AttendanceScanner() {
@@ -137,13 +137,12 @@ export default function AttendanceScanner() {
   return (
     <div className="flex min-h-screen bg-gray-50">
       <FacultySidebar />
-      <Toaster position="top-right" />
       
       <div className="flex-1 p-4 md:p-8 overflow-x-hidden">
         <div className="max-w-5xl mx-auto">
           {/* Title Area */}
           <div className="mb-8">
-            <h1 className="text-3xl font-black text-gray-900 tracking-tight">Rapid <span className="text-indigo-600">Scan</span></h1>
+            <h1 className="text-3xl font-black text-gray-900 tracking-tight">Rapid <span className="text-blue-600">Scan</span></h1>
             <p className="text-gray-500 font-medium">Verify event attendees efficiently</p>
           </div>
 
@@ -159,7 +158,7 @@ export default function AttendanceScanner() {
                       {scanning ? 'Camera Active' : 'Camera Standby'}
                     </span>
                   </div>
-                  {loading && <RefreshCw className="w-4 h-4 text-indigo-600 animate-spin" />}
+                  {loading && <RefreshCw className="w-4 h-4 text-blue-600 animate-spin" />}
                 </div>
 
                 {/* THE READER CONTAINER - STABLE */}
@@ -169,12 +168,12 @@ export default function AttendanceScanner() {
                   {/* Overlay for Camera Standby */}
                   {!scanning && !result && (
                     <div className="absolute inset-0 bg-gray-900/60 backdrop-blur-sm flex flex-col items-center justify-center p-8 text-center z-10 transition-all duration-500">
-                      <div className="w-20 h-20 bg-indigo-600 rounded-full flex items-center justify-center mb-6 shadow-2xl">
+                      <div className="w-20 h-20 bg-blue-600 rounded-full flex items-center justify-center mb-6 shadow-2xl">
                         <Camera className="w-10 h-10 text-white" />
                       </div>
                       <button 
                         onClick={startScanner}
-                        className="bg-white text-indigo-600 font-black px-10 py-5 rounded-3xl shadow-2xl hover:scale-105 active:scale-95 transition-all text-xl"
+                        className="bg-white text-blue-600 font-black px-10 py-5 rounded-3xl shadow-2xl hover:scale-105 active:scale-95 transition-all text-xl"
                       >
                         ACTIVATE CAMERA
                       </button>
@@ -185,8 +184,8 @@ export default function AttendanceScanner() {
                   {scanning && (
                     <>
                       <div className="absolute inset-0 border-[60px] border-black/30 pointer-events-none z-10"></div>
-                      <div className="absolute inset-x-0 top-1/2 h-0.5 bg-indigo-400 shadow-[0_0_15px_rgba(129,140,248,1)] animate-sweep pointer-events-none z-20"></div>
-                      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[250px] h-[250px] border-2 border-indigo-400/40 rounded-3xl pointer-events-none z-20"></div>
+                      <div className="absolute inset-x-0 top-1/2 h-0.5 bg-blue-400 shadow-[0_0_15px_rgba(96,165,250,1)] animate-sweep pointer-events-none z-20"></div>
+                      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[250px] h-[250px] border-2 border-blue-400/40 rounded-3xl pointer-events-none z-20"></div>
                     </>
                   )}
                 </div>
@@ -211,11 +210,11 @@ export default function AttendanceScanner() {
                   <input 
                     type="text" 
                     placeholder="Type Registration ID..."
-                    className="flex-1 bg-gray-50 border border-gray-200 px-5 py-3 rounded-2xl text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none focus:bg-white transition-all"
+                    className="flex-1 bg-gray-50 border border-gray-200 px-5 py-3 rounded-2xl text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none focus:bg-white transition-all"
                     value={manualId}
                     onChange={(e) => setManualId(e.target.value)}
                   />
-                  <button type="submit" className="px-8 py-3 bg-indigo-600 text-white rounded-2xl font-bold hover:bg-indigo-700 transition-all flex items-center gap-2 shadow-lg shadow-indigo-100">
+                  <button type="submit" className="px-8 py-3 bg-blue-600 text-white rounded-2xl font-bold hover:bg-blue-700 transition-all flex items-center gap-2 shadow-lg shadow-blue-100">
                     Verify
                   </button>
                 </form>
@@ -268,23 +267,23 @@ export default function AttendanceScanner() {
                            </div>
                         </div>
 
-                        <div className="bg-indigo-50 p-5 rounded-2xl border border-indigo-100">
+                        <div className="bg-blue-50 p-5 rounded-2xl border border-blue-100">
                            <div className="flex items-center gap-2 mb-1">
-                              <Calendar className="w-3 h-3 text-indigo-400" />
-                              <p className="text-[10px] font-black text-indigo-400 uppercase tracking-widest">Linked Event</p>
+                              <Calendar className="w-3 h-3 text-blue-400" />
+                              <p className="text-[10px] font-black text-blue-400 uppercase tracking-widest">Linked Event</p>
                            </div>
-                           <p className="font-bold text-indigo-900">{result.registration.eventTitle}</p>
+                           <p className="font-bold text-blue-900">{result.registration.eventTitle}</p>
                         </div>
 
                         {result.registration.attendedAt && (
-                           <div className="bg-white border-2 border-indigo-600 p-5 rounded-3xl flex items-center justify-between shadow-xl shadow-indigo-50">
+                           <div className="bg-white border-2 border-blue-600 p-5 rounded-3xl flex items-center justify-between shadow-xl shadow-blue-50">
                               <div>
                                  <p className="text-[10px] font-black text-gray-400 uppercase mb-0.5">Check-in Log</p>
-                                 <p className="text-2xl font-black text-indigo-600">
+                                 <p className="text-2xl font-black text-blue-600">
                                    {new Date(result.registration.attendedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
                                  </p>
                               </div>
-                              <Clock className="w-10 h-10 text-indigo-100" />
+                              <Clock className="w-10 h-10 text-blue-100" />
                            </div>
                         )}
                       </div>

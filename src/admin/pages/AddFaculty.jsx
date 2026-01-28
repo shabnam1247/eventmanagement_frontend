@@ -3,7 +3,7 @@ import { User, Mail, Phone, Briefcase, Award, Clock, ArrowLeft, ShieldPlus, Land
 import AdminLayout from "../components/AdminLayout";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import toast, { Toaster } from "react-hot-toast";
+import toast from "react-hot-toast";
 
 function AddFacultyPage() {
   const navigate = useNavigate();
@@ -79,7 +79,6 @@ function AddFacultyPage() {
 
   return (
     <AdminLayout>
-      <Toaster position="top-right" />
       <div className="py-2 max-w-4xl mx-auto">
         {/* Back Button */}
         <button

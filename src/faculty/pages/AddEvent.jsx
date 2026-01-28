@@ -1,9 +1,22 @@
 import React, { useState, useEffect } from "react";
-import { Calendar, MapPin, Image as ImageIcon, ArrowLeft, User, Loader2, Sparkles, ClipboardCheck, Clock } from "lucide-react";
+import { 
+  Calendar, 
+  MapPin, 
+  Image as ImageIcon, 
+  ArrowLeft, 
+  User, 
+  Loader2, 
+  Sparkles, 
+  ClipboardCheck, 
+  Clock, 
+  Plus, 
+  Trash2, 
+  ListOrdered 
+} from "lucide-react";
 import FacultyLayout from "../components/FacultyLayout";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import toast, { Toaster } from "react-hot-toast";
+import toast from "react-hot-toast";
 
 function FacultyAddEventPage() {
   const navigate = useNavigate();
@@ -21,6 +34,10 @@ function FacultyAddEventPage() {
     venue: "",
     speakers: ""
   });
+
+  // Event Schedule State
+  const [schedule, setSchedule] = useState([]);
+  const [newScheduleItem, setNewScheduleItem] = useState({ time: "", title: "" });
 
   useEffect(() => {
     fetchCategories();
@@ -46,6 +63,20 @@ function FacultyAddEventPage() {
     }
   };
 
+  // Schedule Management Functions
+  const addScheduleItem = () => {
+    if (newScheduleItem.time && newScheduleItem.title) {
+      setSchedule([...schedule, { ...newScheduleItem }]);
+      setNewScheduleItem({ time: "", title: "" });
+    } else {
+      toast.error("Please fill both time and session title");
+    }
+  };
+
+  const removeScheduleItem = (index) => {
+    setSchedule(schedule.filter((_, i) => i !== index));
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -58,7 +89,12 @@ function FacultyAddEventPage() {
         }
       });
 
-      // Get current faculty name as organizer
+      // Append schedule as JSON string
+      if (schedule.length > 0) {
+        formData.append("eventScheduletime", JSON.stringify(schedule));
+      }
+
+      // Get current faculty as organizer
       const facultyData = JSON.parse(localStorage.getItem("facultyData"));
       if (facultyData) {
         formData.append("organizer", facultyData._id);
@@ -82,7 +118,6 @@ function FacultyAddEventPage() {
 
   return (
     <FacultyLayout>
-      <Toaster position="top-right" />
       
       <div className="py-2 max-w-4xl mx-auto">
         {/* Back Button */}
@@ -233,9 +268,79 @@ function FacultyAddEventPage() {
                 value={eventData.speakers}
                 onChange={handleChange}
                 className="w-full px-6 py-4 bg-gray-50 border-none rounded-2xl focus:ring-4 focus:ring-blue-100 transition-all font-bold text-gray-800 placeholder:text-gray-300"
-                placeholder="Comma separated list..."
+                placeholder="Comma separated list (e.g., Dr. Smith, Prof. Johnson)"
               />
             </div>
+
+            {/* ============ EVENT SCHEDULE SECTION ============ */}
+            <div className="space-y-4 p-6 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-[2rem] border border-blue-100">
+              <label className="text-xs font-black text-gray-500 uppercase tracking-widest flex items-center gap-2">
+                <ListOrdered className="w-4 h-4" /> Event Schedule (Timeline)
+              </label>
+              <p className="text-sm text-gray-500 -mt-2">Add sessions or activities with their scheduled times</p>
+              
+              {/* Schedule Display */}
+              {schedule.length > 0 && (
+                <div className="space-y-3 mb-4">
+                  {schedule.map((item, index) => (
+                    <div 
+                      key={index} 
+                      className="flex items-center justify-between bg-white p-4 rounded-xl border border-gray-100 shadow-sm group"
+                    >
+                      <div className="flex items-center gap-4">
+                        <div className="w-10 h-10 rounded-xl bg-blue-600 text-white flex items-center justify-center font-bold text-sm shadow-sm">
+                          {index + 1}
+                        </div>
+                        <div>
+                          <p className="font-bold text-gray-900">{item.title}</p>
+                          <p className="text-sm text-blue-600 font-medium flex items-center gap-1">
+                            <Clock className="w-3 h-3" /> {item.time}
+                          </p>
+                        </div>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => removeScheduleItem(index)}
+                        className="p-2 text-gray-300 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all opacity-0 group-hover:opacity-100"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {/* Add New Schedule Item */}
+              <div className="flex flex-col sm:flex-row gap-3">
+                <input
+                  type="text"
+                  value={newScheduleItem.time}
+                  onChange={(e) => setNewScheduleItem({ ...newScheduleItem, time: e.target.value })}
+                  className="w-full sm:w-32 px-4 py-3 bg-white border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-200 focus:border-blue-400 transition-all font-bold text-gray-800 placeholder:text-gray-300"
+                  placeholder="10:00 AM"
+                />
+                <input
+                  type="text"
+                  value={newScheduleItem.title}
+                  onChange={(e) => setNewScheduleItem({ ...newScheduleItem, title: e.target.value })}
+                  className="flex-1 px-4 py-3 bg-white border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-200 focus:border-blue-400 transition-all font-bold text-gray-800 placeholder:text-gray-300"
+                  placeholder="Session title (e.g., Introduction to MERN Stack)"
+                />
+                <button
+                  type="button"
+                  onClick={addScheduleItem}
+                  className="px-5 py-3 bg-blue-600 text-white rounded-xl font-bold hover:bg-blue-700 transition-all flex items-center gap-2 shadow-lg shadow-blue-100 active:scale-95"
+                >
+                  <Plus className="w-4 h-4" />
+                  Add
+                </button>
+              </div>
+              
+              {schedule.length === 0 && (
+                <p className="text-xs text-gray-400 italic text-center py-4">No sessions added yet. Add your event timeline above.</p>
+              )}
+            </div>
+            {/* ============ END EVENT SCHEDULE ============ */}
 
             {/* Image Upload */}
             <div className="space-y-2">

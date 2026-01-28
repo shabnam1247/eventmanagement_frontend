@@ -14,7 +14,7 @@ import {
 } from "lucide-react";
 import AdminLayout from "../components/AdminLayout";
 import axios from "axios";
-import toast, { Toaster } from "react-hot-toast";
+import toast from "react-hot-toast";
 
 function ViewEventPage() {
   const { id } = useParams();
@@ -56,7 +56,6 @@ function ViewEventPage() {
 
   return (
     <AdminLayout>
-      <Toaster position="top-right" />
       
       <div className="py-2">
         {/* Back Button */}
