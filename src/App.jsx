@@ -1,6 +1,6 @@
 import { useState } from "react";
 import "./App.css";
-import { Route, Routes } from "react-router-dom";
+import { Route, Routes, useLocation } from "react-router-dom";
 import Home from "./user/pages/Home";
 import Login from "./user/pages/Login";
 import EventPage from "./user/pages/Events";
@@ -47,12 +47,20 @@ import FacultyViewEventPage from "./faculty/pages/ViewEvent";
 import FacultyEditEventPage from "./faculty/pages/EditEvent";
 import AttendanceScanner from "./faculty/pages/AttendanceScanner";
 import FacultyFeedbackList from "./faculty/pages/Feedback";
+import FacultyChat from "./faculty/pages/Chat";
+import ChatWidget from "./user/components/ChatWidget";
 
 import { Toaster } from "react-hot-toast";
 
 function App() {
+  const location = useLocation();
+  const isAdminPath = location.pathname.startsWith('/admin');
+  const isFacultyPath = location.pathname.startsWith('/faculty');
+
   return (
     <>
+      {/* Show ChatWidget only on Student-facing pages */}
+      {!isAdminPath && !isFacultyPath && <ChatWidget />}
       <Toaster 
         position="top-center" 
         reverseOrder={false} 
@@ -119,6 +127,7 @@ function App() {
         <Route path='/faculty/editevent/:id' element={<FacultyEditEventPage />} />
         <Route path='/faculty/check-in' element={<AttendanceScanner />} />
         <Route path='/faculty/feedback' element={<FacultyFeedbackList />} />
+        <Route path='/faculty/chat' element={<FacultyChat />} />
       </Routes>
     </>
   );

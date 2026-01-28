@@ -63,6 +63,11 @@ const FacultySidebar = () => {
       label: 'Student Reviews',
       icon: <MessageSquare className="w-5 h-5" />
     },
+    {
+      path: '/faculty/chat',
+      label: 'Messages',
+      icon: <MessageSquare className="w-5 h-5" />
+    },
   ];
 
   const handleLogout = () => {

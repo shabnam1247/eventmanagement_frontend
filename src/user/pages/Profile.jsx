@@ -13,7 +13,8 @@ import {
   FaCheckCircle,
   FaClock,
   FaUserGraduate,
-  FaIdCard
+  FaIdCard,
+  FaArrowRight
 } from "react-icons/fa";
 import { Loader2 } from "lucide-react";
 import Header from "../components/Header";
