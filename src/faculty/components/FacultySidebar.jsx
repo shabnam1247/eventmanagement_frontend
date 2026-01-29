@@ -22,6 +22,10 @@ const FacultySidebar = () => {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [isMobileOpen, setIsMobileOpen] = useState(false);
 
+  const facultyData = JSON.parse(localStorage.getItem("facultyData") || "{}");
+  const facultyName = facultyData.name || "Faculty Member";
+  const facultyDept = facultyData.department || "Dept";
+
   const navItems = [
     {
       path: '/faculty/dashboard',
@@ -143,6 +147,24 @@ const FacultySidebar = () => {
               </Link>
             ))}
           </nav>
+
+          {/* Faculty Profile Section */}
+          <div className="px-3 mb-4">
+            <div className={`
+              flex items-center gap-3 p-3 rounded-2xl bg-gray-50 border border-gray-100 transition-all
+              ${isCollapsed ? 'justify-center' : ''}
+            `}>
+              <div className="w-10 h-10 rounded-xl bg-blue-100 flex items-center justify-center text-blue-600 font-bold shrink-0">
+                {facultyName.charAt(0)}
+              </div>
+              {!isCollapsed && (
+                <div className="truncate">
+                  <p className="text-sm font-bold text-gray-900 truncate">{facultyName}</p>
+                  <p className="text-[10px] font-medium text-gray-500 truncate">{facultyDept}</p>
+                </div>
+              )}
+            </div>
+          </div>
 
           {/* Bottom Actions */}
           <div className="px-3 space-y-2">

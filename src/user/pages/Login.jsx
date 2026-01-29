@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { User, Lock, Calendar, Eye, EyeOff, Loader2, ArrowRight, Sparkles, ShieldCheck } from 'lucide-react';
-import Header from '../components/Header';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import toast from 'react-hot-toast';
@@ -57,7 +56,6 @@ const Login = () => {
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col font-sans selection:bg-indigo-100 selection:text-indigo-900">
-      <Header />
       
       <div className="flex-1 flex items-center justify-center p-4 lg:p-8 relative overflow-hidden">
         {/* Animated Background Orbs */}

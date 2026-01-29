@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import { User, Mail, Phone, Lock, ArrowLeft, GraduationCap, School, BookOpen, Loader2, Sparkles, ShieldCheck, CheckCircle2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import Header from "../components/Header";
 import axios from "axios";
 import toast from "react-hot-toast";
 
@@ -68,7 +67,6 @@ export default function RegisterPage() {
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col font-sans selection:bg-indigo-100 selection:text-indigo-900">
-      <Header />
       
       <div className="flex-1 flex items-center justify-center p-4 lg:p-8 relative overflow-hidden">
         {/* Orbs - Live Background */}
