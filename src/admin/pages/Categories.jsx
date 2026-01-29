@@ -87,11 +87,11 @@ function CategoryManagement() {
         {/* Header Section */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div>
-            <h1 className="text-4xl font-black text-gray-900 tracking-tight flex items-center gap-4">
+            <h1 className="text-3xl font-bold text-gray-900 tracking-tight flex items-center gap-4">
               <div className="p-3 bg-blue-600 rounded-2xl shadow-xl shadow-blue-100 ring-4 ring-blue-50">
                  <Layers className="w-8 h-8 text-white" />
               </div>
-              Taxonomy Management
+              Categories Management
             </h1>
             <p className="text-gray-500 font-medium mt-2">Manage the global classification system for all events</p>
           </div>
@@ -103,9 +103,9 @@ function CategoryManagement() {
             <div className="bg-white rounded-[2.5rem] shadow-2xl shadow-blue-50 border border-gray-100 p-8 md:p-10 relative overflow-hidden">
                 <div className="absolute top-0 right-0 w-32 h-32 bg-blue-50/50 rounded-full blur-3xl -mr-16 -mt-16"></div>
                 
-                <h2 className="text-xl font-black text-gray-900 mb-8 flex items-center gap-2">
+                <h2 className="text-xl font-bold text-gray-900 mb-8 flex items-center gap-2">
                   <Plus className="w-5 h-5 text-blue-600" />
-                  Register New Classification
+                  Add New Category
                 </h2>
 
                 <form onSubmit={handleAddCategory} className="flex flex-col md:flex-row gap-4">
@@ -125,10 +125,10 @@ function CategoryManagement() {
                    <button
                      type="submit"
                      disabled={loading}
-                     className="px-10 py-5 bg-blue-600 text-white font-black rounded-2xl shadow-xl shadow-blue-100 hover:bg-blue-700 hover:shadow-2xl hover:-translate-y-1 active:scale-95 transition-all disabled:opacity-50 flex items-center justify-center gap-3"
+                     className="px-10 py-5 bg-blue-600 text-white font-bold rounded-2xl shadow-xl shadow-blue-100 hover:bg-blue-700 hover:shadow-2xl hover:-translate-y-1 active:scale-95 transition-all disabled:opacity-50 flex items-center justify-center gap-3"
                    >
                      {loading ? <Loader2 className="w-6 h-6 animate-spin" /> : <Plus className="w-6 h-6" />}
-                     {loading ? "PROCESSING..." : "REGISTER CATEGORY"}
+                     {loading ? "PROCESSING..." : "ADD CATEGORY"}
                    </button>
                 </form>
             </div>
@@ -137,8 +137,8 @@ function CategoryManagement() {
           {/* List Column */}
           <div className="lg:col-span-12 space-y-6">
             <div className="flex items-center justify-between px-2">
-               <h3 className="text-lg font-black text-gray-900 uppercase tracking-widest flex items-center gap-2">
-                 Active Taxonomy Matrix <span className="bg-blue-100 text-blue-600 px-3 py-1 rounded-full text-xs">{categories.length}</span>
+               <h3 className="text-lg font-bold text-gray-900 uppercase tracking-widest flex items-center gap-2">
+                 All Categories <span className="bg-blue-100 text-blue-600 px-3 py-1 rounded-full text-xs">{categories.length}</span>
                </h3>
                <div className="relative group w-full max-w-xs">
                   <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 group-focus-within:text-blue-600 transition-colors" />
@@ -172,7 +172,7 @@ function CategoryManagement() {
                           <Tag className="w-5 h-5" />
                        </div>
                        <div>
-                          <p className="font-black text-gray-900 text-lg leading-tight uppercase tracking-tight">{cat.name}</p>
+                          <p className="font-bold text-gray-900 text-lg leading-tight uppercase tracking-tight">{cat.name}</p>
                           <p className="text-[10px] text-gray-400 font-bold tracking-widest mt-1">ID: #{cat._id.slice(-8)}</p>
                        </div>
                     </div>
@@ -200,7 +200,7 @@ function CategoryManagement() {
 
         <div className="mt-12 text-center text-gray-300 flex items-center justify-center gap-2">
            <Info className="w-4 h-4" />
-           <p className="text-[10px] font-black uppercase tracking-widest">Global Data Schema Engine • Event Hub Admin Control</p>
+           <p className="text-[10px] font-bold uppercase tracking-widest">Global Data Schema Engine • Event Hub Admin Control</p>
         </div>
       </div>
     </AdminLayout>

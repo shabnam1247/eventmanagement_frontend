@@ -49,22 +49,28 @@ const EventPage = () => {
       const response = await axios.get("http://localhost:5000/api/users/events");
       
       if (response.data.success && response.data.events) {
-        const formattedEvents = response.data.events.map(event => ({
-          id: event._id,
-          title: event.title,
-          date: new Date(event.date).toLocaleDateString('en-US', { year: 'numeric', month: '2-digit', day: '2-digit' }),
-          time: event.time || "Time TBA",
-          venue: event.location || "Venue TBA",
-          category: event.status || "upcoming", // upcoming, ongoing, pastevents
-          type: event.category || "General", // Technical, Cultural, etc
-          image: event.images && event.images.length > 0 
-            ? event.images[0] 
-            : "https://images.unsplash.com/photo-1540575467063-178a50c2df87?auto=format&fit=crop&w=800",
-          description: event.description || "Event details coming soon.",
-          seats: event.maxRegistrations - (event.registeredCount || 0),
-          totalSeats: event.maxRegistrations || 100,
-          registered: event.registeredCount || 0
-        }));
+        const formattedEvents = response.data.events.map(event => {
+          // Normalize status
+          let statusLabel = event.status?.toLowerCase() || "upcoming";
+          if (statusLabel === "completed" || statusLabel === "past") statusLabel = "pastevents";
+          
+          return {
+            id: event._id,
+            title: event.title,
+            date: new Date(event.date).toLocaleDateString('en-US', { year: 'numeric', month: '2-digit', day: '2-digit' }),
+            time: event.time || "Time TBA",
+            venue: event.location || "Venue TBA",
+            category: statusLabel, // mapped: upcoming, ongoing, pastevents
+            type: event.category || "General", // Technical, Cultural, etc
+            image: event.images && event.images.length > 0 
+              ? event.images[0] 
+              : "https://images.unsplash.com/photo-1540575467063-178a50c2df87?auto=format&fit=crop&w=800",
+            description: event.description || "Event details coming soon.",
+            seats: event.maxRegistrations - (event.registeredCount || 0),
+            totalSeats: event.maxRegistrations || 100,
+            registered: event.registeredCount || 0
+          };
+        });
         setEvents(formattedEvents);
       }
     } catch (error) {
@@ -105,10 +111,10 @@ const EventPage = () => {
 
   const eventTypes = [
     { id: "all", name: "All Types", icon: <Filter className="w-4 h-4" /> },
-    { id: "technology", name: "Tech", icon: typeIcons.Technical },
-    { id: "cultural", name: "Cultural", icon: typeIcons.Cultural },
+    { id: "Technical", name: "Tech", icon: typeIcons.Technical },
+    { id: "Cultural", name: "Cultural", icon: typeIcons.Cultural },
     { id: "Academic", name: "Academic", icon: typeIcons.Academic },
-    { id: "sports", name: "Sports", icon: typeIcons.Sports }
+    { id: "Sports", name: "Sports", icon: typeIcons.Sports }
   ];
 
   const getStatusColor = (category) => {
