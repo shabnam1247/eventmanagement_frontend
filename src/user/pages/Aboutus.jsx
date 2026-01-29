@@ -1,5 +1,5 @@
 import React from "react";
-import { Users, Calendar, Bell, MessageSquare, BarChart, Settings, Target } from "lucide-react";
+import { Users, Calendar, Award, MessageSquare, BarChart, Settings, Target } from "lucide-react";
 import Header from "../components/Header";
 
 export default function AboutPage() {
@@ -23,7 +23,7 @@ export default function AboutPage() {
 
   const features = [
     { icon: <Calendar className="w-5 h-5" />, title: "Event Management", desc: "Organize and schedule all campus events" },
-    { icon: <Bell className="w-5 h-5" />, title: "Real-Time Notifications", desc: "Stay updated with instant alerts" },
+    { icon: <Award className="w-5 h-5" />, title: "Digital Certificates", desc: "Download verified participation certificates" },
     { icon: <MessageSquare className="w-5 h-5" />, title: "Chat System", desc: "Communicate with event organizers" },
     { icon: <BarChart className="w-5 h-5" />, title: "Analytics", desc: "Track event participation and engagement" }
   ];
@@ -135,7 +135,7 @@ export default function AboutPage() {
               </div>
               <div>
                 <p className="font-medium text-gray-900">Email</p>
-                <p className="text-gray-600">support@collegeevents.com</p>
+                <p className="text-gray-600">mail@ajascollege.ac.in</p>
               </div>
             </div>
             <div className="flex items-center gap-4 p-4 bg-blue-50 rounded-lg">
@@ -144,7 +144,7 @@ export default function AboutPage() {
               </div>
               <div>
                 <p className="font-medium text-gray-900">Location</p>
-                <p className="text-gray-600">IT Department, Campus Block A</p>
+                <p className="text-gray-600">Poopalam, Perinthalmanna, Kerala 679322</p>
               </div>
             </div>
           </div>

@@ -340,7 +340,10 @@ const StudentProfilePage = () => {
                   My Certificates
                 </h3>
                 <p className="text-indigo-200 text-sm mb-6 leading-relaxed">View and download certificates for events you've successfully completed.</p>
-                <button className="px-6 py-3 bg-white text-indigo-900 rounded-xl font-black text-xs uppercase tracking-widest hover:bg-indigo-50 transition-all">
+                <button 
+                  onClick={() => navigate('/myevents')}
+                  className="px-6 py-3 bg-white text-indigo-900 rounded-xl font-black text-xs uppercase tracking-widest hover:bg-indigo-50 transition-all"
+                >
                   Open Vault
                 </button>
               </div>

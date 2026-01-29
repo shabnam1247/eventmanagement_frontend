@@ -77,7 +77,7 @@ const HomePage = () => {
   ];
 
   const features = [
-    "Real-time event updates",
+    "Secure QR code entry",
     "Easy registration process",
     "Automated reminders",
     "Digital certificates",

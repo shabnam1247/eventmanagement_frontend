@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { 
   Calendar, MapPin, Clock, Users, ArrowRight, Loader2, 
-  Trash2, QrCode as QrIcon, X, CheckCircle2, AlertCircle, Star
+  Trash2, QrCode as QrIcon, X, CheckCircle2, AlertCircle, Star, Award, Download, FileText
 } from "lucide-react";
+import { jsPDF } from "jspdf";
 import Header from "../components/Header";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
@@ -124,6 +125,119 @@ export default function MyEvents() {
       toast.error(error.response?.data?.message || "Failed to submit feedback");
     } finally {
       setFeedbackLoading(false);
+    }
+  };
+
+  const downloadCertificate = async (reg) => {
+    try {
+      const loadingToast = toast.loading("Generating your certificate...");
+      
+      const response = await axios.get(`http://localhost:5000/api/users/certificate-data/${reg._id}`);
+      
+      if (!response.data.success) {
+        toast.dismiss(loadingToast);
+        toast.error("Failed to fetch certificate data");
+        return;
+      }
+
+      const { data } = response.data;
+      const doc = new jsPDF({
+        orientation: "landscape",
+        unit: "mm",
+        format: "a4"
+      });
+
+      // --- Certificate Design ---
+      const width = doc.internal.pageSize.getWidth();
+      const height = doc.internal.pageSize.getHeight();
+
+      // 1. Background Border
+      doc.setDrawColor(79, 70, 229); // Indigo-600
+      doc.setLineWidth(2);
+      doc.rect(10, 10, width - 20, height - 20);
+      
+      doc.setDrawColor(224, 231, 255); // Indigo-100
+      doc.setLineWidth(0.5);
+      doc.rect(12, 12, width - 24, height - 24);
+
+      // --- BRANDING ---
+      doc.setTextColor(79, 70, 229); // Indigo-600
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(14);
+      doc.text("AL JAMIA ARTS & SCIENCE COLLEGE", width / 2, 25, { align: "center" });
+      doc.setFontSize(10);
+      doc.setFont("helvetica", "normal");
+      doc.text("Affiliated to University of Calicut", width / 2, 30, { align: "center" });
+
+      // 2. Header
+      doc.setTextColor(31, 41, 55); // Gray-800
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(30);
+      doc.text("CERTIFICATE OF PARTICIPATION", width / 2, 45, { align: "center" });
+
+      doc.setFontSize(16);
+      doc.setFont("helvetica", "normal");
+      doc.text("This is to certify that", width / 2, 65, { align: "center" });
+
+      // 3. Student Name
+      doc.setTextColor(79, 70, 229); // Indigo-600
+      doc.setFontSize(28);
+      doc.setFont("helvetica", "bold");
+      doc.text(data.studentName.toUpperCase(), width / 2, 85, { align: "center" });
+
+      // 4. Achievement Description
+      doc.setTextColor(31, 41, 55);
+      doc.setFontSize(14);
+      doc.setFont("helvetica", "normal");
+      doc.text("has successfully participated and shown exemplary engagement in the event", width / 2, 105, { align: "center" });
+
+      doc.setFontSize(22);
+      doc.setFont("helvetica", "bold");
+      doc.text(data.eventTitle, width / 2, 120, { align: "center" });
+
+      doc.setFontSize(14);
+      doc.setFont("helvetica", "normal");
+      const formattedDate = new Date(data.eventDate).toLocaleDateString('en-US', {
+        day: 'numeric', month: 'long', year: 'numeric'
+      });
+      doc.text(`held on ${formattedDate} at ${data.location}`, width / 2, 135, { align: "center" });
+      
+      doc.setFontSize(12);
+      doc.setFont("helvetica", "italic");
+      doc.text("This certificate recognizes the student's initiative and contribution to our college's vibrant campus life.", width / 2, 145, { align: "center" });
+
+      // 5. Footer / Verification
+      doc.setFontSize(10);
+      doc.setTextColor(156, 163, 175); // Gray-400
+      doc.setFont("helvetica", "normal");
+      doc.text(`Certificate ID: ${reg._id}`, width / 2, 185, { align: "center" });
+      doc.text(`Issued on: ${new Date(data.issueDate).toLocaleDateString()}`, width / 2, 190, { align: "center" });
+
+      // 6. Signatures
+      doc.setDrawColor(31, 41, 55);
+      doc.line(40, 175, 100, 175);
+      doc.line(width - 100, 175, width - 40, 175);
+
+      // Dummy signatures in a stylized font (simulated cursive)
+      doc.setTextColor(31, 41, 55);
+      doc.setFont("courier", "italic");
+      doc.setFontSize(16);
+      doc.text("Dr. A. P. James", 70, 170, { align: "center" });
+      doc.text("Prof. Sarah Khan", width - 70, 170, { align: "center" });
+
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(12);
+      doc.text("Event Coordinator", 70, 182, { align: "center" });
+      doc.text("Authorized Signatory", width - 70, 182, { align: "center" });
+
+      // Save the PDF
+      doc.save(`Certificate_${data.eventTitle.replace(/\s+/g, '_')}.pdf`);
+      
+      toast.dismiss(loadingToast);
+      toast.success("Certificate downloaded successfully!");
+    } catch (error) {
+      console.error("Certificate error:", error);
+      toast.error("An error occurred while generating the certificate");
     }
   };
 
@@ -259,15 +373,25 @@ export default function MyEvents() {
                         QR Ticket
                       </button>
                     )}
-                    <button
-                      onClick={() => navigate(`/eventdetails/${reg.event._id}`)}
-                      className="flex items-center justify-center gap-2 px-4 py-3 bg-gray-50 text-gray-600 rounded-2xl font-bold hover:bg-gray-100 transition-all duration-300"
-                    >
-                      Details
-                    </button>
-                  </div>
+                      <button
+                        onClick={() => navigate(`/eventdetails/${reg.event._id}`)}
+                        className="flex items-center justify-center gap-2 px-4 py-3 bg-gray-50 text-gray-600 rounded-2xl font-bold hover:bg-gray-100 transition-all duration-300"
+                      >
+                        Details
+                      </button>
+                    </div>
 
-                  {reg.event?.status === 'upcoming' && (
+                    {reg.attended && (
+                      <button
+                        onClick={() => downloadCertificate(reg)}
+                        className="w-full mt-3 flex items-center justify-center gap-2 px-4 py-3 bg-indigo-600 text-white rounded-2xl font-bold hover:bg-indigo-700 transition-all duration-300 shadow-md shadow-indigo-100"
+                      >
+                        <Award className="w-4 h-4" />
+                        Download Certificate
+                      </button>
+                    )}
+
+                  {reg.event?.status === 'upcoming' && !reg.attended && (
                     <button
                       onClick={() => handleOpenCancel(reg)}
                       className="w-full mt-3 flex items-center justify-center gap-2 px-4 py-3 text-red-100 hover:text-red-600 bg-red-600 hover:bg-red-50 rounded-2xl font-bold transition-all duration-300 border border-transparent hover:border-red-100 group/cancel"

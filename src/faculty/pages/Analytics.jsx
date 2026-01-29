@@ -70,12 +70,23 @@ const FacultyEventDashboard = () => {
     { date: "Week 4", registrations: 0, attendance: 0 },
   ];
 
-  const eventCategories = [
-    { name: "Technical", value: 35, color: "#2563eb" },
-    { name: "Cultural", value: 30, color: "#3b82f6" },
-    { name: "Sports", value: 20, color: "#10b981" },
-    { name: "Workshops", value: 15, color: "#f59e0b" },
-  ];
+  // Transform real category stats from backend
+  const categoryColors = ["#2563eb", "#3b82f6", "#10b981", "#f59e0b", "#8b5cf6", "#ec4899"];
+  const eventCategories = stats?.categoryStats 
+    ? Object.entries(stats.categoryStats).map(([name, count], index) => ({
+        name,
+        value: count, // This is count, Recharts Pie can handle raw values or we can calculate percentage
+        color: categoryColors[index % categoryColors.length]
+      }))
+    : [
+        { name: "No Data", value: 1, color: "#cbd5e1" }
+      ];
+
+  const totalEventsTotal = stats?.totalEvents || 0;
+  const totalRegistrations = stats?.totalRegistrations || 0;
+  const totalAttendance = stats?.totalAttendance || 0;
+  const avgAttendanceRate = totalRegistrations > 0 ? ((totalAttendance / totalRegistrations) * 100).toFixed(1) : 0;
+  const avgRating = stats?.avgRating || 0;
 
   if (loading) {
     return (
@@ -88,10 +99,39 @@ const FacultyEventDashboard = () => {
   }
 
   const events = stats?.eventStats || [];
-  const totalRegistrations = stats?.totalRegistrations || 0;
-  const totalAttendance = stats?.totalAttendance || 0;
-  const avgAttendanceRate = totalRegistrations > 0 ? ((totalAttendance / totalRegistrations) * 100).toFixed(1) : 0;
-  const avgRating = stats?.avgRating || 0;
+
+  const handleExportData = () => {
+    if (!stats || !stats.eventStats || stats.eventStats.length === 0) {
+      toast.error("No data available to export");
+      return;
+    }
+
+    const headers = ["Event Name", "Date", "Registrations", "Attendance", "Success Rate (%)"];
+    const rows = stats.eventStats.map(event => [
+      `"${event.name}"`, // Quote to handle commas in titles
+      new Date(event.date).toLocaleDateString(),
+      event.registrations,
+      event.attended,
+      ((event.attended / event.registrations) * 100 || 0).toFixed(1)
+    ]);
+
+    const csvContent = [
+      headers.join(","),
+      ...rows.map(row => row.join(","))
+    ].join("\n");
+
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.setAttribute("href", url);
+    link.setAttribute("download", `Event_Analytics_${new Date().toISOString().split('T')[0]}.csv`);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    
+    toast.success("Excel report exported successfully!");
+  };
 
   return (
     <FacultyLayout>
@@ -117,7 +157,10 @@ const FacultyEventDashboard = () => {
                   </button>
                 ))}
              </div>
-             <button className="flex items-center gap-2 px-6 py-3 bg-gray-900 text-white rounded-2xl font-bold text-sm hover:bg-black transition-all shadow-xl shadow-gray-200 active:scale-95">
+             <button 
+                onClick={handleExportData}
+                className="flex items-center gap-2 px-6 py-3 bg-gray-900 text-white rounded-2xl font-bold text-sm hover:bg-black transition-all shadow-xl shadow-gray-200 active:scale-95"
+             >
                 <Download className="w-4 h-4" />
                 EXPORT DATA
              </button>
@@ -128,30 +171,30 @@ const FacultyEventDashboard = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           <StatCard 
             label="Total Events" 
-            value={events.length} 
+            value={totalEventsTotal} 
             icon={<Calendar className="w-6 h-6" />}
-            trend="+12%"
+            trend="+0%"
             color="blue"
           />
           <StatCard 
             label="Total Registrations" 
             value={totalRegistrations} 
             icon={<Users className="w-6 h-6" />}
-            trend="+24%"
+            trend="+0%"
             color="blue"
           />
           <StatCard 
             label="Attendance Rate" 
             value={`${avgAttendanceRate}%`} 
             icon={<Activity className="w-6 h-6" />}
-            trend="+5.4%"
+            trend="Active"
             color="emerald"
           />
           <StatCard 
             label="Student Satisfaction" 
-            value="4.8/5" 
+            value={`${avgRating}/5`} 
             icon={<Medal className="w-6 h-6" />}
-            trend="Peak"
+            trend="Live"
             color="amber"
           />
         </div>
