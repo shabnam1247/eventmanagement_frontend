@@ -60,7 +60,7 @@ export default function EventRegister() {
   const fetchEventDetails = async () => {
     try {
       setLoading(true);
-      const response = await axios.get(`http://localhost:5001/api/users/events/${id}`);
+      const response = await axios.get(`http://localhost:5000/api/users/events/${id}`);
       
       if (response.data.success && response.data.event) {
         const eventData = response.data.event;
@@ -82,7 +82,7 @@ export default function EventRegister() {
         if (userData && userData._id) {
           try {
             const regCheckResponse = await axios.get(
-              `http://localhost:5001/api/users/events/${id}/check-registration/${userData._id}`
+              `http://localhost:5000/api/users/events/${id}/check-registration/${userData._id}`
             );
             
             if (regCheckResponse.data.success && regCheckResponse.data.registered) {
@@ -131,7 +131,7 @@ export default function EventRegister() {
 
     try {
       const response = await axios.post(
-        `http://localhost:5001/api/users/eventregister/${userData._id}`,
+        `http://localhost:5000/api/users/eventregister/${userData._id}`,
         {
           eventId: id,
           firstName: formData.firstName,

@@ -15,7 +15,7 @@ const FacultyLogin = () => {
     setLoading(true);
 
     try {
-      const response = await axios.post("http://localhost:5001/api/faculty/login", {
+      const response = await axios.post("http://localhost:5000/api/faculty/login", {
         email,
         password
       });

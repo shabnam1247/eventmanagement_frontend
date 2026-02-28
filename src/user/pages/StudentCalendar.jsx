@@ -74,7 +74,7 @@ const StudentCalendar = () => {
   const fetchEvents = async () => {
     try {
       setLoading(true);
-      const response = await axios.get("http://localhost:5001/api/users/events");
+      const response = await axios.get("http://localhost:5000/api/users/events");
       if (response.data.success) {
         setEvents(response.data.events);
         const uniqueCats = [...new Set(response.data.events.map(e => e.category))];

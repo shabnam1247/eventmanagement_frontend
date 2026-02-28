@@ -15,7 +15,7 @@ const AdminFeedbackList = () => {
 
   const fetchFeedbacks = async () => {
     try {
-      const response = await axios.get("http://localhost:5001/api/admin/feedbacks", {
+      const response = await axios.get("http://localhost:5000/api/admin/feedbacks", {
         headers: {
           Authorization: `Bearer ${token}`
         }

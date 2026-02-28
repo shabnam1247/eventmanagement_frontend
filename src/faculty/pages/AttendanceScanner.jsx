@@ -100,7 +100,7 @@ export default function AttendanceScanner() {
     if (loading) return;
     setLoading(true);
     try {
-      const response = await axios.post(`http://localhost:5001/api/faculty/mark-attendance/${regId}`);
+      const response = await axios.post(`http://localhost:5000/api/faculty/mark-attendance/${regId}`);
       if (response.data.success) {
         setResult({
           type: 'success',

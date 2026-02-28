@@ -16,7 +16,7 @@ const AdminLogin = () => {
     setLoading(true);
 
     try {
-      const res = await axios.post("http://localhost:5001/api/admin/login", { email, password });
+      const res = await axios.post("http://localhost:5000/api/admin/login", { email, password });
       console.log(res, "res");
       
       if (res.data.token) {

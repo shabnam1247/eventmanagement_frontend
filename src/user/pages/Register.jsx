@@ -28,7 +28,7 @@ const EventRegistration = () => {
     e.preventDefault();
     console.log("Registration Data:", formData);
     setShowSuccess(true);
-    setTimeout(() => setShowSuccess(false), 5001);
+    setTimeout(() => setShowSuccess(false), 5000);
   };
 
   const departments = [

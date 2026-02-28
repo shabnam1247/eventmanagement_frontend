@@ -49,12 +49,12 @@ function FacultyEditEventPage() {
     const fetchData = async () => {
       setFetching(true);
       try {
-        const catRes = await axios.get("http://localhost:5001/api/admin/categories");
+        const catRes = await axios.get("http://localhost:5000/api/admin/categories");
         if (catRes.data.success) {
           setCategories(catRes.data.categories);
         }
 
-        const eventRes = await axios.get(`http://localhost:5001/api/admin/event/${id}`);
+        const eventRes = await axios.get(`http://localhost:5000/api/admin/event/${id}`);
         if (eventRes.data.success) {
           const event = eventRes.data.event;
           const formattedDate = event.date ? new Date(event.date).toISOString().split('T')[0] : "";
@@ -142,7 +142,7 @@ function FacultyEditEventPage() {
         formData.append("eventScheduletime", JSON.stringify(schedule));
       }
 
-      const res = await axios.put(`http://localhost:5001/api/faculty/eventedit/${id}`, formData, {
+      const res = await axios.put(`http://localhost:5000/api/faculty/eventedit/${id}`, formData, {
         headers: { "Content-Type": "multipart/form-data" }
       });
 

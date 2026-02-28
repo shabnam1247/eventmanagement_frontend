@@ -45,7 +45,7 @@ function FacultyAddEventPage() {
 
   const fetchCategories = async () => {
     try {
-      const res = await axios.get("http://localhost:5001/api/admin/categories");
+      const res = await axios.get("http://localhost:5000/api/admin/categories");
       if (res.data.success) {
         setCategories(res.data.categories);
       }
@@ -100,7 +100,7 @@ function FacultyAddEventPage() {
         formData.append("organizer", facultyData._id);
       }
 
-      const res = await axios.post("http://localhost:5001/api/faculty/eventcreate", formData, {
+      const res = await axios.post("http://localhost:5000/api/faculty/eventcreate", formData, {
         headers: { "Content-Type": "multipart/form-data" }
       });
 

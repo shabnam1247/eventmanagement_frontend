@@ -62,7 +62,7 @@ const FeedbackForm = () => {
         message: formData.message
       };
 
-      const response = await axios.post("http://localhost:5001/api/users/event-feedback", payload);
+      const response = await axios.post("http://localhost:5000/api/users/event-feedback", payload);
       if (response.data.success) {
         setSubmitted(true);
         toast.success("Feedback submitted successfully!");

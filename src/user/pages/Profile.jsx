@@ -59,7 +59,7 @@ const StudentProfilePage = () => {
 
   const fetchProfile = async (userId) => {
     try {
-      const response = await axios.get(`http://localhost:5001/api/users/profile/${userId}`);
+      const response = await axios.get(`http://localhost:5000/api/users/profile/${userId}`);
       if (response.data.success) {
         setUser(response.data.user);
         setProfileForm({
@@ -79,7 +79,7 @@ const StudentProfilePage = () => {
 
   const fetchRegistrations = async (userId) => {
     try {
-      const response = await axios.get(`http://localhost:5001/api/users/registrations/${userId}`);
+      const response = await axios.get(`http://localhost:5000/api/users/registrations/${userId}`);
       if (response.data.success) {
         setRegistrations(response.data.registrations);
       }
@@ -92,7 +92,7 @@ const StudentProfilePage = () => {
     e.preventDefault();
     try {
       setLoading(true);
-      const response = await axios.put(`http://localhost:5001/api/users/profile/${user._id}`, profileForm);
+      const response = await axios.put(`http://localhost:5000/api/users/profile/${user._id}`, profileForm);
       if (response.data.success) {
         toast.success("Profile updated successfully!");
         setUser(response.data.user);
@@ -117,7 +117,7 @@ const StudentProfilePage = () => {
     }
     try {
       setLoading(true);
-      const response = await axios.put(`http://localhost:5001/api/users/profile/${user._id}/change-password`, {
+      const response = await axios.put(`http://localhost:5000/api/users/profile/${user._id}/change-password`, {
         oldPassword: passwordForm.oldPassword,
         newPassword: passwordForm.newPassword
       });

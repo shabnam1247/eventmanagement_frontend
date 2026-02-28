@@ -46,7 +46,7 @@ export default function EventDetails() {
   const checkIfRegistered = async () => {
     try {
       const response = await axios.get(
-        `http://localhost:5001/api/users/events/${id}/check-registration/${userData._id}`
+        `http://localhost:5000/api/users/events/${id}/check-registration/${userData._id}`
       );
 
       if (response.data.success) {
@@ -70,7 +70,7 @@ export default function EventDetails() {
     try {
       setLoading(true);
       setError(null);
-      const response = await axios.get(`http://localhost:5001/api/users/events/${id}`);
+      const response = await axios.get(`http://localhost:5000/api/users/events/${id}`);
       
       if (response.data.success && response.data.event) {
         setEvent(response.data.event);

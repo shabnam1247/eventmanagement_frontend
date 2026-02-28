@@ -54,7 +54,7 @@ export default function FacultyOTPVerification() {
 
     setLoading(true);
     try {
-      const response = await axios.post("http://localhost:5001/api/faculty/otpverify", {
+      const response = await axios.post("http://localhost:5000/api/faculty/otpverify", {
         otp: entered
       });
 

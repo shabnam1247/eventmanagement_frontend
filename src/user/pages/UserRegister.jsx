@@ -52,7 +52,7 @@ export default function RegisterPage() {
     if (Object.keys(validationErrors).length === 0) {
       setLoading(true);
       try {
-        const response = await axios.post("http://localhost:5001/api/users/register", formData);
+        const response = await axios.post("http://localhost:5000/api/users/register", formData);
         if (response.status === 201) {
           toast.success("Account created! Verifying email...");
           setTimeout(() => navigate('/otp', { state: { email: formData.email } }), 1500);

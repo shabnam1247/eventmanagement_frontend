@@ -41,7 +41,7 @@ const FacultyGallery = () => {
   const fetchGallery = async () => {
     try {
       setLoading(true);
-      const response = await axios.get("http://localhost:5001/api/gallery");
+      const response = await axios.get("http://localhost:5000/api/gallery");
       if (response.data.success) {
         setItems(response.data.items);
       }
@@ -83,7 +83,7 @@ const FacultyGallery = () => {
 
     try {
       setUploading(true);
-      const response = await axios.post("http://localhost:5001/api/gallery/add", data);
+      const response = await axios.post("http://localhost:5000/api/gallery/add", data);
       if (response.data.success) {
         toast.success("Added to gallery!");
         setShowModal(false);
@@ -101,7 +101,7 @@ const FacultyGallery = () => {
   const handleDelete = async (id) => {
     if (window.confirm("Are you sure you want to remove this from the gallery?")) {
       try {
-        const response = await axios.delete(`http://localhost:5001/api/gallery/${id}`);
+        const response = await axios.delete(`http://localhost:5000/api/gallery/${id}`);
         if (response.data.success) {
           toast.success("Item removed");
           fetchGallery();

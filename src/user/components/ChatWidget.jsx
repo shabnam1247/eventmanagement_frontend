@@ -20,7 +20,7 @@ const ChatWidget = () => {
 
     useEffect(() => {
         if (studentId) {
-            socket.current = io("http://localhost:5001");
+            socket.current = io("http://localhost:5000");
             socket.current.emit("join_room", studentId);
 
             socket.current.on("receive_message", (data) => {
@@ -46,7 +46,7 @@ const ChatWidget = () => {
     const fetchFaculties = async () => {
         try {
             setLoading(true);
-            const response = await axios.get("http://localhost:5001/api/users/faculties");
+            const response = await axios.get("http://localhost:5000/api/users/faculties");
             if (response.data.success) {
                 setFaculties(response.data.faculties);
             }
@@ -59,7 +59,7 @@ const ChatWidget = () => {
 
     const fetchMessages = async (facultyId) => {
         try {
-            const response = await axios.get(`http://localhost:5001/api/chat/messages/${studentId}/${facultyId}`);
+            const response = await axios.get(`http://localhost:5000/api/chat/messages/${studentId}/${facultyId}`);
             if (response.data.success) {
                 setMessages(response.data.messages);
             }

@@ -21,7 +21,7 @@ const FacultyFeedbackList = () => {
 
   const fetchFeedbacks = async () => {
     try {
-      const response = await axios.get(`http://localhost:5001/api/faculty/feedbacks?facultyId=${facultyId}`);
+      const response = await axios.get(`http://localhost:5000/api/faculty/feedbacks?facultyId=${facultyId}`);
       if (response.data.success) {
         setFeedbacks(response.data.feedbacks);
       }

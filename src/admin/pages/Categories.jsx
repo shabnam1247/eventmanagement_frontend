@@ -15,7 +15,7 @@ function CategoryManagement() {
 
   const fetchCategories = async () => {
     try {
-      const res = await axios.get("http://localhost:5001/api/admin/categories");
+      const res = await axios.get("http://localhost:5000/api/admin/categories");
       if (res.data.success) {
         setCategories(res.data.categories);
       }
@@ -37,7 +37,7 @@ function CategoryManagement() {
 
     setLoading(true);
     try {
-      const res = await axios.post("http://localhost:5001/api/admin/addcategory", {
+      const res = await axios.post("http://localhost:5000/api/admin/addcategory", {
         name: newCategory,
       });
       toast.success("New classification layer injected successfully");
@@ -55,7 +55,7 @@ function CategoryManagement() {
     if (!window.confirm(`Are you sure you want to eliminate the "${name}" taxonomy?`)) return;
 
     try {
-      const res = await axios.delete(`http://localhost:5001/api/admin/categorydelete/${id}`);
+      const res = await axios.delete(`http://localhost:5000/api/admin/categorydelete/${id}`);
       if (res.data.success) {
         toast.success(`Taxonomy "${name}" successfully purged`);
         fetchCategories();

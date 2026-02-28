@@ -20,7 +20,7 @@ const Gallery = () => {
   const fetchGallery = async () => {
     try {
       setLoading(true);
-      const response = await axios.get("http://localhost:5001/api/gallery");
+      const response = await axios.get("http://localhost:5000/api/gallery");
       if (response.data.success) {
         setImages(response.data.items);
       }

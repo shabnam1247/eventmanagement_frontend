@@ -46,7 +46,7 @@ const EventPage = () => {
   const fetchEvents = async () => {
     try {
       setLoading(true);
-      const response = await axios.get("http://localhost:5001/api/users/events");
+      const response = await axios.get("http://localhost:5000/api/users/events");
       
       if (response.data.success && response.data.events) {
         const formattedEvents = response.data.events.map(event => {

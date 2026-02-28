@@ -26,7 +26,7 @@ function ViewEventPage() {
     const fetchEventDetails = async () => {
       setLoading(true);
       try {
-        const res = await axios.get(`http://localhost:5001/api/admin/event/${id}`);
+        const res = await axios.get(`http://localhost:5000/api/admin/event/${id}`);
         if (res.data.success) {
           setEvent(res.data.event);
         }

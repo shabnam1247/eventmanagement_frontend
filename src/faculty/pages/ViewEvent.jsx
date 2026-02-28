@@ -32,7 +32,7 @@ function FacultyViewEventPage() {
       setLoading(true);
       try {
         // Using the same endpoint as admin for now, or a faculty specific one if it exists
-        const res = await axios.get(`http://localhost:5001/api/admin/event/${id}`);
+        const res = await axios.get(`http://localhost:5000/api/admin/event/${id}`);
         if (res.data.success) {
           setEvent(res.data.event);
         }

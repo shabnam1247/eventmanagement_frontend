@@ -27,7 +27,7 @@ function AddStudentPage() {
     e.preventDefault();
     setLoading(true);
     try {
-      const res = await axios.post("http://localhost:5001/api/admin/addstudent", {
+      const res = await axios.post("http://localhost:5000/api/admin/addstudent", {
         ...studentData,
         regno: studentData.registerNo,
         phonenumber: studentData.phone

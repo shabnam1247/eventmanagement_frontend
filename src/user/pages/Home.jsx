@@ -39,7 +39,7 @@ const HomePage = () => {
   const fetchUpcomingEvents = async () => {
     try {
       setLoading(true);
-      const response = await axios.get("http://localhost:5001/api/users/events");
+      const response = await axios.get("http://localhost:5000/api/users/events");
       
       if (response.data.success && response.data.events) {
         // Filter only upcoming events and take first 6

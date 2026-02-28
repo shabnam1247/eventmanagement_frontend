@@ -45,7 +45,7 @@ export default function MyEvents() {
   const fetchRegistrations = async (id) => {
     try {
       setLoading(true);
-      const response = await axios.get(`http://localhost:5001/api/users/registrations/${id}`);
+      const response = await axios.get(`http://localhost:5000/api/users/registrations/${id}`);
       if (response.data.success) {
         setRegistrations(response.data.registrations);
       }
@@ -71,7 +71,7 @@ export default function MyEvents() {
     if (!regToCancel) return;
     try {
       setCancelling(true);
-      const response = await axios.delete(`http://localhost:5001/api/users/registrations/${regToCancel._id}`);
+      const response = await axios.delete(`http://localhost:5000/api/users/registrations/${regToCancel._id}`);
       if (response.data.success) {
         toast.success("Registration cancelled successfully");
         setRegistrations(registrations.filter(r => r._id !== regToCancel._id));
@@ -105,7 +105,7 @@ export default function MyEvents() {
     try {
       setFeedbackLoading(true);
       const userData = JSON.parse(localStorage.getItem("userData"));
-      const response = await axios.post("http://localhost:5001/api/users/event-feedback", {
+      const response = await axios.post("http://localhost:5000/api/users/event-feedback", {
         eventId: selectedReg.event._id,
         userId: userData._id,
         registrationId: selectedReg._id,
@@ -132,7 +132,7 @@ export default function MyEvents() {
     try {
       const loadingToast = toast.loading("Generating your certificate...");
       
-      const response = await axios.get(`http://localhost:5001/api/users/certificate-data/${reg._id}`);
+      const response = await axios.get(`http://localhost:5000/api/users/certificate-data/${reg._id}`);
       
       if (!response.data.success) {
         toast.dismiss(loadingToast);

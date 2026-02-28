@@ -54,7 +54,7 @@ export default function OTPVerification() {
 
     setLoading(true);
     try {
-      const response = await axios.post("http://localhost:5001/api/users/otpverify", {
+      const response = await axios.post("http://localhost:5000/api/users/otpverify", {
         otp: entered
       });
 
@@ -80,7 +80,7 @@ export default function OTPVerification() {
 
   const resendOtp = async () => {
     try {
-      const response = await axios.post("http://localhost:5001/api/users/resend-otp", {
+      const response = await axios.post("http://localhost:5000/api/users/resend-otp", {
         email: email
       });
 

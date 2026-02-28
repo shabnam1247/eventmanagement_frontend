@@ -50,7 +50,7 @@ const FacultyEventDashboard = () => {
   const fetchDashboardStats = async () => {
     try {
       setLoading(true);
-      const response = await axios.get(`http://localhost:5001/api/faculty/dashboard/stats/${facultyId}`);
+      const response = await axios.get(`http://localhost:5000/api/faculty/dashboard/stats/${facultyId}`);
       if (response.data.success) {
         setStats(response.data.stats);
       }

@@ -21,7 +21,7 @@ const AdminEventPanel = () => {
   const fetchEvents = async () => {
     setLoading(true);
     try {
-      const response = await axios.get("http://localhost:5001/api/admin/events");
+      const response = await axios.get("http://localhost:5000/api/admin/events");
       setEvents(response.data.events || []);
     } catch (error) {
       console.error("Error fetching events:", error);
@@ -60,7 +60,7 @@ const AdminEventPanel = () => {
         </div>
       </div>
     ), {
-      duration: 5001,
+      duration: 5000,
       position: 'top-center',
     });
   };
@@ -68,7 +68,7 @@ const AdminEventPanel = () => {
   const handleDelete = async (eventId) => {
     setDeleting(eventId);
     try {
-      const res = await axios.delete(`http://localhost:5001/api/admin/eventdelete/${eventId}`);
+      const res = await axios.delete(`http://localhost:5000/api/admin/eventdelete/${eventId}`);
       if (res.data.success) {
         toast.success("Event deleted successfully");
         setEvents(events.filter(e => e._id !== eventId));

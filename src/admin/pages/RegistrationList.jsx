@@ -20,7 +20,7 @@ const RegistrationList = () => {
   const fetchRegistrations = async () => {
     try {
       setLoading(true);
-      const res = await axios.get("http://localhost:5001/api/admin/registrations");
+      const res = await axios.get("http://localhost:5000/api/admin/registrations");
       if (res.data.success) {
         setRegistrations(res.data.registrations);
       }

@@ -14,7 +14,7 @@ const FacultyPanel = () => {
   const fetchFaculty = async () => {
     try {
       setLoading(true);
-      const res = await axios.get("http://localhost:5001/api/admin/allfaculties");
+      const res = await axios.get("http://localhost:5000/api/admin/allfaculties");
       if (res.data.success) {
         setFacultyMembers(res.data.faculties);
       }
@@ -33,7 +33,7 @@ const FacultyPanel = () => {
   const handleApprove = async (id) => {
     try {
       setApprovingId(id);
-      const res = await axios.put(`http://localhost:5001/api/admin/approvefaculty/${id}`);
+      const res = await axios.put(`http://localhost:5000/api/admin/approvefaculty/${id}`);
       if (res.data.success) {
         toast.success("Faculty approved successfully");
         setFacultyMembers(prev => 

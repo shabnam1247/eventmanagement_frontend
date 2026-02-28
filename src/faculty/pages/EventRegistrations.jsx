@@ -46,7 +46,7 @@ const FacultyRegistrationList = () => {
   const fetchRegistrations = async () => {
     try {
       setLoading(true);
-      const response = await axios.get("http://localhost:5001/api/faculty/registrations");
+      const response = await axios.get("http://localhost:5000/api/faculty/registrations");
       if (response.data.success) {
         setRegistrations(response.data.registrations);
         setStats(response.data.stats);
@@ -61,7 +61,7 @@ const FacultyRegistrationList = () => {
 
   const fetchEvents = async () => {
     try {
-      const response = await axios.get("http://localhost:5001/api/users/events");
+      const response = await axios.get("http://localhost:5000/api/users/events");
       if (response.data.success) {
         setEvents(response.data.events);
       }
@@ -73,7 +73,7 @@ const FacultyRegistrationList = () => {
   const handleDelete = async (regId) => {
     if (window.confirm("Are you sure you want to delete this registration?")) {
       try {
-        const response = await axios.delete(`http://localhost:5001/api/faculty/registrations/${regId}`);
+        const response = await axios.delete(`http://localhost:5000/api/faculty/registrations/${regId}`);
         if (response.data.success) {
           toast.success("Registration deleted");
           fetchRegistrations();

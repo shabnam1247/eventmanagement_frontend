@@ -14,7 +14,7 @@ const AdminStudentPanel = () => {
   const fetchStudents = async () => {
     try {
       setLoading(true);
-      const res = await axios.get("http://localhost:5001/api/admin/allstudents");
+      const res = await axios.get("http://localhost:5000/api/admin/allstudents");
       if (res.data.success) {
         setStudents(res.data.students);
       }
@@ -33,7 +33,7 @@ const AdminStudentPanel = () => {
   const handleApprove = async (id) => {
     try {
       setApprovingId(id);
-      const res = await axios.put(`http://localhost:5001/api/admin/approveuser/${id}`);
+      const res = await axios.put(`http://localhost:5000/api/admin/approveuser/${id}`);
       if (res.data.success) {
         toast.success("Student approved successfully");
         setStudents(prev => 

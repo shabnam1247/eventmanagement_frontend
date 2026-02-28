@@ -36,7 +36,7 @@ const Login = () => {
 
     setLoading(true);
     try {
-      const response = await axios.post("http://localhost:5001/api/users/login", formData);
+      const response = await axios.post("http://localhost:5000/api/users/login", formData);
       if (response.status === 200) {
         toast.success("Welcome back! Login successful.");
         localStorage.setItem("userData", JSON.stringify(response.data.user));
