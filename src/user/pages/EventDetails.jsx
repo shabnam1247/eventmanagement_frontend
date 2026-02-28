@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Calendar, MapPin, Clock, Users, ArrowLeft, Loader2, AlertCircle } from "lucide-react";
+import { Calendar, MapPin, Clock, Users, ArrowLeft, Loader2, AlertCircle, MessageSquare } from "lucide-react";
 import Header from "../components/Header";
 import { useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
@@ -333,6 +333,14 @@ export default function EventDetails() {
               >
                 <Calendar className="w-5 h-5" />
                 Add to Google Calendar
+              </button>
+
+              <button
+                onClick={() => navigate('/feedback', { state: { eventId: id } })}
+                className="flex items-center justify-center gap-2 px-8 py-4 bg-white border-2 border-indigo-100 text-indigo-600 font-bold rounded-2xl hover:bg-indigo-50 transition-all shadow-md hover:-translate-y-0.5 mt-2 md:mt-0"
+              >
+                <MessageSquare className="w-5 h-5" />
+                Give Feedback
               </button>
             </div>
           </div>

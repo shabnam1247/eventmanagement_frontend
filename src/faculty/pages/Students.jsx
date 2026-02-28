@@ -25,7 +25,7 @@ const FacultyStudentPanel = () => {
     {
       id: 1,
       name: "Safna K",
-      regno: "CS2025001",
+      regno: "CS2025000",
       department: "Computer Science",
       year: "3rd Year",
       email: "safna@gmail.com",

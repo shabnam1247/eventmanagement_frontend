@@ -107,7 +107,7 @@ function FacultyAddStudentPage() {
                   onChange={handleChange}
                   required
                   className="w-full px-6 py-4 bg-gray-50 border-none rounded-2xl focus:ring-4 focus:ring-blue-100 transition-all font-bold text-gray-800 placeholder:text-gray-300"
-                  placeholder="Ex: CS2025001"
+                  placeholder="Ex: CS2025000"
                 />
               </div>
               <div className="space-y-2">
